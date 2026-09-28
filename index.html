@@ -3,137 +3,183 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>작도 교실 - 눈금 없는 자와 컴퍼스</title>
+<title>작도 교실</title>
 <style>
   :root{
     --bg:#f5f3ee; --card:#fff; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
-    --blue:#2563eb; --orange:#ea580c; --green:#16a34a; --red:#dc2626; --purple:#7c3aed;
+    --blue:#2563eb; --orange:#ea580c; --green:#16a34a; --red:#dc2626; --purple:#7c3aed; --gold:#b45309;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:'Pretendard','Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--bg);color:var(--ink);}
-  header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 18px;background:var(--card);border-bottom:1px solid var(--line);}
-  header h1{font-size:20px;margin:0;}
-  .student{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .student input,.student select{padding:8px 10px;border:1px solid #d1d5db;border-radius:8px;font-size:15px;background:#fff}
-  .student input{width:130px}
-  main{display:grid;grid-template-columns:140px minmax(0,1fr) 300px;gap:14px;padding:14px;max-width:1500px;margin:0 auto;align-items:start}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;}
-  .tools{display:flex;flex-direction:column;gap:8px}
-  .tool-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border:2px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;font-size:14px;font-weight:700;color:var(--ink);font-family:inherit}
-  .tool-btn svg{width:34px;height:34px}
+  header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--line);}
+  header h1{font-size:19px;margin:0;}
+  .who{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .who input{padding:7px 9px;border:1px solid #d1d5db;border-radius:8px;font-size:15px;width:120px;font-family:inherit}
+  .tokenbox{display:flex;align-items:center;gap:6px;background:#fffbeb;border:1px solid #fde68a;border-radius:999px;padding:6px 14px;font-weight:800;color:var(--gold)}
+  main{display:grid;grid-template-columns:168px minmax(0,1fr) 310px;gap:12px;padding:12px;max-width:1560px;margin:0 auto;align-items:start}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;}
+  h3.sec{font-size:12px;letter-spacing:.04em;color:var(--muted);margin:2px 0 8px;font-weight:800}
+  .tools{display:flex;flex-direction:column;gap:6px}
+  .tool-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 5px;border:2px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;font-size:13.5px;font-weight:700;color:var(--ink);font-family:inherit;line-height:1.25}
+  .tool-btn svg{width:30px;height:30px}
   .tool-btn.active{border-color:var(--blue);background:#eff6ff;color:var(--blue)}
-  .sub{display:flex;flex-direction:column;gap:4px;font-size:13px;padding:8px 4px 2px;border-top:1px dashed var(--line)}
-  .sub label{cursor:pointer}
+  .sub{display:flex;flex-direction:column;gap:3px;font-size:12.5px;padding:6px 3px 2px;border-top:1px dashed var(--line)}
+  .widthbox{font-size:12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:6px;margin-top:6px;line-height:1.5}
+  .widthbox b{color:var(--orange)}
+  .mini{width:100%;padding:5px;margin-top:5px;border:1px solid #d1d5db;border-radius:7px;background:#fff;font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:700}
+  .skill{display:flex;align-items:center;gap:6px;width:100%;padding:7px 8px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:13px;cursor:pointer;font-family:inherit;text-align:left;margin-bottom:5px;color:var(--ink);font-weight:700}
+  .skill.locked{opacity:.45;cursor:not-allowed;font-weight:400}
+  .skill.active{border-color:var(--purple);background:#f5f3ff;color:var(--purple)}
+  .skill .k{font-size:15px}
   #board{padding:0;overflow:hidden;position:relative}
   canvas{display:block;touch-action:none;cursor:crosshair}
-  #hint{padding:8px 12px;font-size:14px;color:#374151;background:#f9fafb;border-top:1px solid var(--line);min-height:38px}
+  #hint{padding:7px 12px;font-size:14px;color:#374151;background:#f9fafb;border-top:1px solid var(--line);min-height:36px}
   #hint.flash{background:#fef3c7}
-  .panel{display:flex;flex-direction:column;gap:12px}
-  .ptitle{font-size:17px;font-weight:800;margin:0 0 6px}
-  .pdesc{font-size:15px;line-height:1.6;margin:0}
-  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center}
-  .stat{background:#f9fafb;border-radius:8px;padding:8px 4px}
-  .stat b{display:block;font-size:20px}
-  .stat span{font-size:12px;color:var(--muted)}
-  .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .btn{padding:10px;border-radius:8px;border:1px solid #d1d5db;background:#fff;font-size:15px;cursor:pointer;font-weight:700;font-family:inherit;color:var(--ink)}
+  .panel{display:flex;flex-direction:column;gap:10px}
+  .tabs{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(6,auto);gap:5px}
+  .tab{font-size:12.5px;white-space:normal;line-height:1.35;padding:8px 5px}
+  .tab[data-stage="step1"]{grid-column:1;grid-row:1/3}
+  .tab[data-stage="step2"]{grid-column:1;grid-row:3/5}
+  .tab[data-stage="step3"]{grid-column:1;grid-row:5/7}
+  .tab[data-stage="practice"]{grid-column:2;grid-row:1/4}
+  .tab[data-stage="bonus"]{grid-column:2;grid-row:4/7}
+  .tab{flex:1;padding:7px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;color:var(--ink)}
+  .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .tab.lock{opacity:.45;cursor:not-allowed}
+  .plist{display:flex;flex-wrap:wrap;gap:5px}
+  .pbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;color:var(--ink)}
+  .pbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .pbtn.done{background:#dcfce7;border-color:#86efac;color:#166534}
+  .pbtn.lock{opacity:.4;cursor:not-allowed}
+  .ptitle{font-size:16px;font-weight:800;margin:0 0 5px}
+  .pdesc{font-size:14.5px;line-height:1.6;margin:0;color:#374151}
+  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;text-align:center}
+  .stat{background:#f9fafb;border-radius:8px;padding:6px 3px}
+  .stat b{display:block;font-size:18px}
+  .stat span{font-size:11px;color:var(--muted)}
+  .btns{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .btn{padding:9px;border-radius:8px;border:1px solid #d1d5db;background:#fff;font-size:14.5px;cursor:pointer;font-weight:700;font-family:inherit;color:var(--ink)}
   .btn:disabled{opacity:.5;cursor:not-allowed}
   .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
   .btn.success{background:var(--green);color:#fff;border-color:var(--green)}
-  .msg{padding:10px 12px;border-radius:8px;font-size:14px;line-height:1.6;display:none}
+  .hintrow{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;margin-bottom:5px;font-size:13px}
+  .hintrow button{padding:4px 9px;border-radius:7px;border:1px solid #d1d5db;background:#fff;font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:700;white-space:nowrap;color:var(--ink)}
+  .hintrow.used{background:#f9fafb;color:var(--muted)}
+  .msg{padding:9px 11px;border-radius:8px;font-size:13.5px;line-height:1.6;display:none}
   .msg.show{display:block}
   .msg.ok{background:#dcfce7;color:#166534}
   .msg.warn{background:#fef3c7;color:#92400e}
   .msg.err{background:#fee2e2;color:#991b1b}
   .msg.info{background:#e0f2fe;color:#075985}
-  .legend{font-size:12px;color:var(--muted);line-height:1.8}
-  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+  .legend{font-size:11.5px;color:var(--muted);line-height:1.7}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
+  footer{text-align:center;padding:14px;font-size:12px;color:#9ca3af}
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:50}
   .modal.hidden{display:none}
-  .modal-box{background:#fff;border-radius:12px;padding:20px;max-width:360px;width:90%}
+  .modal-box{background:#fff;border-radius:12px;padding:20px;max-width:380px;width:90%}
   .modal-box p{margin:0 0 16px;line-height:1.6}
   .modal-box .row{display:flex;gap:8px;justify-content:flex-end}
-  @media (max-width:1000px){
+  @media (max-width:1050px){
     main{grid-template-columns:1fr}
     .tools{flex-direction:row;flex-wrap:wrap}
-    .tool-btn{flex:1;min-width:80px}
+    .tool-btn{flex:1;min-width:74px}
     .sub{width:100%;flex-direction:row;flex-wrap:wrap;gap:12px}
   }
 </style>
 </head>
 <body>
 <header>
-  <h1>📐 작도 교실 <small style="font-weight:400;color:var(--muted);font-size:14px">눈금 없는 자와 컴퍼스</small></h1>
-  <div class="student">
-    <input id="sid" placeholder="학번 (예: 10312)" autocomplete="off" />
+  <h1>📐 작도 교실</h1>
+  <div class="who">
+    <input id="sid" placeholder="학번" autocomplete="off" />
     <input id="sname" placeholder="이름" autocomplete="off" />
-    <select id="problemSelect"></select>
+    <div class="tokenbox">🪙 <span id="tok">0</span></div>
   </div>
 </header>
 
 <main>
-  <!-- 도구 -->
-  <aside class="card tools" id="tools">
-    <button class="tool-btn active" data-tool="ruler" title="두 점을 지나는 선을 긋습니다">
-      <svg viewBox="0 0 40 40"><rect x="4" y="16" width="32" height="8" rx="2" transform="rotate(-30 20 20)" fill="#dbeafe" stroke="currentColor" stroke-width="2"/></svg>
-      자
-    </button>
-    <div class="sub" id="rulerSub">
-      <label><input type="radio" name="rtype" value="segment" checked> 선분</label>
-      <label><input type="radio" name="rtype" value="ray"> 반직선</label>
-      <label><input type="radio" name="rtype" value="line"> 직선</label>
+  <aside class="card">
+    <h3 class="sec">도구</h3>
+    <div class="tools" id="tools">
+      <button class="tool-btn active" data-tool="ruler" title="두 점을 지나는 선을 긋습니다">
+        <svg viewBox="0 0 40 40"><rect x="4" y="16" width="32" height="8" rx="2" transform="rotate(-30 20 20)" fill="#dbeafe" stroke="currentColor" stroke-width="2"/></svg>
+        자
+      </button>
+      <div class="sub">
+        <label><input type="radio" name="rtype" value="segment" checked> 선분</label>
+        <label><input type="radio" name="rtype" value="ray"> 반직선</label>
+        <label><input type="radio" name="rtype" value="line"> 직선</label>
+      </div>
+      <button class="tool-btn" data-tool="compass" title="중심과 원 위의 한 점으로 원을 그립니다">
+        <svg viewBox="0 0 40 40"><circle cx="20" cy="7" r="3" fill="currentColor"/><path d="M20 9 L10 34 M20 9 L30 34" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M8 30 A16 16 0 0 0 32 30" stroke="#ea580c" stroke-width="1.5" fill="none" stroke-dasharray="3 2"/></svg>
+        컴퍼스<br><small style="font-weight:400">원 그리기</small>
+      </button>
+      <button class="tool-btn" data-tool="transfer" title="길이를 재어 옮깁니다. 잰 폭은 고정됩니다">
+        <svg viewBox="0 0 40 40"><path d="M4 32 L16 32" stroke="currentColor" stroke-width="2.5"/><circle cx="4" cy="32" r="2" fill="currentColor"/><circle cx="16" cy="32" r="2" fill="currentColor"/><path d="M19 24 L26 21" stroke="#ea580c" stroke-width="2"/><circle cx="30" cy="16" r="8" stroke="#ea580c" stroke-width="1.5" fill="none"/><circle cx="30" cy="16" r="1.8" fill="currentColor"/></svg>
+        컴퍼스<br><small style="font-weight:400">길이 옮기기</small>
+      </button>
+      <div class="widthbox" id="widthbox">폭: <b>없음</b></div>
+      <button class="mini" id="btnRemeasure">다시 재기</button>
+      <button class="tool-btn" data-tool="point" title="점을 찍습니다">
+        <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="5" fill="currentColor"/></svg>
+        점
+      </button>
+      <div class="sub"><label><input type="checkbox" id="showLabels" checked> 점 이름</label></div>
     </div>
-    <button class="tool-btn" data-tool="compass" title="중심과 원 위의 한 점으로 원을 그립니다">
-      <svg viewBox="0 0 40 40"><circle cx="20" cy="7" r="3" fill="currentColor"/><path d="M20 9 L10 34 M20 9 L30 34" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M8 30 A16 16 0 0 0 32 30" stroke="#ea580c" stroke-width="1.5" fill="none" stroke-dasharray="3 2"/></svg>
-      컴퍼스<br><small style="font-weight:400">(원 그리기)</small>
-    </button>
-    <button class="tool-btn" data-tool="transfer" title="두 점 사이의 길이를 재어 다른 곳에 원을 그립니다">
-      <svg viewBox="0 0 40 40"><path d="M4 32 L16 32" stroke="currentColor" stroke-width="2.5"/><circle cx="4" cy="32" r="2" fill="currentColor"/><circle cx="16" cy="32" r="2" fill="currentColor"/><path d="M19 22 L25 22" stroke="#ea580c" stroke-width="2" marker-end="url(#ar)"/><circle cx="30" cy="16" r="8" stroke="#ea580c" stroke-width="1.5" fill="none"/><circle cx="30" cy="16" r="1.8" fill="currentColor"/></svg>
-      컴퍼스<br><small style="font-weight:400">(길이 옮기기)</small>
-    </button>
-    <button class="tool-btn" data-tool="point" title="점을 찍습니다 (교점, 선 위의 점, 임의의 점)">
-      <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="5" fill="currentColor"/></svg>
-      점
-    </button>
-    <div class="sub">
-      <label><input type="checkbox" id="showLabels" checked> 점 이름 표시</label>
-    </div>
+    <h3 class="sec" style="margin-top:12px">내 스킬</h3>
+    <div id="skillList"></div>
   </aside>
 
-  <!-- 작도판 -->
   <section class="card" id="board">
     <canvas id="cv"></canvas>
     <div id="hint"></div>
   </section>
 
-  <!-- 문제·결과 패널 -->
   <aside class="panel">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab on" data-stage="step1">1. 기본 작도</button>
+        <button class="tab" data-stage="step2">2. 평행선 작도</button>
+        <button class="tab" data-stage="step3">3. 도전 문제</button>
+        <button class="tab" data-stage="practice">1.5 기본 작도 연습</button>
+        <button class="tab" data-stage="bonus">2.5 평행선 작도 심화</button>
+      </div>
+      <div class="plist" id="plist" style="margin-top:9px"></div>
+    </div>
     <div class="card">
       <p class="ptitle" id="pTitle"></p>
       <p class="pdesc" id="pDesc"></p>
+      <p class="pdesc" id="pLimit" style="display:none;margin-top:6px;color:#b45309;font-weight:700"></p>
+      <button class="btn" id="btnSkip" style="display:none;margin-top:8px;width:100%">이 챌린지 건너뛰기</button>
+      <button class="btn" id="btnAgain" style="display:none;margin-top:8px;width:100%">다른 방법으로 다시 풀기</button>
     </div>
-    <div class="card stats" id="statsBox">
-      <div class="stat"><b id="sRuler">0</b><span>자 사용</span></div>
-      <div class="stat"><b id="sCompass">0</b><span>컴퍼스 사용</span></div>
-      <div class="stat"><b id="sTime">00:00</b><span>경과 시간</span></div>
+    <div class="card stats">
+      <div class="stat"><b id="sRuler">0</b><span>자</span></div>
+      <div class="stat"><b id="sCompass">0</b><span>컴퍼스</span></div>
+      <div class="stat"><b id="sWidth">0</b><span>폭 변경</span></div>
     </div>
     <div class="card btns">
       <button class="btn" id="btnUndo">↶ 되돌리기</button>
       <button class="btn" id="btnReset">처음부터</button>
       <button class="btn primary" id="btnCheck">작도 확인</button>
-      <button class="btn success" id="btnSubmit">제출하기</button>
+      <button class="btn success" id="btnSubmit">진행 제출</button>
     </div>
     <div class="msg" id="msg"></div>
+    <div class="card">
+      <h3 class="sec">힌트</h3>
+      <div id="hintList"></div>
+    </div>
     <div class="card legend">
-      <span class="dot" style="background:#111"></span>주어진 점 &nbsp;
-      <span class="dot" style="background:var(--red)"></span>교점<br>
-      <span class="dot" style="background:var(--purple)"></span>선 위의 점 &nbsp;
-      <span class="dot" style="background:#9ca3af"></span>임의의 점<br>
-      점 가까이를 누르면 기존 점·교점에 자동으로 맞춰집니다.<br>
-      Esc: 선택 취소 · Ctrl+Z: 되돌리기
+      <span class="dot" style="background:#111"></span>주어진 점
+      <span class="dot" style="background:var(--red);margin-left:6px"></span>교점
+      <span class="dot" style="background:var(--purple);margin-left:6px"></span>선 위의 점
+      <span class="dot" style="background:#9ca3af;margin-left:6px"></span>임의의 점<br>
+      점 가까이를 누르면 교점에 자동으로 맞춰집니다. Esc 선택 취소 · Ctrl+Z 되돌리기
     </div>
   </aside>
 </main>
+
+<footer>© 2026 또빈쌤. All rights reserved.</footer>
 
 <div class="modal hidden" id="modal">
   <div class="modal-box">
@@ -146,45 +192,49 @@
 </div>
 
 <script>
-// =====================================================================
-//  교사 설정 : Apps Script 웹 앱 URL을 붙여넣으세요.
-// =====================================================================
+// ===================================================================
+//  교사 설정
+// ===================================================================
 const CONFIG = {
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbylKv-2aEmBrHEjGc6TXWj-rVbUkrX7_OPh4u5cG3_xgfrsgyBUH7SizT363ZlbkCUCzg/exec',   // 예: https://script.google.com/macros/s/AKfy.../exec
-  SHOW_LIVE_COUNTS: true,          // 작도 중 자/컴퍼스 사용 횟수를 학생에게 보여줄지
-  SHOW_ANALYSIS_AFTER_CHECK: true, // '작도 확인' 성공 후 필요/불필요 작도를 보여줄지
-  SEND_IMAGE: true                 // 결과 그림(PNG)을 함께 보내 드라이브에 저장할지
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbylKv-2aEmBrHEjGc6TXWj-rVbUkrX7_OPh4u5cG3_xgfrsgyBUH7SizT363ZlbkCUCzg/exec',
+  FOOTER: '© 2026 또빈쌤. All rights reserved.',
+  LOCK_ORDER: false,     // true 로 바꾸면 앞 문제를 풀어야 다음 문제가 열립니다
+  COUNT_WIDTH_AS_COMPASS: false, // true 로 바꾸면 '길이 재기'(폭 변경)도 컴퍼스 1회로 셉니다
+  LOCK_STAGES: false,    // true 로 바꾸면 평행선은 기본 작도를, 보너스·도전은 평행선을 끝내야 열립니다
+  SEND_IMAGE: true
 };
-// 주소창 옵션: ?p=P3 (문제 고정 선택), &lock=1 (문제 변경 불가)
+// 토큰 규칙 (필요하면 이 숫자만 고치면 됩니다)
+const TOKEN = {
+  solveStep1: 2, solvePractice: 1,
+  minimal: 2, nearMinimal: 1,   // 최소 횟수 / 1~2회 초과
+  firstTry: 1,                  // 확인 한 번에 통과
+  widthKept: 1                  // 컴퍼스 폭을 한 번도 안 바꿈(해당 문제만)
+};
+const HINT_COST = { step1:[1,2,3,5], practice:[1,2,3,5], step2:[2,3,5,8], bonus:[2,3,5,8], step3:[3,4,6,10] };
+TOKEN.secondMethod = 3;   // Step 2 에서 다른 계열의 방법으로 또 성공했을 때
 
 // ===================== 기본 상수 =====================
-const W = 1000, H = 640;          // 작도판 좌표 크기
-const EPS_LEN = 0.25;             // 정답 판정: 길이 허용 오차
-const EPS_ANG = 0.2;              // 정답 판정: 각도 허용 오차(도)
-const ON_EPS = 1e-4;              // 점이 선 위에 있는지 판정
-const COL = { given:'#111827', ruler:'#2563eb', compass:'#ea580c' };
+const W = 1000, H = 640;
+const EPS_LEN = 0.25, EPS_ANG = 0.2, ON_EPS = 1e-4;
+const COL = { given:'#111827', ruler:'#2563eb', compass:'#ea580c', hint:'#16a34a' };
 const PCOL = { given:'#111111', intersection:'#dc2626', on:'#7c3aed', free:'#9ca3af' };
 const PTYPE_KO = { given:'주어진 점', intersection:'교점', on:'선 위의 점', free:'임의의 점' };
 const RULER_KO = { segment:'선분', ray:'반직선', line:'직선' };
-const ACT_KO = { ruler:'자', compass:'컴퍼스(원)', transfer:'컴퍼스(길이 옮기기)', point:'점 찍기',
-                 undo:'되돌리기', reset:'처음부터', check:'작도 확인', submit:'제출' };
 
 const cv = document.getElementById('cv');
 const ctx = cv.getContext('2d');
 let scale = 1, dpr = 1;
 
 // ===================== 상태 =====================
-let objs = [];               // 점, 선, 원
-const M = new Map();         // id → 객체
-let nextId = 1;
-let actions = [];            // 되돌리기용 스택
-let log = [];                // 작도 과정 기록
-let seq = 0;
-let problem = null, G = null;
-let stats = null;
-const state = { tool:'ruler', rulerType:'segment', pending:[], snap:null, highlight:null, showLabels:true };
+let objs = [], M = new Map(), nextId = 1;
+let actions = [], log = [], seq = 0;
+let problem = null, G = null, stats = null;
+let busy = false;
+const state = { tool:'ruler', rulerType:'segment', pending:[], snap:null, highlight:null,
+                showLabels:true, width:null, skill:null, ghost:null, stage:'step1', idx:0 };
+const progress = { tokens:0, skills:[], solved:{}, records:[], hints:[], submitted:0, strategies:[], skipped:{} };
 
-// ===================== 객체 관리 =====================
+// ===================== 객체 =====================
 function addObj(o){ o.id = nextId++; objs.push(o); M.set(o.id, o); return o; }
 function removeObj(id){ M.delete(id); objs = objs.filter(o => o.id !== id); }
 function P(id){ return M.get(id); }
@@ -200,16 +250,16 @@ const LETTERS = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'.split('');
 function subNum(n){ return String(n).split('').map(d => '₀₁₂₃₄₅₆₇₈₉'[d]).join(''); }
 function nextLabel(){
   const used = new Set(objs.filter(o => o.kind === 'point').map(o => o.label));
-  for (let k = 0; k < 100; k++) for (const L of LETTERS){
+  for (let k = 0; k < 40; k++) for (const L of LETTERS){
     const lab = k === 0 ? L : L + subNum(k);
     if (!used.has(lab)) return lab;
   }
   return '?';
 }
 
-// ===================== 기하 계산 =====================
+// ===================== 기하 =====================
 function dist(a, b){ return Math.hypot(a.x - b.x, a.y - b.y); }
-function tRange(type){ return type === 'segment' ? [0, 1] : type === 'ray' ? [0, Infinity] : [-Infinity, Infinity]; }
+function tRange(t){ return t === 'segment' ? [0, 1] : t === 'ray' ? [0, Infinity] : [-Infinity, Infinity]; }
 function inRange(t, type, eps = 1e-9){ const [a, b] = tRange(type); return t >= a - eps && t <= b + eps; }
 function lineGeom(L){ const a = P(L.p1), b = P(L.p2); return { x:a.x, y:a.y, dx:b.x - a.x, dy:b.y - a.y, type:L.ltype }; }
 function circGeom(C){ const c = P(C.center); return { x:c.x, y:c.y, r:C.r }; }
@@ -227,19 +277,16 @@ function distToCircle(C, p){
 }
 function distToCurve(o, p){ return o.kind === 'line' ? distToLine(o, p) : distToCircle(o, p); }
 function onCurve(o, p, tol = ON_EPS){ return distToCurve(o, p).d < tol; }
-
 function intersect(o1, o2){
   if (o1.kind === 'line' && o2.kind === 'line') return llInt(o1, o2);
   if (o1.kind === 'circle' && o2.kind === 'circle') return ccInt(o1, o2);
   return o1.kind === 'line' ? lcInt(o1, o2) : lcInt(o2, o1);
 }
 function llInt(A, B){
-  const g = lineGeom(A), h = lineGeom(B);
-  const den = g.dx * h.dy - g.dy * h.dx;
+  const g = lineGeom(A), h = lineGeom(B), den = g.dx * h.dy - g.dy * h.dx;
   if (Math.abs(den) < 1e-12) return [];
   const wx = h.x - g.x, wy = h.y - g.y;
-  const t = (wx * h.dy - wy * h.dx) / den;
-  const s = (wx * g.dy - wy * g.dx) / den;
+  const t = (wx * h.dy - wy * h.dx) / den, s = (wx * g.dy - wy * g.dx) / den;
   if (!inRange(t, g.type) || !inRange(s, h.type)) return [];
   return [{ x:g.x + t * g.dx, y:g.y + t * g.dy }];
 }
@@ -254,26 +301,37 @@ function lcInt(L, C){
   return ts.filter(t => inRange(t, g.type)).map(t => ({ x:g.x + t * g.dx, y:g.y + t * g.dy }));
 }
 function ccInt(C1, C2){
-  const a = circGeom(C1), b = circGeom(C2);
-  const d = Math.hypot(b.x - a.x, b.y - a.y);
+  const a = circGeom(C1), b = circGeom(C2), d = Math.hypot(b.x - a.x, b.y - a.y);
   if (d < 1e-12 || d > a.r + b.r + 1e-9 || d < Math.abs(a.r - b.r) - 1e-9) return [];
   const l = (a.r * a.r - b.r * b.r + d * d) / (2 * d);
   const h = Math.sqrt(Math.max(0, a.r * a.r - l * l));
   const mx = a.x + l * (b.x - a.x) / d, my = a.y + l * (b.y - a.y) / d;
   if (h < 1e-9) return [{ x:mx, y:my }];
-  return [
-    { x:mx + h * (b.y - a.y) / d, y:my - h * (b.x - a.x) / d },
-    { x:mx - h * (b.y - a.y) / d, y:my + h * (b.x - a.x) / d }
-  ];
+  return [{ x:mx + h * (b.y - a.y) / d, y:my - h * (b.x - a.x) / d },
+          { x:mx - h * (b.y - a.y) / d, y:my + h * (b.x - a.x) / d }];
 }
-function angleAt(o, p, q){ // ∠POQ (도)
+function angleAt(o, p, q){
   let d = Math.abs(Math.atan2(p.y - o.y, p.x - o.x) - Math.atan2(q.y - o.y, q.x - o.x));
   if (d > Math.PI) d = 2 * Math.PI - d;
   return d * 180 / Math.PI;
 }
 function nearLen(a, b){ return Math.abs(a - b) < EPS_LEN; }
+// 점 이름 뒤의 조사 (A→가, L→이 …)
+const JONG = { F:1, L:1, M:1, N:1, R:1, S:1, X:1 };
+function js(label, kind){
+  const ch = (label || '').charAt(0).toUpperCase();
+  const has = !!JONG[ch];
+  return label + (kind === '은' ? (has ? '은' : '는') : (has ? '이' : '가'));
+}
+function cpts(){ return objs.filter(o => o.kind === 'point' && o.ptype === 'intersection'); }
+function rulerLines(){ return objs.filter(o => o.kind === 'line' && !o.given); }
+function connecting(a, b){ return objs.filter(L => L.kind === 'line' && !L.given && onCurve(L, a) && onCurve(L, b)); }
+function perpTo(L, A, B){ // 직선 L 과 선분 AB 가 수직인가
+  const g = lineGeom(L);
+  return Math.abs(g.dx * (B.x - A.x) + g.dy * (B.y - A.y)) < 1e-6 * Math.hypot(g.dx, g.dy) * dist(A, B);
+}
 
-// ===================== 스냅(점 맞추기) =====================
+// ===================== 스냅 =====================
 function snapCandidate(p){
   const tp = 14 / scale, tc = 10 / scale;
   let pt = null, pd = tp;
@@ -282,13 +340,12 @@ function snapCandidate(p){
     const d = dist(o, p); if (d < pd){ pd = d; pt = o; }
   }
   let it = null, idd = tp;
-  const nearCurves = objs.filter(o => o.kind !== 'point' && distToCurve(o, p).d < tp * 1.5);
-  for (let i = 0; i < nearCurves.length; i++) for (let j = i + 1; j < nearCurves.length; j++){
-    for (const q of intersect(nearCurves[i], nearCurves[j])){
+  const near = objs.filter(o => o.kind !== 'point' && distToCurve(o, p).d < tp * 1.5);
+  for (let i = 0; i < near.length; i++) for (let j = i + 1; j < near.length; j++)
+    for (const q of intersect(near[i], near[j])){
       const d = dist(q, p);
-      if (d < idd){ idd = d; it = { x:q.x, y:q.y, parents:[nearCurves[i].id, nearCurves[j].id] }; }
+      if (d < idd){ idd = d; it = { x:q.x, y:q.y, parents:[near[i].id, near[j].id] }; }
     }
-  }
   if (pt && (!it || pd <= idd + 3 / scale)) return { type:'existing', point:pt, x:pt.x, y:pt.y };
   if (it){
     for (const o of objs) if (o.kind === 'point' && !o.hidden && dist(o, it) < 1e-6)
@@ -301,169 +358,498 @@ function snapCandidate(p){
     const r = distToCurve(o, p);
     if (r.d < cd){ cd = r.d; cc = { type:'on', x:r.x, y:r.y, parents:[o.id] }; }
   }
-  if (cc) return cc;
-  return { type:'free', x:p.x, y:p.y, parents:[] };
+  return cc || { type:'free', x:p.x, y:p.y, parents:[] };
 }
 function materialize(c, created){
   if (c.type === 'existing') return c.point;
   for (const id of created){ const o = P(id); if (o && o.kind === 'point' && dist(o, c) < 1e-6) return o; }
-  const o = addObj({ kind:'point', x:c.x, y:c.y, ptype:c.type, parents:c.parents.slice(), label:nextLabel() });
+  const o = addObj({ kind:'point', x:c.x, y:c.y, ptype:c.type, parents:(c.parents || []).slice(), label:nextLabel() });
   created.push(o.id);
+  return o;
+}
+function mkPoint(x, y, parents, created, ptype){
+  for (const o of objs) if (o.kind === 'point' && dist(o, { x, y }) < 1e-6) return o;
+  const o = addObj({ kind:'point', x, y, ptype:ptype || 'intersection', parents:parents.slice(), label:nextLabel() });
+  if (created) created.push(o.id);
   return o;
 }
 function newPtsText(created){
   const pts = created.map(P).filter(o => o && o.kind === 'point');
-  return pts.length ? ` (새 점: ${pts.map(o => o.label + '-' + PTYPE_KO[o.ptype]).join(', ')})` : '';
+  return pts.length ? ` (새 점 ${pts.map(o => o.label).join(', ')})` : '';
+}
+function pickLine(p){
+  let best = null, bd = 12 / scale;
+  for (const o of objs){
+    if (o.kind !== 'line') continue;
+    const d = distToCurve(o, p).d;
+    if (d < bd){ bd = d; best = o; }
+  }
+  return best;
 }
 
-// ===================== 문제 정의 =====================
-// setup(): 주어진 도형을 만들고 id 묶음을 반환
-// check(g): { ok, sets:[{ids, msg}] } 또는 { ok:false, msg }
-const PROBLEMS = [
-  {
-    id:'P1', title:'길이가 같은 선분의 작도',
-    desc:'선분 AB와 길이가 같은 선분 CD를 반직선 CX 위에 작도하세요. (점 D는 반직선 CX 위의 교점이어야 합니다)',
-    setup(){
-      const A = gp('A', 150, 170), B = gp('B', 380, 110); gl(A, B, 'segment');
-      const C = gp('C', 200, 440), X = gp('X', 900, 440); const ray = gl(C, X, 'ray');
-      return { A, B, C, X, ray };
-    },
+// ===================== 스킬 =====================
+// need: 'p' 점, 'l' 직선
+const SKILLS = [
+  { id:'copy', name:'선분 옮기기', icon:'📏', need:['p','p','p','p'],
+    tips:['옮길 길이의 한 끝점', '다른 끝점', '옮겨 놓을 시작점', '방향이 될 점'],
+    cost:{ ruler:0, compass:1 },
+    run(a){ const [A,B,C,D] = a, r = dist(A,B), u = Math.hypot(D.x-C.x, D.y-C.y);
+      return [{ k:'circle', cx:C.x, cy:C.y, r, parents:[C.id,A.id,B.id] },
+              { k:'point', x:C.x + r*(D.x-C.x)/u, y:C.y + r*(D.y-C.y)/u, parents:[C.id,A.id,B.id,D.id] }]; } },
+  { id:'angle', name:'각 옮기기', icon:'📐', need:['p','p','p','p','p','p'],
+    tips:['원래 각의 꼭짓점', '한 변 위의 점', '다른 변 위의 점', '새 각의 꼭짓점', '새 각의 한 변 위의 점', '각이 열릴 방향의 점'],
+    cost:{ ruler:1, compass:3 },
+    run(a){
+      const [O,X,Y,Pp,Q,Dir] = a, ang = angleAt(O,X,Y) * Math.PI/180;
+      const b0 = Math.atan2(Q.y-Pp.y, Q.x-Pp.x), r = Math.min(dist(Pp,Q), 220);
+      const c1 = { x:Pp.x + r*Math.cos(b0+ang), y:Pp.y + r*Math.sin(b0+ang) };
+      const c2 = { x:Pp.x + r*Math.cos(b0-ang), y:Pp.y + r*Math.sin(b0-ang) };
+      const R = dist(c1, Dir) <= dist(c2, Dir) ? c1 : c2, par = [O.id,X.id,Y.id,Pp.id,Q.id];
+      return [{ k:'circle', cx:Pp.x, cy:Pp.y, r, parents:par },
+              { k:'point', x:R.x, y:R.y, parents:par },
+              { k:'line', ax:Pp.x, ay:Pp.y, bx:R.x, by:R.y, ltype:'ray', parents:par, useLast:true }]; } },
+  { id:'perpbis', name:'수직이등분선', icon:'⊥', need:['p','p'], tips:['선분의 한 끝점', '다른 끝점'],
+    cost:{ ruler:1, compass:2 },
+    run(a){ const [A,B] = a, mx = (A.x+B.x)/2, my = (A.y+B.y)/2, dx = B.x-A.x, dy = B.y-A.y, n = Math.hypot(dx,dy);
+      return [{ k:'line', ax:mx - 300*dy/n, ay:my + 300*dx/n, bx:mx + 300*dy/n, by:my - 300*dx/n, ltype:'line', parents:[A.id,B.id] }]; } },
+  { id:'mid', name:'중점 찾기', icon:'•', need:['p','p'], tips:['선분의 한 끝점', '다른 끝점'],
+    cost:{ ruler:1, compass:2 },
+    run(a){ const [A,B] = a; return [{ k:'point', x:(A.x+B.x)/2, y:(A.y+B.y)/2, parents:[A.id,B.id] }]; } },
+  { id:'bisect', name:'각의 이등분선', icon:'∠', need:['p','p','p'], tips:['각의 꼭짓점', '한 변 위의 점', '다른 변 위의 점'],
+    cost:{ ruler:1, compass:3 },
+    run(a){ const [O,X,Y] = a;
+      const a1 = Math.atan2(X.y-O.y, X.x-O.x), a2 = Math.atan2(Y.y-O.y, Y.x-O.x);
+      let d = a2 - a1; while (d > Math.PI) d -= 2*Math.PI; while (d < -Math.PI) d += 2*Math.PI;
+      const m = a1 + d/2, L = 340;
+      return [{ k:'line', ax:O.x, ay:O.y, bx:O.x + L*Math.cos(m), by:O.y + L*Math.sin(m), ltype:'ray', parents:[O.id,X.id,Y.id] }]; } },
+  { id:'sym', name:'점대칭 옮기기', icon:'↔', need:['p','p'], tips:['대칭의 중심이 될 점', '옮길 점'],
+    cost:{ ruler:1, compass:1 },
+    run(a){ const [Mc,Pp] = a;
+      return [{ k:'line', ax:Pp.x, ay:Pp.y, bx:2*Mc.x-Pp.x, by:2*Mc.y-Pp.y, ltype:'segment', parents:[Mc.id,Pp.id] },
+              { k:'point', x:2*Mc.x-Pp.x, y:2*Mc.y-Pp.y, parents:[Mc.id,Pp.id] }]; } },
+  { id:'perpdown', name:'수선 내리기', icon:'↓', need:['l','p'], tips:['수선을 내릴 직선', '직선 밖의 점'],
+    cost:{ ruler:1, compass:3 },
+    run(a){ const [L,Pp] = a, f = distToLine(L, Pp), g = lineGeom(L), n = Math.hypot(g.dx, g.dy);
+      const fx = g.x + ((Pp.x-g.x)*g.dx + (Pp.y-g.y)*g.dy)/(n*n)*g.dx;
+      const fy = g.y + ((Pp.x-g.x)*g.dx + (Pp.y-g.y)*g.dy)/(n*n)*g.dy;
+      return [{ k:'line', ax:Pp.x, ay:Pp.y, bx:fx, by:fy, ltype:'line', parents:[L.id,Pp.id] },
+              { k:'point', x:fx, y:fy, parents:[L.id,Pp.id] }]; } },
+  { id:'perpup', name:'수선 세우기', icon:'↑', need:['l','p'], tips:['직선', '그 직선 위의 점'],
+    cost:{ ruler:1, compass:3 },
+    run(a){ const [L,Pp] = a, g = lineGeom(L), n = Math.hypot(g.dx, g.dy);
+      return [{ k:'line', ax:Pp.x - 300*g.dy/n, ay:Pp.y + 300*g.dx/n, bx:Pp.x + 300*g.dy/n, by:Pp.y - 300*g.dx/n, ltype:'line', parents:[L.id,Pp.id] }]; } },
+  { id:'diam', name:'지름원 그리기', icon:'◎', need:['p','p'], tips:['지름의 한 끝점', '다른 끝점'],
+    cost:{ ruler:1, compass:3 },
+    run(a){ const [A,B] = a;
+      return [{ k:'point', x:(A.x+B.x)/2, y:(A.y+B.y)/2, parents:[A.id,B.id] },
+              { k:'circle', cx:(A.x+B.x)/2, cy:(A.y+B.y)/2, r:dist(A,B)/2, parents:[A.id,B.id], useLast:true }]; } }
+];
+function skill(id){ return SKILLS.find(s => s.id === id); }
+function hasSkill(id){ return progress.skills.includes(id); }
+
+// ===================== 문제 =====================
+function seg(A, B){ return dist(P(A), P(B)); }
+const STEP1 = [
+  { id:'A1', title:'길이가 같은 선분', skill:'copy',
+    desc:'선분 AB와 길이가 같은 선분 CD를 반직선 CX 위에 작도하세요. 점 D는 작도로 얻은 점이어야 합니다.',
+    hints:['컴퍼스로 선분 AB의 길이를 잴 수 있습니다.', '점 C를 중심으로, 반지름이 AB인 원을 그려 보세요.'],
+    setup(){ const A = gp('A',150,170), B = gp('B',380,110); gl(A,B,'segment');
+      const C = gp('C',200,440), X = gp('X',900,440); const ray = gl(C,X,'ray'); return { A,B,C,X,ray }; },
+    solve(g){ return [{ k:'circle', c:P(g.C), r:seg(g.A,g.B) }]; },
     check(g){
-      const A = P(g.A), B = P(g.B), C = P(g.C), ray = P(g.ray), target = dist(A, B), sets = [];
-      for (const D of cpts()){
-        if (dist(D, C) < 1e-6 || !onCurve(ray, D) || !nearLen(dist(C, D), target)) continue;
-        sets.push({ ids:[D.id], msg:`선분 C${D.label}의 길이가 선분 AB와 같아요!` });
-      }
-      return sets.length ? { ok:true, sets } : { ok:false, msg:'반직선 CX 위에서 CD = AB가 되는 교점 D를 아직 찾지 못했어요.' };
-    }
-  },
-  {
-    id:'P2', title:'크기가 같은 각의 작도',
-    desc:'∠XOY와 크기가 같은 각을, 반직선 PQ를 한 변으로 하여 작도하세요. (각의 다른 한 변을 자로 그어야 합니다)',
-    setup(){
-      const O = gp('O', 160, 420), X = gp('X', 430, 420), Y = gp('Y', 330, 210);
-      gl(O, X, 'ray'); gl(O, Y, 'ray');
-      const Pp = gp('P', 540, 520), Q = gp('Q', 940, 520); gl(Pp, Q, 'ray');
-      return { O, X, Y, P:Pp, Q };
-    },
+      const C = P(g.C), ray = P(g.ray), t = seg(g.A,g.B);
+      for (const D of cpts()) if (dist(D,C) > 1e-6 && onCurve(ray,D) && nearLen(dist(C,D), t))
+        return { ok:true, ids:[D.id], msg:`선분 C${D.label}의 길이가 선분 AB와 같습니다.` };
+      return { ok:false, msg:'반직선 CX 위에서 CD = AB 가 되는 점을 아직 찾지 못했어요.' };
+    } },
+  { id:'A2', title:'크기가 같은 각', skill:'angle',
+    desc:'∠XOY와 크기가 같은 각을, 반직선 PQ를 한 변으로 하여 작도하세요.',
+    hints:['두 각이 같으려면 합동인 삼각형을 만들면 됩니다.', '점 O와 점 P를 중심으로, 반지름이 같은 원을 각각 그려 보세요.'],
+    setup(){ const O = gp('O',160,420), X = gp('X',430,420), Y = gp('Y',330,210);
+      gl(O,X,'ray'); gl(O,Y,'ray');
+      const Pp = gp('P',540,520), Q = gp('Q',940,520); gl(Pp,Q,'ray'); return { O,X,Y,P:Pp,Q }; },
+    solve(g){ const O = P(g.O), Pp = P(g.P), r = 150;
+      return [{ k:'circle', c:O, r }, { k:'circle', c:Pp, r }]; },
     check(g){
-      const O = P(g.O), X = P(g.X), Y = P(g.Y), Pp = P(g.P), Q = P(g.Q), target = angleAt(O, X, Y), sets = [];
+      const O = P(g.O), X = P(g.X), Y = P(g.Y), Pp = P(g.P), Q = P(g.Q), t = angleAt(O,X,Y);
       for (const L of rulerLines()){
         if (!onCurve(L, Pp)) continue;
         for (const R of cpts()){
-          if (dist(R, Pp) < 1e-6 || !onCurve(L, R)) continue;
-          if (Math.abs(angleAt(Pp, Q, R) - target) < EPS_ANG)
-            sets.push({ ids:[L.id, R.id], msg:`∠QP${R.label} = ∠XOY 인 각을 작도했어요!` });
+          if (dist(R,Pp) < 1e-6 || !onCurve(L,R)) continue;
+          if (Math.abs(angleAt(Pp,Q,R) - t) < EPS_ANG)
+            return { ok:true, ids:[L.id,R.id], msg:`∠QP${R.label}와 ∠XOY의 크기가 같습니다.` };
         }
       }
-      return sets.length ? { ok:true, sets } : { ok:false, msg:'점 P를 꼭짓점으로 하고 ∠XOY와 크기가 같은 각을 아직 찾지 못했어요.' };
-    }
-  },
-  {
-    id:'P3', title:'선분의 수직이등분선',
+      return { ok:false, msg:'점 P를 꼭짓점으로 하는 같은 크기의 각을 아직 찾지 못했어요.' };
+    } },
+  { id:'A3', title:'선분의 수직이등분선', skill:'perpbis',
     desc:'선분 AB의 수직이등분선을 작도하세요.',
-    setup(){
-      const A = gp('A', 320, 390), B = gp('B', 680, 280); gl(A, B, 'segment');
-      return { A, B };
-    },
+    hints:['두 점 A, B에서 거리가 같은 점을 찾아보세요.', '점 A와 점 B를 중심으로 반지름이 같은 원을 그려 보세요.'],
+    setup(){ const A = gp('A',320,390), B = gp('B',680,280); gl(A,B,'segment'); return { A,B }; },
+    solve(g){ const A = P(g.A), B = P(g.B), r = dist(A,B)*0.75;
+      return [{ k:'circle', c:A, r }, { k:'circle', c:B, r }]; },
     check(g){
-      const A = P(g.A), B = P(g.B), sets = [];
+      const A = P(g.A), B = P(g.B);
       for (const L of rulerLines()){
         const a = P(L.p1), b = P(L.p2);
-        if (a.ptype !== 'intersection' || b.ptype !== 'intersection') continue;
-        if (nearLen(dist(a, A), dist(a, B)) && nearLen(dist(b, A), dist(b, B)))
-          sets.push({ ids:[L.id], msg:`직선 ${a.label}${b.label}이(가) 선분 AB의 수직이등분선이에요!` });
+        if (a.ptype === 'free' || b.ptype === 'free') continue;
+        if (nearLen(dist(a,A), dist(a,B)) && nearLen(dist(b,A), dist(b,B)))
+          return { ok:true, ids:[L.id], msg:`직선 ${js(a.label+b.label,"은")} 선분 AB의 수직이등분선입니다.` };
       }
-      return sets.length ? { ok:true, sets } : { ok:false, msg:'두 점 A, B에서 같은 거리에 있는 두 교점을 지나는 선을 아직 찾지 못했어요.' };
-    }
-  },
-  {
-    id:'P4', title:'각의 이등분선',
-    desc:'∠XOY의 이등분선을 작도하세요.',
-    setup(){
-      const O = gp('O', 230, 500), X = gp('X', 800, 500), Y = gp('Y', 560, 170);
-      gl(O, X, 'ray'); gl(O, Y, 'ray');
-      return { O, X, Y };
-    },
+      return { ok:false, msg:'A, B에서 같은 거리에 있는 두 점을 지나는 선을 아직 찾지 못했어요.' };
+    } },
+  { id:'A4', title:'선분의 중점', skill:'mid',
+    desc:'선분 AB의 중점 M을 작도하세요. 점은 작도로 얻은 교점이어야 합니다.',
+    hints:['수직이등분선이 선분과 만나는 곳이 중점입니다.', '먼저 수직이등분선을 작도한 뒤, 선분 AB와의 교점을 점으로 찍으세요.'],
+    setup(){ const A = gp('A',260,340), B = gp('B',740,440); gl(A,B,'segment'); return { A,B }; },
+    solve(g){ const A = P(g.A), B = P(g.B), r = dist(A,B)*0.7;
+      return [{ k:'circle', c:A, r }, { k:'circle', c:B, r }]; },
     check(g){
-      const O = P(g.O), X = P(g.X), Y = P(g.Y), target = angleAt(O, X, Y), sets = [];
+      const A = P(g.A), B = P(g.B);
+      for (const Mp of cpts()) if (nearLen(dist(Mp,A), dist(Mp,B)) && nearLen(dist(Mp,A) + dist(Mp,B), dist(A,B)))
+        return { ok:true, ids:[Mp.id], msg:`점 ${js(Mp.label)} 선분 AB의 중점입니다.` };
+      return { ok:false, msg:'선분 AB 위에서 A, B까지 거리가 같은 점을 아직 찾지 못했어요.' };
+    } },
+  { id:'A5', title:'각의 이등분선', skill:'bisect',
+    desc:'∠XOY의 이등분선을 작도하세요.',
+    hints:['두 변에서 같은 거리에 있는 점을 찾으면 됩니다.', '점 O를 중심으로 원을 그려 두 변과 만나는 점을 먼저 만드세요.'],
+    setup(){ const O = gp('O',230,500), X = gp('X',800,500), Y = gp('Y',560,170);
+      gl(O,X,'ray'); gl(O,Y,'ray'); return { O,X,Y }; },
+    solve(g){ const O = P(g.O), r = 220;
+      return [{ k:'circle', c:O, r }]; },
+    check(g){
+      const O = P(g.O), X = P(g.X), Y = P(g.Y), t = angleAt(O,X,Y);
       for (const L of rulerLines()){
         const a = P(L.p1), b = P(L.p2);
         let R = null;
-        if (dist(a, O) < 1e-6 && b.ptype === 'intersection') R = b;
-        else if (dist(b, O) < 1e-6 && a.ptype === 'intersection') R = a;
+        if (dist(a,O) < 1e-6 && b.ptype === 'intersection') R = b;
+        else if (dist(b,O) < 1e-6 && a.ptype === 'intersection') R = a;
         if (!R) continue;
-        const a1 = angleAt(O, X, R), a2 = angleAt(O, R, Y);
-        if (Math.abs(a1 - a2) < EPS_ANG && Math.abs(a1 + a2 - target) < EPS_ANG)
-          sets.push({ ids:[L.id], msg:`반직선 O${R.label}이(가) ∠XOY의 이등분선이에요!` });
+        const a1 = angleAt(O,X,R), a2 = angleAt(O,R,Y);
+        if (Math.abs(a1-a2) < EPS_ANG && Math.abs(a1+a2-t) < EPS_ANG)
+          return { ok:true, ids:[L.id], msg:`반직선 ${js("O"+R.label,"은")} ∠XOY의 이등분선입니다.` };
       }
-      return sets.length ? { ok:true, sets } : { ok:false, msg:'점 O와 교점을 지나며 ∠XOY를 똑같이 나누는 선을 아직 찾지 못했어요.' };
-    }
-  },
-  {
-    id:'P5', title:'세 변의 길이가 주어진 삼각형',
-    desc:'세 선분 a, b, c를 세 변으로 하는 삼각형을 작도하세요. 단, 점 B가 한 꼭짓점이고, 길이가 a인 변은 직선 l 위에 놓이게 합니다.',
-    setup(){
-      const a1 = gp('a₁', 60, 60, { noLabel:true }), a2 = gp('a₂', 300, 60, { noLabel:true });
-      const b1 = gp('b₁', 60, 105, { noLabel:true }), b2 = gp('b₂', 260, 105, { noLabel:true });
-      const c1 = gp('c₁', 60, 150, { noLabel:true }), c2 = gp('c₂', 220, 150, { noLabel:true });
-      gl(a1, a2, 'segment', { text:'a', textAt:{ x:315, y:66 } });
-      gl(b1, b2, 'segment', { text:'b', textAt:{ x:275, y:111 } });
-      gl(c1, c2, 'segment', { text:'c', textAt:{ x:235, y:156 } });
-      const l1 = gp('', 30, 540, { hidden:true }), l2 = gp('', 970, 540, { hidden:true });
-      const l = gl(l1, l2, 'line', { text:'l', textAt:{ x:950, y:530 } });
-      const B = gp('B', 300, 540);
-      return { B, l, a:240, b:200, c:160 };
-    },
+      return { ok:false, msg:'∠XOY 를 똑같이 나누는 선을 아직 찾지 못했어요.' };
+    } },
+  { id:'A6', title:'점대칭으로 옮기기', skill:'sym',
+    desc:'점 M을 중심으로 점 A와 대칭인 점을 작도하세요. 즉 선분 AM을 M 쪽으로 같은 길이만큼 늘인 점입니다.',
+    hints:['직선 AM을 M 너머까지 늘여 보세요.', '반직선 AM을 긋고, M을 중심으로 반지름이 AM인 원을 그립니다.'],
+    setup(){ const A = gp('A',260,470), Mc = gp('M',520,330); return { A,M:Mc }; },
+    solve(g){ const A = P(g.A), Mc = P(g.M);
+      return [{ k:'line', a:A, b:Mc, ltype:'ray' }, { k:'circle', c:Mc, r:dist(A,Mc) }]; },
     check(g){
-      const B = P(g.B), l = P(g.l), ip = cpts(), sets = [];
-      let partial = false;
-      for (const C of ip){
-        if (!onCurve(l, C) || !nearLen(dist(B, C), g.a)) continue;
-        for (const A of ip){
-          if (A === C) continue;
-          const ab = dist(A, B), ac = dist(A, C);
-          const ok = (nearLen(ab, g.c) && nearLen(ac, g.b)) || (nearLen(ab, g.b) && nearLen(ac, g.c));
-          if (!ok) continue;
-          const bc = connecting(B, C), ca = connecting(C, A), abL = connecting(A, B);
-          if (bc.length && ca.length && abL.length)
-            sets.push({ ids:[C.id, A.id, bc[0].id, ca[0].id, abL[0].id], msg:`삼각형 ${A.label}B${C.label}의 세 변이 a, b, c와 같아요!` });
-          else partial = true;
-        }
+      const A = P(g.A), Mc = P(g.M), t = dist(A,Mc);
+      for (const B of cpts()){
+        if (dist(B,A) < 1e-6) continue;
+        if (nearLen(dist(B,Mc), t) && nearLen(dist(A,B), 2*t))
+          return { ok:true, ids:[B.id], msg:`점 ${js(B.label)} 점 M에 대한 점 A의 대칭점입니다.` };
       }
-      if (sets.length) return { ok:true, sets };
-      return { ok:false, msg: partial ? '세 꼭짓점은 찾았어요. 세 꼭짓점을 자로 모두 이어 보세요.'
-                                      : '조건에 맞는 삼각형의 꼭짓점을 아직 찾지 못했어요.' };
-    }
-  },
-  {
-    id:'P6', title:'정삼각형의 작도',
+      return { ok:false, msg:'A, M과 한 직선 위에 있으면서 MA = MB 인 점을 아직 찾지 못했어요.' };
+    } },
+  { id:'A7', title:'수선 내리기', skill:'perpdown',
+    desc:'직선 l 밖의 점 P에서 직선 l에 수선을 내리세요.',
+    hints:['점 P에서 같은 거리에 있는 l 위의 두 점을 만들어 보세요.', '점 P를 중심으로 원을 그려 l과 만나는 두 점을 찾습니다.'],
+    setup(){ const l1 = gp('',60,470,{hidden:true}), l2 = gp('',940,470,{hidden:true});
+      const l = gl(l1,l2,'line',{ text:'l', textAt:{x:905,y:455} });
+      const Pp = gp('P',470,190); return { l, P:Pp }; },
+    solve(g){ const Pp = P(g.P), l = P(g.l), f = distToLine(l, Pp);
+      return [{ k:'circle', c:Pp, r:f.d*1.5 }]; },
+    check(g){
+      const Pp = P(g.P), l = P(g.l);
+      for (const L of rulerLines()) if (onCurve(L, Pp) && perpTo(l, P(L.p1), P(L.p2)))
+        return { ok:true, ids:[L.id], msg:'점 P를 지나고 직선 l에 수직인 직선을 작도했습니다.' };
+      return { ok:false, msg:'점 P를 지나면서 l에 수직인 직선을 아직 찾지 못했어요.' };
+    } },
+  { id:'A8', title:'수선 세우기', skill:'perpup',
+    desc:'직선 l 위의 점 H를 지나고 직선 l에 수직인 직선을 작도하세요.',
+    hints:['점 H에서 같은 거리에 있는 l 위의 두 점부터 만드세요.', '점 H를 중심으로 원을 그려 l과 만나는 두 점을 찾고, 그 두 점의 수직이등분선을 작도합니다.'],
+    setup(){ const l1 = gp('',60,430,{hidden:true}), l2 = gp('',940,430,{hidden:true});
+      const l = gl(l1,l2,'line',{ text:'l', textAt:{x:905,y:415} });
+      const Hp = gp('H',460,430); return { l, H:Hp }; },
+    solve(g){ const Hp = P(g.H); return [{ k:'circle', c:Hp, r:160 }]; },
+    check(g){
+      const Hp = P(g.H), l = P(g.l);
+      for (const L of rulerLines()) if (onCurve(L, Hp) && perpTo(l, P(L.p1), P(L.p2)))
+        return { ok:true, ids:[L.id], msg:'점 H를 지나고 직선 l에 수직인 직선을 작도했습니다.' };
+      return { ok:false, msg:'점 H를 지나면서 l에 수직인 직선을 아직 찾지 못했어요.' };
+    } }
+];
+
+function sideMarks(){
+  const a1 = gp('',60,60,{noLabel:true}), a2 = gp('',300,60,{noLabel:true});
+  const b1 = gp('',60,105,{noLabel:true}), b2 = gp('',260,105,{noLabel:true});
+  const c1 = gp('',60,150,{noLabel:true}), c2 = gp('',220,150,{noLabel:true});
+  gl(a1,a2,'segment',{ text:'a', textAt:{x:312,y:66} });
+  gl(b1,b2,'segment',{ text:'b', textAt:{x:272,y:111} });
+  gl(c1,c2,'segment',{ text:'c', textAt:{x:232,y:156} });
+  return { a:240, b:200, c:160 };
+}
+const PRACTICE = [
+  { id:'B1', title:'정삼각형',
     desc:'선분 AB를 한 변으로 하는 정삼각형을 작도하세요.',
-    setup(){
-      const A = gp('A', 360, 470), B = gp('B', 640, 470); gl(A, B, 'segment');
-      return { A, B };
-    },
+    hints:['세 변의 길이가 모두 같아야 합니다.', 'A와 B를 중심으로 반지름이 AB인 원을 각각 그려 보세요.'],
+    setup(){ const A = gp('A',360,470), B = gp('B',640,470); gl(A,B,'segment'); return { A,B }; },
+    solve(g){ const A = P(g.A), B = P(g.B), r = dist(A,B);
+      return [{ k:'circle', c:A, r }, { k:'circle', c:B, r }]; },
     check(g){
-      const A = P(g.A), B = P(g.B), s = dist(A, B), sets = [];
+      const A = P(g.A), B = P(g.B), s = dist(A,B);
       let partial = false;
       for (const C of cpts()){
-        if (!nearLen(dist(C, A), s) || !nearLen(dist(C, B), s)) continue;
-        const ca = connecting(C, A), cb = connecting(C, B);
-        if (ca.length && cb.length) sets.push({ ids:[C.id, ca[0].id, cb[0].id], msg:`삼각형 AB${C.label}: 정삼각형이에요!` });
-        else partial = true;
+        if (!nearLen(dist(C,A), s) || !nearLen(dist(C,B), s)) continue;
+        const ca = connecting(C,A), cb = connecting(C,B);
+        if (ca.length && cb.length) return { ok:true, ids:[C.id,ca[0].id,cb[0].id], msg:`삼각형 AB${C.label}는 정삼각형입니다.` };
+        partial = true;
       }
-      if (sets.length) return { ok:true, sets };
-      return { ok:false, msg: partial ? '꼭짓점은 찾았어요. 꼭짓점과 A, B를 자로 이어 보세요.'
-                                      : '선분 AB와 길이가 같은 두 변을 만드는 꼭짓점을 아직 찾지 못했어요.' };
-    }
-  }
+      return { ok:false, msg: partial ? '꼭짓점은 찾았어요. 자로 세 변을 이어 보세요.' : '선분 AB와 길이가 같은 두 변을 만드는 점을 찾아보세요.' };
+    } },
+  { id:'B2', title:'세 변이 주어진 삼각형 (SSS)',
+    desc:'세 선분 a, b, c를 세 변으로 하는 삼각형을 작도하세요. 점 B를 한 꼭짓점으로 하고, 길이가 a인 변은 직선 l 위에 놓이게 합니다.',
+    hints:['가장 긴 변을 먼저 직선 위에 옮겨 놓으세요.', 'B를 중심으로 반지름 a인 원을 그려 l 위의 점 C를 잡습니다.'],
+    setup(){ const s = sideMarks();
+      const l1 = gp('',30,540,{hidden:true}), l2 = gp('',970,540,{hidden:true});
+      const l = gl(l1,l2,'line',{ text:'l', textAt:{x:940,y:528} });
+      const B = gp('B',300,540); return { B, l, ...s }; },
+    solve(g){ const B = P(g.B); return [{ k:'circle', c:B, r:g.a }]; },
+    check(g){
+      const B = P(g.B), l = P(g.l), ip = cpts();
+      let partial = false;
+      for (const C of ip){
+        if (!onCurve(l,C) || !nearLen(dist(B,C), g.a)) continue;
+        for (const A of ip){
+          if (A === C) continue;
+          const ab = dist(A,B), ac = dist(A,C);
+          if (!((nearLen(ab,g.c) && nearLen(ac,g.b)) || (nearLen(ab,g.b) && nearLen(ac,g.c)))) continue;
+          const bc = connecting(B,C), ca = connecting(C,A), abL = connecting(A,B);
+          if (bc.length && ca.length && abL.length)
+            return { ok:true, ids:[C.id,A.id,bc[0].id,ca[0].id,abL[0].id], msg:`삼각형 ${A.label}B${C.label}의 세 변이 a, b, c와 같습니다.` };
+          partial = true;
+        }
+      }
+      return { ok:false, msg: partial ? '세 꼭짓점은 찾았어요. 자로 세 변을 모두 이어 보세요.' : '조건에 맞는 꼭짓점을 아직 찾지 못했어요.' };
+    } },
+  { id:'B3', title:'두 변과 끼인각 (SAS)',
+    desc:'선분 p, q를 두 변으로 하고 ∠XOY를 끼인각으로 하는 삼각형을 점 A에서 작도하세요. 길이가 p인 변은 반직선 AK 위에 놓습니다.',
+    hints:['먼저 한 변을 반직선 위에 옮기고, 그다음 각을 옮기세요.', '∠XOY를 점 A로 옮긴 뒤, 새 변 위에 길이 q를 옮깁니다.'],
+    setup(){
+      const p1 = gp('',60,60,{noLabel:true}), p2 = gp('',280,60,{noLabel:true});
+      const q1 = gp('',60,105,{noLabel:true}), q2 = gp('',230,105,{noLabel:true});
+      gl(p1,p2,'segment',{ text:'p', textAt:{x:292,y:66} });
+      gl(q1,q2,'segment',{ text:'q', textAt:{x:242,y:111} });
+      const O = gp('O',120,300), X = gp('X',330,300), Y = gp('Y',260,180);
+      gl(O,X,'ray'); gl(O,Y,'ray');
+      const A = gp('A',420,540), K = gp('K',940,540); gl(A,K,'ray');
+      return { O,X,Y,A,K, p:220, q:170 };
+    },
+    solve(g){ const A = P(g.A); return [{ k:'circle', c:A, r:g.p }]; },
+    check(g){
+      const O = P(g.O), X = P(g.X), Y = P(g.Y), A = P(g.A), K = P(g.K), t = angleAt(O,X,Y);
+      const ip = cpts();
+      let partial = false;
+      for (const B of ip){
+        if (!nearLen(dist(A,B), g.p) || Math.abs(angleAt(A,B,K)) > EPS_ANG) continue;
+        for (const C of ip){
+          if (C === B || !nearLen(dist(A,C), g.q)) continue;
+          if (Math.abs(angleAt(A,B,C) - t) > EPS_ANG) continue;
+          const ab = connecting(A,B), ac = connecting(A,C), bc = connecting(B,C);
+          if (ab.length && ac.length && bc.length)
+            return { ok:true, ids:[B.id,C.id,ab[0].id,ac[0].id,bc[0].id], msg:`삼각형 A${B.label}${C.label}가 조건을 만족합니다.` };
+          partial = true;
+        }
+      }
+      return { ok:false, msg: partial ? '꼭짓점은 찾았어요. 자로 세 변을 이어 보세요.' : '반직선 AK 위의 길이 p인 점과, 각을 옮긴 변 위의 길이 q인 점을 만드세요.' };
+    } },
+  { id:'B4', title:'한 변과 양 끝 각 (ASA)',
+    desc:'선분 p를 한 변으로 하고, 양 끝 각이 ∠XOY와 ∠UVW인 삼각형을 점 A에서 작도하세요. 변 p는 반직선 AK 위에 놓습니다.',
+    hints:['한 변을 옮긴 뒤, 양 끝에서 각을 하나씩 옮기세요.', '두 각의 변이 만나는 점이 세 번째 꼭짓점입니다.'],
+    setup(){
+      const p1 = gp('',60,60,{noLabel:true}), p2 = gp('',300,60,{noLabel:true});
+      gl(p1,p2,'segment',{ text:'p', textAt:{x:312,y:66} });
+      const O = gp('O',110,300), X = gp('X',300,300), Y = gp('Y',250,190);
+      gl(O,X,'ray'); gl(O,Y,'ray');
+      const V = gp('V',560,300), U = gp('U',760,300), Wp = gp('W',640,160);
+      gl(V,U,'ray'); gl(V,Wp,'ray');
+      const A = gp('A',330,560), K = gp('K',940,560); gl(A,K,'ray');
+      return { O,X,Y,V,U,W:Wp,A,K, p:240 };
+    },
+    solve(g){ const A = P(g.A); return [{ k:'circle', c:A, r:g.p }]; },
+    check(g){
+      const O = P(g.O), X = P(g.X), Y = P(g.Y), V = P(g.V), U = P(g.U), Wp = P(g.W);
+      const A = P(g.A), K = P(g.K), t1 = angleAt(O,X,Y), t2 = angleAt(V,U,Wp), ip = cpts();
+      let partial = false;
+      for (const B of ip){
+        if (!nearLen(dist(A,B), g.p) || Math.abs(angleAt(A,B,K)) > EPS_ANG) continue;
+        for (const C of ip){
+          if (C === B) continue;
+          const c1 = angleAt(A,B,C), c2 = angleAt(B,A,C);
+          if (Math.abs(c1-t1) > EPS_ANG || Math.abs(c2-t2) > EPS_ANG) continue;
+          const ab = connecting(A,B), ac = connecting(A,C), bc = connecting(B,C);
+          if (ab.length && ac.length && bc.length)
+            return { ok:true, ids:[B.id,C.id,ab[0].id,ac[0].id,bc[0].id], msg:`삼각형 A${B.label}${C.label}가 조건을 만족합니다.` };
+          partial = true;
+        }
+      }
+      return { ok:false, msg: partial ? '꼭짓점은 찾았어요. 자로 세 변을 이어 보세요.' : '변 p를 옮기고, 양 끝에서 각을 각각 옮겨 보세요.' };
+    } }
 ];
-function cpts(){ return objs.filter(o => o.kind === 'point' && o.ptype === 'intersection'); }
-function rulerLines(){ return objs.filter(o => o.kind === 'line' && o.tool === 'ruler'); }
-function connecting(a, b){ return objs.filter(L => L.kind === 'line' && onCurve(L, a) && onCurve(L, b)); }
 
-// ===================== 유의미 사용 분석 =====================
-// 정답 도형에서 거꾸로 따라가며(부모 관계) 실제로 쓰인 작도만 모음
+// ---------- Step 2 · 평행선 ----------
+function parallelSetup(py){
+  const l1 = gp('',60,500,{hidden:true}), l2 = gp('',940,500,{hidden:true});
+  const l = gl(l1,l2,'line',{ text:'l', textAt:{x:905,y:486} });
+  const Pp = gp('P',430,py || 210);
+  return { l, P:Pp };
+}
+function parallelCheck(g){
+  const l = P(g.l), Pp = P(g.P), gg = lineGeom(l), n1 = Math.hypot(gg.dx, gg.dy);
+  for (const L of rulerLines()){
+    if (!onCurve(L, Pp)) continue;
+    const a = P(L.p1), b = P(L.p2);
+    if (a.ptype === 'free' || b.ptype === 'free') continue;
+    const h = lineGeom(L), n2 = Math.hypot(h.dx, h.dy);
+    if (Math.abs(gg.dx*h.dy - gg.dy*h.dx) / (n1*n2) < 1e-6)
+      return { ok:true, ids:[L.id], msg:'점 P를 지나고 직선 l에 평행한 직선을 작도했습니다.' };
+  }
+  return { ok:false, msg:'점 P를 지나면서 l과 평행한 직선을 아직 찾지 못했어요. 눈대중으로 찍은 점으로 그은 선은 인정되지 않습니다.' };
+}
+// 어떤 계열의 방법을 썼는지 자동 분류
+function classify(ansIds, g){
+  const anc = ancestors(ansIds), l = P(g.l);
+  const inSet = [...anc].map(P).filter(Boolean);
+  const sk = new Set(actions.filter(a => a.skillId && a.ids.some(id => anc.has(id))).map(a => a.skillId));
+  if (sk.has('angle')) return '각 이용 (각 옮기기)';
+  if (sk.has('perpdown') || sk.has('perpup')) return '각 이용 (수선 두 번)';
+  if (sk.has('mid') || sk.has('sym') || sk.has('diam')) return '삼각형·원 이용 (중점·점대칭)';
+  if (sk.has('copy')) return '사각형 이용 (같은 길이 옮기기)';
+  const lines = inSet.filter(o => o.kind === 'line' && !o.given);
+  if (lines.some(L => perpTo(l, P(L.p1), P(L.p2)))) return '각 이용 (수선 두 번)';
+  const pts = inSet.filter(o => o.kind === 'point');
+  for (const m of pts) for (const a of pts) for (const b of pts){
+    if (m === a || m === b || a === b) continue;
+    if (Math.abs(dist(a,m) - dist(b,m)) < 0.3 && Math.abs(dist(a,m) + dist(b,m) - dist(a,b)) < 0.3)
+      return '삼각형·원 이용 (중점·점대칭)';
+  }
+  const rs = inSet.filter(o => o.kind === 'circle').map(o => o.r).sort((x,y) => x-y);
+  let run = 1, best = 1;
+  for (let i = 1; i < rs.length; i++){ if (Math.abs(rs[i]-rs[i-1]) < 0.5){ run++; best = Math.max(best, run); } else run = 1; }
+  if (best >= 2) return '사각형 이용 (같은 반지름 원)';
+  return '각 이용 (각 옮기기)';
+}
+const STEP2 = [
+  { id:'C1', title:'평행선 작도', token:5, strategy:true,
+    desc:'직선 l 밖의 점 P를 지나고 직선 l에 평행한 직선을 작도하세요. 방법은 자유입니다.',
+    hints:['평행선은 바로 그릴 수 없습니다. 평행이 되는 조건(동위각·엇각가 같다, 한 직선에 수직인 두 직선, 마름모·평행사변형)을 만들어야 합니다.',
+           '점 P를 지나는 직선을 하나 그어 l과 만나게 한 뒤, 생긴 각을 점 P로 옮겨 보세요. 또는 점 P에서 l에 수선을 내린 뒤 그 수선에 다시 수선을 세워도 됩니다.'],
+    setup(){ return parallelSetup(210); },
+    solve(g){ const Pp = P(g.P), l = P(g.l), f = distToLine(l, Pp); return [{ k:'circle', c:Pp, r:f.d*1.5 }]; },
+    check(g){ return parallelCheck(g); } }
+];
+// ---------- 보너스 ----------
+const BONUS = [
+  { id:'D1', title:'Normal · 자는 단 한 번', token:5, limit:{ ruler:1 },
+    desc:'컴퍼스는 자유롭게 쓰되, 자는 마지막에 단 한 번만 써서 평행선을 작도하세요.',
+    hints:['새로운 점을 만드는 일은 모두 컴퍼스에 맡기고, 자는 마지막에 두 점을 잇는 데에만 씁니다.',
+           '점 P를 중심으로 원을 그려 l과 만나는 점 A를 잡고, 같은 반지름으로 A와 B를 중심으로 원을 그려 보세요. (강의 자료 방법 6)'],
+    setup(){ return parallelSetup(230); },
+    solve(g){ const Pp = P(g.P), l = P(g.l), f = distToLine(l, Pp); return [{ k:'circle', c:Pp, r:f.d*1.4 }]; },
+    check(g){ return parallelCheck(g); } },
+  { id:'D2', title:'Hard · 컴퍼스는 단 한 번', token:8, limit:{ compass:1, skills:false }, skill:'diam',
+    desc:'자는 자유롭게 쓰되, 컴퍼스는 단 한 번만 써서 평행선을 작도하세요. 이 문제에서는 스킬을 쓸 수 없습니다.',
+    hints:['원을 어디에 그리면 좋을까요? 원의 중심은 무엇의 중점이 될까요?',
+           '직선 l 위의 점 M을 중심으로 원을 그리면 M은 두 교점 B, C의 중점이 됩니다. 그다음은 자만으로 할 수 있습니다. (강의 자료 방법 20)'],
+    setup(){ return parallelSetup(250); },
+    solve(g){ const l = P(g.l); return [{ k:'circle', c:{x:520,y:500}, r:180 }]; },
+    check(g){ return parallelCheck(g); } }
+];
+// ---------- Step 3 · 도전 ----------
+const STEP3 = [
+  { id:'E1', title:'원 밖의 점에서 접선 긋기', token:8,
+    desc:'원 O와 그 밖의 점 P가 있습니다. 점 P에서 원 O에 그은 접선을 작도하세요.',
+    hints:['접선은 접점에서 반지름과 수직입니다. 직각을 만드는 방법을 떠올려 보세요.',
+           '선분 OP의 중점 M을 찾아 OP를 지름으로 하는 보조원을 그려 보세요. 두 원의 교점이 접점입니다.'],
+    setup(){
+      const O = gp('O',360,360), Pp = gp('P',830,250);
+      const rim = gp('',360+170,360,{hidden:true});
+      addObj({ kind:'circle', center:O, r:170, parents:[O,rim], tool:'given', given:true });
+      return { O, P:Pp, r:170 };
+    },
+    solve(g){ const O = P(g.O), Pp = P(g.P);
+      return [{ k:'line', a:O, b:Pp, ltype:'segment' },
+              { k:'circle', c:{ x:(O.x+Pp.x)/2, y:(O.y+Pp.y)/2 }, r:dist(O,Pp)/2 }]; },
+    check(g){
+      const O = P(g.O), Pp = P(g.P);
+      for (const L of rulerLines()){
+        if (!onCurve(L, Pp)) continue;
+        const a = P(L.p1), b = P(L.p2);
+        if (a.ptype === 'free' || b.ptype === 'free') continue;
+        const h = lineGeom(L), n = Math.hypot(h.dx, h.dy);
+        const d = Math.abs(h.dx*(O.y - h.y) - h.dy*(O.x - h.x)) / n;
+        if (Math.abs(d - g.r) < 0.35)
+          return { ok:true, ids:[L.id], msg:'점 P에서 원 O에 그은 접선을 작도했습니다.' };
+      }
+      return { ok:false, msg:'점 P를 지나면서 원에 꼭 한 점에서 닿는 직선을 아직 찾지 못했어요.' };
+    } },
+  { id:'E2', title:'선분의 3등분', token:8,
+    desc:'선분 AB를 세 등분하는 두 점을 작도하세요.',
+    hints:['점 A에서 비스듬한 반직선을 긋고, 같은 길이를 세 번 옮겨 보세요.',
+           '반직선 위의 세 번째 점과 B를 이은 선분에 평행한 선을 그으면 선분 AB가 3등분됩니다.'],
+    setup(){ const A = gp('A',220,430), B = gp('B',820,430); gl(A,B,'segment'); return { A,B }; },
+    solve(g){ const A = P(g.A); return [{ k:'line', a:A, b:{ x:A.x+400, y:A.y-270 }, ltype:'ray' }]; },
+    check(g){
+      const A = P(g.A), B = P(g.B), d = dist(A,B);
+      const on = cpts().filter(p => Math.abs(dist(A,p) + dist(p,B) - d) < 0.35);
+      let x = null, y = null;
+      for (const p of on){
+        if (Math.abs(dist(A,p) - d/3) < 0.45) x = p;
+        if (Math.abs(dist(A,p) - 2*d/3) < 0.45) y = p;
+      }
+      if (x && y) return { ok:true, ids:[x.id,y.id], msg:`점 ${x.label}, ${y.label}가 선분 AB를 삼등분합니다.` };
+      return { ok:false, msg: on.length ? '선분 위의 점은 찾았지만 아직 3등분 위치가 아닙니다.' : '선분 AB 위에 작도로 얻은 점이 아직 없습니다.' };
+    } }
+];
+
+const STAGES = { step1:STEP1, practice:PRACTICE, step2:STEP2, bonus:BONUS, step3:STEP3 };
+// 단계 열림 조건: 평행선은 기본 작도 8개를 모두 풀면, 보너스·도전은 평행선을 풀면 열립니다.
+function stageOpen(st){
+  if (!CONFIG.LOCK_STAGES) return true;
+  if (st === 'step1' || st === 'practice') return true;
+  const step1Done = STEP1.every(p => progress.solved[p.id]);
+  if (st === 'step2') return step1Done;
+  return step1Done && STEP2.every(p => progress.solved[p.id]);
+}
+function stageNeed(st){
+  return st === 'step2' ? '1. 기본 작도 8개를 모두 풀면 열립니다.' : '2. 평행선 작도를 풀면 열립니다.';
+}
+function problems(){ return STAGES[state.stage] || STEP1; }
+
+// ===================== 작도 기록 =====================
+function elapsed(){ return Math.round((Date.now() - stats.start) / 100) / 10; }
+function commit(kind, detail, ids, cost){
+  const s = ++seq;
+  actions.push({ seq:s, ids:ids.slice(), ruler:cost.ruler || 0, compass:cost.compass || 0, kind });
+  log.push({ seq:s, t:elapsed(), kind, detail, ids:ids.slice() });
+  state.highlight = null; hideMsg();
+}
+function addLog(kind, detail){ log.push({ seq:++seq, t:elapsed(), kind, detail }); }
+function liveActions(){ return actions; }
+function limitLeft(kind){
+  const lim = problem && problem.limit; if (!lim) return Infinity;
+  const t = totals();
+  if (kind === 'ruler' && lim.ruler != null) return lim.ruler - t.ruler;
+  if (kind === 'compass' && lim.compass != null) return lim.compass - t.compass;
+  return Infinity;
+}
+function blockedBy(kind, need){
+  if (limitLeft(kind) >= (need || 1)) return false;
+  const lim = problem.limit;
+  flashHint(kind === 'ruler' ? `이 문제에서는 자를 ${lim.ruler}번만 쓸 수 있습니다.`
+                             : `이 문제에서는 컴퍼스를 ${lim.compass}번만 쓸 수 있습니다.`);
+  state.pending = []; refresh(); return true;
+}
+function totals(){
+  let r = 0, c = 0;
+  for (const a of actions){ r += a.ruler; c += a.compass; }
+  return { ruler:r, compass:c };
+}
 function ancestors(ids){
   const S = new Set(), st = [...ids];
   while (st.length){
@@ -473,202 +859,300 @@ function ancestors(ids){
   }
   return S;
 }
-function countTools(S){
-  let r = 0, c = 0;
-  S.forEach(id => { const o = P(id); if (!o) return; if (o.tool === 'ruler') r++; else if (o.tool === 'compass') c++; });
-  return { ruler:r, compass:c, total:r + c };
-}
-function totals(){
-  return { ruler:objs.filter(o => o.tool === 'ruler').length, compass:objs.filter(o => o.tool === 'compass').length };
-}
-function evaluate(){
-  const r = problem.check(G);
-  if (!r.ok) return { ok:false, msg:r.msg };
-  let best = null;
-  for (const s of r.sets){
-    const anc = ancestors(s.ids), cost = countTools(anc).total;
-    if (!best || cost < best.cost) best = { anc, cost, msg:s.msg, ids:s.ids };
+function meaningfulCount(ansIds){
+  const anc = ancestors(ansIds);
+  let r = 0, c = 0; const used = [];
+  for (const a of actions){
+    if (a.ids.some(id => anc.has(id))){ r += a.ruler; c += a.compass; used.push(a.seq); }
   }
-  return { ok:true, meaning:best.anc, answer:best.ids, msg:best.msg };
+  return { ruler:r, compass:c, total:r + c, used:new Set(used) };
 }
 
-// ===================== 기록 =====================
-function elapsed(){ return Math.round((Date.now() - stats.start) / 100) / 10; }
-function commit(act, detail, created, mainId){
-  const ids = [...new Set([...created, mainId])];
-  const s = ++seq;
-  actions.push({ seq:s, ids });
-  log.push({ seq:s, t:elapsed(), act, detail, mainId });
-  state.highlight = null;
-  hideMsg();
-}
-function addLog(act, detail){ log.push({ seq:++seq, t:elapsed(), act, detail }); }
-
-// ===================== 입력 처리 =====================
+// ===================== 입력 =====================
 function handleClick(p){
+  if (busy) return;
+  if (state.skill){ skillClick(p); return; }
   const c = snapCandidate(p), t = state.tool;
   if (t === 'point'){
-    if (c.type === 'existing'){ flashHint('이미 있는 점이에요.'); return; }
+    if (c.type === 'existing'){ flashHint('이미 있는 점입니다.'); return; }
     const created = [], pt = materialize(c, created);
-    commit('point', `점 ${pt.label} 찍기 (${PTYPE_KO[pt.ptype]})`, created, pt.id);
+    commit('point', `점 ${pt.label} 찍기 (${PTYPE_KO[pt.ptype]})`, created, {});
     refresh(); return;
   }
-  const isCenterPick = t === 'transfer' && state.pending.length === 2;
-  if (!isCenterPick && state.pending.some(q => dist(q, c) < 1e-6)){ flashHint('서로 다른 점을 선택하세요.'); return; }
+  if (t === 'transfer' && state.width){
+    const created = [], o = materialize(c, created);
+    const C = addObj({ kind:'circle', center:o.id, r:state.width.r, parents:[o.id, ...state.width.src], tool:'compass' });
+    created.push(C.id);
+    const extra0 = state.widthCost || 0;
+    if (blockedBy('compass', 1 + extra0)){ removeObj(C.id); created.filter(i => i !== C.id).forEach(removeObj); return; }
+    const extra = extra0; state.widthCost = 0;
+    commit('compass', `고정된 폭(${state.width.name})으로 ${o.label}에 원 그리기${extra ? ' [길이 재기 포함]' : ''}${newPtsText(created.filter(i => i !== C.id))}`, created, { compass:1 + extra });
+    refresh(); return;
+  }
+  if (state.pending.some(q => dist(q, c) < 1e-6)){ flashHint('서로 다른 점을 선택하세요.'); return; }
   state.pending.push(c);
-
   if (t === 'ruler' && state.pending.length === 2){
+    if (blockedBy('ruler')) return;
     const created = [], a = materialize(state.pending[0], created), b = materialize(state.pending[1], created);
-    const L = addObj({ kind:'line', ltype:state.rulerType, p1:a.id, p2:b.id, parents:[a.id, b.id], tool:'ruler' });
-    commit('ruler', `${RULER_KO[state.rulerType]} ${a.label}${b.label} 긋기${newPtsText(created)}`, created, L.id);
+    const L = addObj({ kind:'line', ltype:state.rulerType, p1:a.id, p2:b.id, parents:[a.id,b.id], tool:'ruler' });
+    created.push(L.id);
+    commit('ruler', `${RULER_KO[state.rulerType]} ${a.label}${b.label} 긋기${newPtsText(created.filter(i => i !== L.id))}`, created, { ruler:1 });
     state.pending = [];
   } else if (t === 'compass' && state.pending.length === 2){
+    if (blockedBy('compass')) return;
     const created = [], o = materialize(state.pending[0], created), q = materialize(state.pending[1], created);
-    const C = addObj({ kind:'circle', center:o.id, r:dist(o, q), parents:[o.id, q.id], tool:'compass' });
-    commit('compass', `중심 ${o.label}, 반지름 ${o.label}${q.label}인 원 그리기${newPtsText(created)}`, created, C.id);
+    const C = addObj({ kind:'circle', center:o.id, r:dist(o,q), parents:[o.id,q.id], tool:'compass' });
+    created.push(C.id);
+    setWidth(dist(o,q), `${o.label}${q.label}`, [o.id,q.id]);
+    commit('compass', `중심 ${o.label}, 반지름 ${o.label}${q.label} 인 원${newPtsText(created.filter(i => i !== C.id))}`, created, { compass:1 });
     state.pending = [];
-  } else if (t === 'transfer' && state.pending.length === 3){
-    const created = [];
-    const a = materialize(state.pending[0], created), b = materialize(state.pending[1], created), o = materialize(state.pending[2], created);
-    const C = addObj({ kind:'circle', center:o.id, r:dist(a, b), parents:[...new Set([o.id, a.id, b.id])], tool:'compass' });
-    commit('transfer', `선분 ${a.label}${b.label}의 길이를 재어 중심 ${o.label}에 원 그리기${newPtsText(created)}`, created, C.id);
+  } else if (t === 'transfer' && state.pending.length === 2){
+    const created = [], a = materialize(state.pending[0], created), b = materialize(state.pending[1], created);
+    setWidth(dist(a,b), `${a.label}${b.label}`, [a.id,b.id], true);
     state.pending = [];
+    flashHint(`폭을 ${a.label}${b.label} 로 맞췄습니다. 이제 중심을 찍으세요.`);
   }
   refresh();
 }
+function setWidth(r, name, src, fromMeasure){
+  const changed = !state.width || Math.abs(state.width.r - r) > 1e-9;
+  if (changed){
+    stats.widthChanges++; state.width = { r, name, src };
+    if (fromMeasure && CONFIG.COUNT_WIDTH_AS_COMPASS) state.widthCost = 1;
+  }
+  updateWidthBox();
+}
+function skillClick(p){
+  const s = skill(state.skill), need = s.need[state.pending.length];
+  if (problem.limit && problem.limit.skills === false){ flashHint('이 문제에서는 스킬을 쓸 수 없습니다.'); state.skill = null; renderSkills(); refresh(); return; }
+  if (need === 'l'){
+    const L = pickLine(p);
+    if (!L){ flashHint('직선을 눌러 선택하세요.'); return; }
+    state.pending.push({ type:'line', obj:L, x:p.x, y:p.y });
+  } else {
+    const c = snapCandidate(p);
+    state.pending.push(c);
+  }
+  if (state.pending.length === s.need.length) runSkill(s);
+  refresh();
+}
+function runSkill(s){
+  const created = [], args = [];
+  for (let i = 0; i < s.need.length; i++){
+    const it = state.pending[i];
+    args.push(s.need[i] === 'l' ? it.obj : materialize(it, created));
+  }
+  state.pending = [];
+  if (blockedBy('ruler', s.cost.ruler) || blockedBy('compass', s.cost.compass)){ created.forEach(removeObj); return; }
+  let steps;
+  try { steps = s.run(args); } catch (e){ flashHint('이 위치에서는 사용할 수 없어요.'); refresh(); return; }
+  busy = true;
+  const madeIds = created.slice(), parentsBase = args.map(a => a.id);
+  let last = null, i = 0;
+  const tick = () => {
+    if (i >= steps.length){
+      busy = false;
+      commit('skill', `[스킬] ${s.name} 사용 → 자 ${s.cost.ruler}, 컴퍼스 ${s.cost.compass} 환산${newPtsText(madeIds.filter(id => P(id) && P(id).kind === 'point'))}`,
+             madeIds, { ruler:s.cost.ruler, compass:s.cost.compass });
+      actions[actions.length - 1].skillId = s.id;
+      refresh(); return;
+    }
+    const st = steps[i++], par = (st.parents || parentsBase).concat(st.useLast && last ? [last] : []);
+    if (st.k === 'point'){
+      const pt = mkPoint(st.x, st.y, par, madeIds, 'intersection');
+      last = pt.id;
+    } else if (st.k === 'circle'){
+      const c = mkPoint(st.cx, st.cy, par, madeIds, 'intersection');
+      const C = addObj({ kind:'circle', center:c.id, r:st.r, parents:par.concat([c.id]), tool:'skill' });
+      madeIds.push(C.id); last = C.id;
+    } else if (st.k === 'line'){
+      const a = mkPoint(st.ax, st.ay, par, madeIds, 'intersection');
+      const b = mkPoint(st.bx, st.by, par, madeIds, 'intersection');
+      const L = addObj({ kind:'line', ltype:st.ltype, p1:a.id, p2:b.id, parents:par.concat([a.id,b.id]), tool:'skill' });
+      madeIds.push(L.id); last = L.id;
+    }
+    draw();
+    setTimeout(tick, 260);
+  };
+  tick();
+}
 function undo(){
+  if (busy) return;
   if (state.pending.length){ state.pending = []; refresh(); return; }
   const a = actions.pop();
   if (!a){ flashHint('되돌릴 작도가 없어요.'); return; }
   a.ids.forEach(removeObj);
-  const le = log.find(l => l.seq === a.seq);
-  if (le) le.removedBy = '되돌림';
-  stats.undo++;
-  addLog('undo', '되돌리기 → ' + (le ? le.detail : ''));
+  const le = log.find(l => l.seq === a.seq); if (le) le.removedBy = '되돌림';
+  stats.undo++; addLog('undo', '되돌리기');
   state.highlight = null; hideMsg(); refresh();
 }
 async function resetWork(){
+  if (busy) return;
   if (!actions.length && !state.pending.length) return;
-  if (!(await askConfirm('지금까지 작도한 것을 모두 지울까요?'))) return;
+  if (!(await askConfirm('이 문제의 작도를 모두 지울까요?'))) return;
   state.pending = [];
-  actions.forEach(a => {
-    a.ids.forEach(removeObj);
-    const le = log.find(l => l.seq === a.seq);
-    if (le && !le.removedBy) le.removedBy = '처음부터';
-  });
-  actions = [];
-  stats.reset++;
-  addLog('reset', '처음부터 다시');
-  state.highlight = null; hideMsg(); refresh();
+  actions.forEach(a => { a.ids.forEach(removeObj); const le = log.find(l => l.seq === a.seq); if (le && !le.removedBy) le.removedBy = '처음부터'; });
+  actions = []; stats.reset++; stats.widthChanges = 0; addLog('reset', '처음부터');
+  state.width = null; state.widthCost = 0; state.highlight = null; hideMsg(); refresh();
+}
+
+// ===================== 채점과 토큰 =====================
+function minimalCost(pr){
+  const m = { A1:1, A2:4, A3:3, A4:3, A5:4, A6:2, A7:4, A8:4, B1:4, B2:6, B3:7, B4:8,
+              C1:3, D1:3, D2:7, E1:5, E2:9 };
+  return m[pr.id] || 4;
 }
 function onCheck(){
+  if (busy) return;
   stats.check++;
-  const ev = evaluate();
-  addLog('check', ev.ok ? '작도 확인: 성공' : '작도 확인: 미완성');
-  if (ev.ok){
-    if (stats.firstSolved == null) stats.firstSolved = elapsed();
-    let txt = '🎉 ' + ev.msg;
-    if (CONFIG.SHOW_ANALYSIS_AFTER_CHECK){
-      state.highlight = ev.meaning;
-      const m = countTools(ev.meaning), tot = totals();
-      txt += `<br>정답에 쓰인 작도: 자 <b>${m.ruler}</b>번, 컴퍼스 <b>${m.compass}</b>번`;
-      const ur = tot.ruler - m.ruler, uc = tot.compass - m.compass;
-      if (ur + uc > 0) txt += `<br>정답에 쓰이지 않은 작도: 자 ${ur}번, 컴퍼스 ${uc}번 (흐리게 표시)`;
-    }
-    showMsg(txt, 'ok');
-  } else {
-    showMsg(ev.msg, 'warn');
+  const r = problem.check(G);
+  addLog('check', r.ok ? '작도 확인: 성공' : '작도 확인: 미완성');
+  if (!r.ok){ showMsg(r.msg, 'warn'); refresh(); return; }
+  const mc = meaningfulCount(r.ids), tot = totals();
+  state.highlight = ancestors(r.ids);
+  let gained = 0, why = [];
+  const already = !!progress.solved[problem.id];
+  const strat = problem.strategy ? classify(r.ids, G) : '';
+  let secondOk = false;
+  if (already && problem.strategy && strat && !progress.strategies.includes(strat)){
+    secondOk = true; gained += TOKEN.secondMethod; why.push('다른 계열의 방법');
+    progress.strategies.push(strat); progress.tokens += TOKEN.secondMethod;
+    progress.records.push({ id:problem.id + '-2', title:problem.title + ' (다른 방법)', stage:state.stage,
+      solved:'O', sec:elapsed(), ruler:tot.ruler, compass:tot.compass, rulerM:mc.ruler, compassM:mc.compass,
+      rulerX:tot.ruler - mc.ruler, compassX:tot.compass - mc.compass, width:stats.widthChanges,
+      undo:stats.undo, reset:stats.reset, check:stats.check, hints:stats.hintsUsed.join(','),
+      tokens:TOKEN.secondMethod, strategy:strat });
   }
-  refresh();
+  if (!already){
+    gained += problem.token || (state.stage === 'step1' ? TOKEN.solveStep1 : TOKEN.solvePractice);
+    why.push('성공');
+    const min = minimalCost(problem), used = mc.total;
+    if (used <= min){ gained += TOKEN.minimal; why.push('최소 횟수'); }
+    else if (used <= min + 2){ gained += TOKEN.nearMinimal; why.push('거의 최소'); }
+    if (stats.check === 1){ gained += TOKEN.firstTry; why.push('한 번에 통과'); }
+    if (stats.widthChanges <= 1 && tot.compass >= 2){ gained += TOKEN.widthKept; why.push('폭 유지'); }
+    if (problem.strategy && mc.compass <= 2 && mc.ruler <= 1){ gained += 2; why.push('최소 작도 배지'); }
+    if (strat) progress.strategies.push(strat);
+    progress.tokens += gained;
+    progress.solved[problem.id] = true;
+    if (problem.skill && !hasSkill(problem.skill)) progress.skills.push(problem.skill);
+    progress.records.push({
+      id:problem.id, title:problem.title, stage:state.stage, solved:'O',
+      sec:elapsed(), ruler:tot.ruler, compass:tot.compass,
+      rulerM:mc.ruler, compassM:mc.compass,
+      rulerX:tot.ruler - mc.ruler, compassX:tot.compass - mc.compass,
+      width:stats.widthChanges, undo:stats.undo, reset:stats.reset, check:stats.check,
+      hints:stats.hintsUsed.join(','), tokens:gained, strategy:strat
+    });
+  }
+  let txt = '🎉 ' + r.msg;
+  if (strat) txt += `<br>사용한 방법: <b>${strat}</b>`;
+  txt += `<br>정답에 쓰인 작도: 자 <b>${mc.ruler}</b>, 컴퍼스 <b>${mc.compass}</b>`;
+  const ur = tot.ruler - mc.ruler, uc = tot.compass - mc.compass;
+  if (ur + uc > 0) txt += ` · 쓰이지 않은 작도: 자 ${ur}, 컴퍼스 ${uc} (흐리게 표시)`;
+  if (!already || secondOk){
+    txt += `<br>🪙 <b>+${gained}</b> 토큰 (${why.join(' · ')})`;
+    if (problem.skill) txt += `<br>✨ <b>${skill(problem.skill).name}</b> 스킬을 얻었습니다.`;
+    const nx = nextIndex();
+    if (nx >= 0) txt += `<br>다음 문제가 열렸습니다.`;
+    else if (state.stage === 'step1') txt += `<br>Step 1을 모두 마쳤습니다. [진행 제출]을 눌러 기록을 보내세요.`;
+  }
+  showMsg(txt, 'ok');
+  if (!already && problems().every(p => progress.solved[p.id])) submit(true);
+  renderAll(); draw();
+}
+function nextIndex(){
+  const ps = problems();
+  for (let i = 0; i < ps.length; i++) if (!progress.solved[ps[i].id]) return i;
+  return -1;
+}
+
+// ===================== 힌트 =====================
+const HINT_NAMES = ['어떤 성질을 쓸까요', '어떤 도구부터 쓸까요', '다음 한 수 보기', '전체 과정 보기'];
+function hintCost(lv){ return HINT_COST[state.stage][lv]; }
+function useHint(lv){
+  if (busy) return;
+  if (stats.hintsUsed.includes(lv)){ showHint(lv); return; }
+  if (lv >= 2){
+    const steps = problem.solve ? problem.solve(G) : [];
+    if (!steps.length){ showMsg('이 문제에는 그림 힌트가 없습니다. 1~2단계 힌트를 참고하세요.', 'info'); return; }
+    if (lv === 2 && steps.every(alreadyDone)){ showMsg('표준 해법의 원과 선은 이미 다 그렸습니다. 이제 교점을 점으로 찍거나 자로 이어 보세요.', 'info'); return; }
+  }
+  const cost = lv === 0 ? 0 : hintCost(lv);
+  if (progress.tokens < cost){ showMsg(`토큰이 부족합니다. (필요 ${cost}개)`, 'warn'); return; }
+  progress.tokens -= cost;
+  stats.hintsUsed.push(lv);
+  progress.hints.push({ id:problem.id, lv, t:elapsed(), cost });
+  addLog('hint', `힌트 ${lv + 1}단계 사용 (${cost} 토큰)`);
+  showHint(lv); renderAll();
+}
+function showHint(lv){
+  if (lv <= 1){
+    const t = (problem.hints || [])[lv] || '이 문제는 앞에서 배운 작도를 조합하면 됩니다.';
+    showMsg('💡 ' + t, 'info'); return;
+  }
+  const steps = problem.solve ? problem.solve(G) : [];
+  if (!steps.length){ showMsg('💡 이 문제는 앞의 힌트를 참고하세요.', 'info'); return; }
+  const rest = steps.filter(st => !alreadyDone(st));
+  const show = lv === 2 ? rest.slice(0, 1) : steps;
+  state.ghost = show;
+  showMsg(lv === 2 ? '💡 초록색 점선이 다음에 그을 것입니다. (표준 해법 기준)' : '💡 표준 해법 전체입니다. 직접 그려 보세요.', 'info');
+  draw();
+  setTimeout(() => { state.ghost = null; draw(); }, lv === 2 ? 6000 : 9000);
+}
+function alreadyDone(st){
+  if (st.k === 'circle')
+    return objs.some(o => o.kind === 'circle' && Math.abs(o.r - st.r) < 1 && dist(P(o.center), st.c) < 1);
+  if (st.k === 'line')
+    return objs.some(o => o.kind === 'line' && !o.given && onCurve(o, st.a, 1) && onCurve(o, st.b, 1));
+  return false;
 }
 
 // ===================== 제출 =====================
-function buildPayload(ev){
+function buildPayload(auto){
   const tot = totals();
-  const m = ev.ok ? countTools(ev.meaning) : null;
-  const meaningSet = ev.ok ? ev.meaning : new Set();
-  const OBJ_ACTS = ['ruler', 'compass', 'transfer', 'point'];
-  const logOut = log.map(l => ({
-    seq:l.seq, t:l.t, act:ACT_KO[l.act], detail:l.detail,
-    status: OBJ_ACTS.includes(l.act)
-      ? (l.removedBy || (ev.ok ? (meaningSet.has(l.mainId) ? '유의미' : '불필요') : '미완성'))
-      : '-'
-  }));
-  const sequence = ev.ok
-    ? log.filter(l => ['ruler', 'compass', 'transfer'].includes(l.act) && !l.removedBy && meaningSet.has(l.mainId))
-         .map((l, i) => `${i + 1}) [${ACT_KO[l.act]}] ${l.detail}`).join('\n')
-    : '';
   return {
-    submissionId: 'S' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-    clientTime: new Date().toLocaleString('ko-KR'),
-    studentId: document.getElementById('sid').value.trim(),
-    name: document.getElementById('sname').value.trim(),
-    problemId: problem.id,
-    problemTitle: problem.title,
-    solved: ev.ok ? 'O' : 'X',
-    elapsedSec: elapsed(),
-    firstSolvedSec: stats.firstSolved == null ? '' : stats.firstSolved,
-    rulerTotal: tot.ruler,
-    compassTotal: tot.compass,
-    rulerMeaningful: m ? m.ruler : '',
-    compassMeaningful: m ? m.compass : '',
-    rulerUnnecessary: m ? tot.ruler - m.ruler : '',
-    compassUnnecessary: m ? tot.compass - m.compass : '',
-    rulerAttempts: log.filter(l => l.act === 'ruler').length,
-    compassAttempts: log.filter(l => l.act === 'compass' || l.act === 'transfer').length,
-    pointCount: log.filter(l => l.act === 'point').length,
-    undoCount: stats.undo,
-    resetCount: stats.reset,
-    checkCount: stats.check,
-    meaningfulSequence: sequence,
-    image: CONFIG.SEND_IMAGE ? exportImage(ev.ok ? ev.meaning : null) : '',
-    log: logOut
+    submissionId:'S' + Date.now().toString(36) + Math.random().toString(36).slice(2,7),
+    clientTime:new Date().toLocaleString('ko-KR'),
+    studentId:document.getElementById('sid').value.trim(),
+    name:document.getElementById('sname').value.trim(),
+    stage:state.stage === 'step1' ? 'Step 1' : '연습 문제',
+    auto:auto ? '자동' : '수동',
+    tokens:progress.tokens,
+    skills:progress.skills.map(id => skill(id).name).join(', '),
+    solvedCount:progress.records.length,
+    strategies:progress.strategies.join(' / '),
+    totalSec:Math.round((Date.now() - progress.startAll) / 100) / 10,
+    records:progress.records,
+    hints:progress.hints,
+    log:log.map(l => ({ seq:l.seq, t:l.t, kind:l.kind, detail:l.detail, status:l.removedBy || '' })),
+    problemId:problem ? problem.id : '',
+    image:CONFIG.SEND_IMAGE ? exportImage(null) : ''
   };
 }
-async function submit(){
-  const sid = document.getElementById('sid').value.trim(), name = document.getElementById('sname').value.trim();
-  if (!sid || !name){ showMsg('학번과 이름을 먼저 입력하세요.', 'warn'); return; }
-  if (!actions.length){ showMsg('아직 작도한 것이 없어요.', 'warn'); return; }
-  if (stats.submitted && !(await askConfirm('이미 제출했어요. 다시 제출할까요?'))) return;
-  const ev = evaluate();
-  if (!ev.ok && !(await askConfirm('아직 작도가 완성되지 않았어요. 그래도 제출할까요?'))) return;
-  const payload = buildPayload(ev);
+async function submit(auto){
+  const sid = document.getElementById('sid').value.trim(), nm = document.getElementById('sname').value.trim();
+  if (!sid || !nm){ if (!auto) showMsg('학번과 이름을 먼저 입력하세요.', 'warn'); return; }
+  if (!progress.records.length){ if (!auto) showMsg('아직 제출할 기록이 없습니다.', 'warn'); return; }
+  const payload = buildPayload(auto);
   if (!/^https:\/\/script\.google\.com\//.test(CONFIG.SCRIPT_URL)){
-    showMsg('선생님 설정 필요: SCRIPT_URL이 입력되지 않았어요. 기록 파일을 내려받습니다.', 'err');
-    downloadBackup(payload); return;
-  }
+    showMsg('선생님 설정 필요: SCRIPT_URL이 비어 있습니다.', 'err'); return; }
   const btn = document.getElementById('btnSubmit');
-  btn.disabled = true; showMsg('제출 중이에요…', 'info');
+  btn.disabled = true; if (!auto) showMsg('제출 중입니다…', 'info');
   const r = await sendData(payload);
   btn.disabled = false;
-  if (r.ok){
-    stats.submitted = true;
-    showMsg(`✅ 제출 완료! (${ev.ok ? '작도 성공' : '미완성'} · 자 ${payload.rulerTotal}번 · 컴퍼스 ${payload.compassTotal}번)`, 'ok');
-  } else {
-    showMsg('제출에 실패했어요. 다시 눌러 주세요. (기록 파일을 내려받습니다)<br><small>' + r.reason + '</small>', 'err');
-    downloadBackup(payload);
-  }
+  if (r.ok){ progress.submitted++; showMsg(`✅ 제출 완료 (문제 ${payload.solvedCount}개 · 토큰 ${payload.tokens})`, 'ok'); }
+  else { showMsg('제출에 실패했습니다. 다시 눌러 주세요.<br><small>' + r.reason + '</small>', 'err'); downloadBackup(payload); }
 }
-// 반환: { ok:true } 성공 / { ok:false, reason } 실패
 async function sendData(payload){
   const body = JSON.stringify(payload);
   let res;
-  try {
-    res = await fetch(CONFIG.SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body, redirect:'follow' });
-  } catch (e) {
-    console.error('[작도교실] 전송 실패', e);
-    return { ok:false, reason:'서버에 연결하지 못했어요. (웹 앱 액세스 권한이 "모든 사용자"인지 확인 필요)' };
-  }
+  try { res = await fetch(CONFIG.SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, body, redirect:'follow' }); }
+  catch (e){ console.error(e); return { ok:false, reason:'서버에 연결하지 못했습니다. (웹 앱 액세스 권한 확인)' }; }
   const text = await res.text();
-  let j = null;
-  try { j = JSON.parse(text); } catch (e) {}
-  if (!j){
-    console.error('[작도교실] JSON이 아닌 응답', res.status, text.slice(0, 500));
-    return { ok:false, reason:'서버 응답이 올바르지 않아요. (로그인 페이지가 돌아옴: 액세스 권한 또는 배포 주소 확인 필요)' };
-  }
-  if (j.result === 'success') return { ok:true };
-  console.error('[작도교실] 서버 오류', j);
-  return { ok:false, reason:'서버 오류: ' + (j.message || '알 수 없음') };
+  let j = null; try { j = JSON.parse(text); } catch (e){}
+  if (!j){ console.error('non-JSON', res.status, text.slice(0,300)); return { ok:false, reason:'서버 응답이 올바르지 않습니다. (배포 주소·권한 확인)' }; }
+  return j.result === 'success' ? { ok:true } : { ok:false, reason:'서버 오류: ' + (j.message || '') };
 }
 function downloadBackup(payload){
   try {
@@ -676,27 +1160,27 @@ function downloadBackup(payload){
     const blob = new Blob([JSON.stringify(copy, null, 2)], { type:'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `작도기록_${payload.studentId}_${payload.name}_${payload.problemId}.json`;
+    a.download = `작도기록_${payload.studentId}_${payload.name}.json`;
     document.body.appendChild(a); a.click(); a.remove();
-  } catch (e) {}
+  } catch (e){}
 }
 
 // ===================== 그리기 =====================
 function lineEnds(ax, ay, bx, by, type){
   const dx = bx - ax, dy = by - ay, T = 3000 / Math.hypot(dx, dy);
-  if (type === 'segment') return [{ x:ax, y:ay }, { x:bx, y:by }];
-  if (type === 'ray') return [{ x:ax, y:ay }, { x:ax + T * dx, y:ay + T * dy }];
-  return [{ x:ax - T * dx, y:ay - T * dy }, { x:ax + T * dx, y:ay + T * dy }];
+  if (type === 'segment') return [{x:ax,y:ay},{x:bx,y:by}];
+  if (type === 'ray') return [{x:ax,y:ay},{x:ax+T*dx,y:ay+T*dy}];
+  return [{x:ax-T*dx,y:ay-T*dy},{x:ax+T*dx,y:ay+T*dy}];
 }
 function drawScene(c, s, hl){
   const px = v => v / s;
   c.fillStyle = '#fffdf8'; c.fillRect(0, 0, W, H);
-  const alphaFor = o => (hl && !o.given && !hl.has(o.id)) ? 0.2 : 1;
+  const alphaFor = o => (hl && !o.given && !hl.has(o.id)) ? 0.18 : 1;
   const strong = o => hl && hl.has(o.id);
   for (const o of objs) if (o.kind === 'circle'){
     const g = circGeom(o);
-    c.globalAlpha = alphaFor(o); c.strokeStyle = COL.compass; c.lineWidth = px(strong(o) ? 2.4 : 1.5);
-    c.beginPath(); c.arc(g.x, g.y, g.r, 0, Math.PI * 2); c.stroke();
+    c.globalAlpha = alphaFor(o); c.strokeStyle = o.given ? COL.given : COL.compass; c.lineWidth = px(o.given ? 2.4 : (strong(o) ? 2.4 : 1.5));
+    c.beginPath(); c.arc(g.x, g.y, g.r, 0, Math.PI*2); c.stroke();
   }
   for (const o of objs) if (o.kind === 'line'){
     const a = P(o.p1), b = P(o.p2), e = lineEnds(a.x, a.y, b.x, b.y, o.ltype);
@@ -704,15 +1188,15 @@ function drawScene(c, s, hl){
     c.lineWidth = px(o.given ? 2.6 : (strong(o) ? 3 : 2));
     c.beginPath(); c.moveTo(e[0].x, e[0].y); c.lineTo(e[1].x, e[1].y); c.stroke();
     if (o.text){
-      const at = o.textAt || { x:(a.x + b.x) / 2, y:(a.y + b.y) / 2 - 10 };
+      const at = o.textAt || { x:(a.x+b.x)/2, y:(a.y+b.y)/2 - 10 };
       c.fillStyle = '#111'; c.font = `italic bold ${px(18)}px serif`; c.fillText(o.text, at.x, at.y);
     }
   }
   for (const o of objs) if (o.kind === 'point' && !o.hidden){
     c.globalAlpha = alphaFor(o); c.fillStyle = PCOL[o.ptype];
-    c.beginPath(); c.arc(o.x, o.y, px(o.given ? 4.5 : 4), 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(o.x, o.y, px(o.given ? 4.5 : 4), 0, Math.PI*2); c.fill();
     if (state.showLabels && !o.noLabel && o.label){
-      c.font = `${o.given ? 'bold ' : ''}${px(16)}px sans-serif`;
+      c.font = `${o.given ? 'bold ' : ''}${px(15)}px sans-serif`;
       c.fillStyle = o.given ? '#111' : '#374151';
       c.fillText(o.label, o.x + px(7), o.y - px(7));
     }
@@ -721,42 +1205,51 @@ function drawScene(c, s, hl){
 }
 function ring(c, p, r, color, s){
   c.strokeStyle = color; c.lineWidth = 2 / s;
-  c.beginPath(); c.arc(p.x, p.y, r / s, 0, Math.PI * 2); c.stroke();
+  c.beginPath(); c.arc(p.x, p.y, r / s, 0, Math.PI*2); c.stroke();
+}
+function drawGhost(c, s){
+  if (!state.ghost) return;
+  const px = v => v / s;
+  c.save(); c.setLineDash([px(9), px(6)]); c.lineWidth = px(2.4); c.strokeStyle = COL.hint;
+  for (const st of state.ghost){
+    if (st.k === 'circle'){ c.beginPath(); c.arc(st.c.x, st.c.y, st.r, 0, Math.PI*2); c.stroke(); }
+    else if (st.k === 'line'){
+      const e = lineEnds(st.a.x, st.a.y, st.b.x, st.b.y, st.ltype || 'line');
+      c.beginPath(); c.moveTo(e[0].x, e[0].y); c.lineTo(e[1].x, e[1].y); c.stroke();
+    }
+  }
+  c.restore();
 }
 function drawPreview(c, s){
   const px = v => v / s, sn = state.snap, pend = state.pending, t = state.tool;
-  c.save();
-  c.setLineDash([px(6), px(5)]); c.lineWidth = px(1.6);
-  if (sn){
-    if (t === 'ruler' && pend.length === 1){
+  c.save(); c.setLineDash([px(6), px(5)]); c.lineWidth = px(1.6);
+  if (sn && !state.skill){
+    if (t === 'ruler' && pend.length === 1 && dist(pend[0], sn) > 1e-6){
       const e = lineEnds(pend[0].x, pend[0].y, sn.x, sn.y, state.rulerType);
-      if (dist(pend[0], sn) > 1e-6){ c.strokeStyle = COL.ruler; c.beginPath(); c.moveTo(e[0].x, e[0].y); c.lineTo(e[1].x, e[1].y); c.stroke(); }
+      c.strokeStyle = COL.ruler; c.beginPath(); c.moveTo(e[0].x, e[0].y); c.lineTo(e[1].x, e[1].y); c.stroke();
     }
     if (t === 'compass' && pend.length === 1){
-      c.strokeStyle = COL.compass; c.beginPath(); c.arc(pend[0].x, pend[0].y, dist(pend[0], sn), 0, Math.PI * 2); c.stroke();
+      c.strokeStyle = COL.compass; c.beginPath(); c.arc(pend[0].x, pend[0].y, dist(pend[0], sn), 0, Math.PI*2); c.stroke();
     }
     if (t === 'transfer' && pend.length === 1){
       c.strokeStyle = COL.compass; c.beginPath(); c.moveTo(pend[0].x, pend[0].y); c.lineTo(sn.x, sn.y); c.stroke();
     }
-    if (t === 'transfer' && pend.length === 2){
-      c.strokeStyle = COL.compass; c.beginPath(); c.arc(sn.x, sn.y, dist(pend[0], pend[1]), 0, Math.PI * 2); c.stroke();
+    if (t === 'transfer' && !pend.length && state.width){
+      c.strokeStyle = COL.compass; c.beginPath(); c.arc(sn.x, sn.y, state.width.r, 0, Math.PI*2); c.stroke();
     }
   }
   c.setLineDash([]);
-  if (t === 'transfer' && pend.length >= 2){
-    c.strokeStyle = COL.compass; c.lineWidth = px(4); c.globalAlpha = 0.5;
-    c.beginPath(); c.moveTo(pend[0].x, pend[0].y); c.lineTo(pend[1].x, pend[1].y); c.stroke(); c.globalAlpha = 1;
-  }
-  pend.forEach(q => ring(c, q, 9, '#16a34a', s));
+  pend.forEach(q => { if (q.type !== 'line') ring(c, q, 9, '#16a34a', s); });
   if (sn){
     const colr = { existing:'#16a34a', intersection:'#dc2626', on:'#7c3aed', free:'#9ca3af' }[sn.type];
-    ring(c, sn, sn.type === 'free' ? 5 : 11, colr, s);
+    ring(c, sn, sn.type === 'free' ? 5 : 11, state.skill ? '#7c3aed' : colr, s);
   }
   c.restore();
 }
 function draw(){
-  ctx.setTransform(dpr * scale, 0, 0, dpr * scale, 0, 0);
+  ctx.setTransform(dpr*scale, 0, 0, dpr*scale, 0, 0);
   drawScene(ctx, scale, state.highlight);
+  drawGhost(ctx, scale);
   drawPreview(ctx, scale);
 }
 function exportImage(hl){
@@ -764,46 +1257,119 @@ function exportImage(hl){
   drawScene(c.getContext('2d'), 1, hl);
   return c.toDataURL('image/png');
 }
+let lastW = 0, resizeQueued = false;
 function resize(){
   const wrap = document.getElementById('board');
-  const w = wrap.clientWidth, h = w * H / W;
+  const w = wrap.clientWidth;
+  if (!w || Math.abs(w - lastW) < 0.5) return;   // 크기가 그대로면 아무것도 하지 않습니다
+  lastW = w;
+  const h = w * H / W;
   dpr = window.devicePixelRatio || 1; scale = w / W;
   cv.style.width = w + 'px'; cv.style.height = h + 'px';
-  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr);
   draw();
 }
+function queueResize(){            // 되먹임을 막기 위해 다음 그리기 차례에 처리합니다
+  if (resizeQueued) return;
+  resizeQueued = true;
+  requestAnimationFrame(() => { resizeQueued = false; resize(); });
+}
 
-// ===================== 화면 갱신 =====================
+// ===================== 화면 =====================
 function setHint(){
-  const n = state.pending.length, t = state.tool;
-  const H_ = {
-    point:['점을 찍을 곳을 누르세요. (교점 · 선 위 · 빈 곳)'],
-    ruler:['자: 첫 번째 점을 선택하세요.', '자: 두 번째 점을 선택하세요.'],
-    compass:['컴퍼스: 원의 중심을 선택하세요.', '컴퍼스: 원이 지나갈 점을 선택하세요.'],
-    transfer:['길이 옮기기: 잴 길이의 한 끝점을 선택하세요.', '길이 옮기기: 다른 끝점을 선택하세요.', '길이 옮기기: 원의 중심(옮길 위치)을 선택하세요.']
-  };
   const el = document.getElementById('hint');
   el.classList.remove('flash');
-  el.textContent = H_[t][Math.min(n, H_[t].length - 1)] + (n ? '  (Esc: 선택 취소)' : '');
+  if (state.skill){
+    const s = skill(state.skill);
+    el.textContent = `[${s.name}] ${s.tips[state.pending.length] || ''} 를 선택하세요.  (Esc 취소)`;
+    return;
+  }
+  const n = state.pending.length, t = state.tool;
+  const H_ = {
+    point:['점을 찍을 곳을 누르세요.'],
+    ruler:['자: 첫 번째 점을 선택하세요.', '자: 두 번째 점을 선택하세요.'],
+    compass:['컴퍼스: 원의 중심을 선택하세요.', '컴퍼스: 원이 지날 점을 선택하세요.'],
+    transfer: state.width ? ['길이 옮기기: 원의 중심을 찍으세요. (폭 고정됨)']
+                          : ['길이 옮기기: 잴 길이의 한 끝점을 선택하세요.', '길이 옮기기: 다른 끝점을 선택하세요.']
+  };
+  const arr = H_[t];
+  el.textContent = arr[Math.min(n, arr.length - 1)] + (n ? '  (Esc 취소)' : '');
 }
 let flashTimer = null;
 function flashHint(text){
   const el = document.getElementById('hint');
   el.textContent = text; el.classList.add('flash');
-  clearTimeout(flashTimer); flashTimer = setTimeout(setHint, 1500);
+  clearTimeout(flashTimer); flashTimer = setTimeout(setHint, 1600);
 }
 function showMsg(html, type){ const el = document.getElementById('msg'); el.innerHTML = html; el.className = 'msg show ' + type; }
 function hideMsg(){ document.getElementById('msg').className = 'msg'; }
+function updateWidthBox(){
+  const b = document.getElementById('widthbox');
+  b.innerHTML = state.width ? `폭: <b>${state.width.name}</b> 고정됨` : '폭: <b>없음</b>';
+  document.getElementById('btnRemeasure').style.display = state.width ? 'block' : 'none';
+}
+function renderSkills(){
+  const box = document.getElementById('skillList');
+  box.innerHTML = '';
+  const noSkill = problem && problem.limit && problem.limit.skills === false;
+  for (const s of SKILLS){
+    const on = hasSkill(s.id) && !noSkill;
+    const b = document.createElement('button');
+    b.className = 'skill' + (on ? '' : ' locked') + (state.skill === s.id ? ' active' : '');
+    b.innerHTML = `<span class="k">${on ? s.icon : '🔒'}</span> ${s.name}`;
+    if (on) b.onclick = () => {
+      state.skill = state.skill === s.id ? null : s.id;
+      state.pending = []; refresh(); renderSkills();
+    };
+    box.appendChild(b);
+  }
+}
+function renderProblems(){
+  const box = document.getElementById('plist');
+  box.innerHTML = '';
+  const ps = problems();
+  ps.forEach((p, i) => {
+    const b = document.createElement('button');
+    const solved = !!progress.solved[p.id];
+    const locked = CONFIG.LOCK_ORDER && state.stage === 'step1' && i > 0 && !progress.solved[ps[i-1].id] && !solved;
+    b.className = 'pbtn' + (i === state.idx ? ' on' : solved ? ' done' : '') + (locked ? ' lock' : '');
+    b.textContent = i + 1;
+    if (!locked) b.onclick = () => loadProblem(i);
+    box.appendChild(b);
+  });
+}
+function renderHints(){
+  const box = document.getElementById('hintList');
+  box.innerHTML = '';
+  HINT_NAMES.forEach((nm, lv) => {
+    const used = stats.hintsUsed.includes(lv), cost = lv === 0 ? 0 : hintCost(lv);
+    const row = document.createElement('div');
+    row.className = 'hintrow' + (used ? ' used' : '');
+    row.innerHTML = `<span>${lv+1}. ${nm}</span>`;
+    const b = document.createElement('button');
+    b.textContent = used ? '다시 보기' : (cost ? `🪙 ${cost}` : '무료');
+    b.onclick = () => useHint(lv);
+    row.appendChild(b); box.appendChild(row);
+  });
+}
 function updateCounts(){
   const t = totals();
   document.getElementById('sRuler').textContent = t.ruler;
   document.getElementById('sCompass').textContent = t.compass;
+  document.getElementById('sWidth').textContent = stats ? stats.widthChanges : 0;
+  document.getElementById('tok').textContent = progress.tokens;
 }
-function updateTimer(){
-  if (!stats) return;
-  const s = Math.floor((Date.now() - stats.start) / 1000);
-  document.getElementById('sTime').textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+function renderTabs(){
+  document.querySelectorAll('.tab').forEach(t => {
+    const open = stageOpen(t.dataset.stage);
+    t.classList.toggle('lock', !open);
+    const base = t.dataset.label || t.textContent;
+    t.dataset.label = base;
+    t.textContent = open ? base : '🔒 ' + base;
+    t.classList.toggle('on', t.dataset.stage === state.stage);
+  });
 }
+function renderAll(){ renderSkills(); renderProblems(); renderHints(); renderTabs(); updateCounts(); updateWidthBox(); }
 function refresh(){ updateCounts(); setHint(); draw(); }
 
 function askConfirm(text){
@@ -811,74 +1377,94 @@ function askConfirm(text){
     const m = document.getElementById('modal');
     document.getElementById('modalText').textContent = text;
     m.classList.remove('hidden');
-    const done = v => { m.classList.add('hidden'); yes.onclick = no.onclick = null; resolve(v); };
     const yes = document.getElementById('modalYes'), no = document.getElementById('modalNo');
+    const done = v => { m.classList.add('hidden'); yes.onclick = no.onclick = null; resolve(v); };
     yes.onclick = () => done(true); no.onclick = () => done(false);
   });
 }
 
 // ===================== 문제 불러오기 =====================
-function loadProblem(idx){
-  problem = PROBLEMS[idx];
-  objs = []; M.clear(); nextId = 1; actions = []; log = []; seq = 0;
-  state.pending = []; state.highlight = null; state.snap = null;
-  stats = { start:Date.now(), undo:0, reset:0, check:0, firstSolved:null, submitted:false };
+function loadProblem(i){
+  const ps = problems();
+  state.idx = i; problem = ps[i];
+  objs = []; M = new Map(); nextId = 1; actions = []; log = []; seq = 0;
+  state.pending = []; state.highlight = null; state.snap = null; state.width = null; state.widthCost = 0;
+  state.skill = null; state.ghost = null; busy = false;
+  stats = { start:Date.now(), undo:0, reset:0, check:0, widthChanges:0, hintsUsed:[] };
   G = problem.setup();
-  document.getElementById('pTitle').textContent = `[${problem.id}] ${problem.title}`;
+  document.getElementById('pTitle').textContent = `${i+1}. ${problem.title}`;
   document.getElementById('pDesc').textContent = problem.desc;
-  hideMsg(); refresh(); updateTimer();
+  const lim = document.getElementById('pLimit');
+  if (problem.limit){
+    const parts = [];
+    if (problem.limit.ruler != null) parts.push(`자 ${problem.limit.ruler}회`);
+    if (problem.limit.compass != null) parts.push(`컴퍼스 ${problem.limit.compass}회`);
+    if (problem.limit.skills === false) parts.push('스킬 잠김');
+    lim.textContent = '제한: ' + parts.join(' · ');
+    lim.style.display = 'block';
+  } else lim.style.display = 'none';
+  const sk = document.getElementById('btnSkip'), ag = document.getElementById('btnAgain');
+  sk.style.display = state.stage === 'bonus' ? 'block' : 'none';
+  sk.textContent = progress.skipped[problem.id] ? '다시 도전하기' : '이 챌린지 건너뛰기';
+  ag.style.display = (state.stage === 'step2' && progress.solved[problem.id]) ? 'block' : 'none';
+  hideMsg(); renderAll(); refresh();
 }
 
-// ===================== 이벤트 연결 =====================
-function evtPoint(e){ const r = cv.getBoundingClientRect(); return { x:(e.clientX - r.left) / scale, y:(e.clientY - r.top) / scale }; }
+// ===================== 이벤트 =====================
+function evtPoint(e){ const r = cv.getBoundingClientRect(); return { x:(e.clientX-r.left)/scale, y:(e.clientY-r.top)/scale }; }
 cv.addEventListener('pointermove', e => { state.snap = snapCandidate(evtPoint(e)); draw(); });
 cv.addEventListener('pointerleave', () => { state.snap = null; draw(); });
 cv.addEventListener('click', e => { handleClick(evtPoint(e)); state.snap = null; draw(); });
 cv.addEventListener('contextmenu', e => { e.preventDefault(); state.pending = []; refresh(); });
-
 document.querySelectorAll('.tool-btn').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.tool-btn').forEach(x => x.classList.remove('active'));
-  b.classList.add('active'); state.tool = b.dataset.tool; state.pending = []; refresh();
+  b.classList.add('active'); state.tool = b.dataset.tool; state.skill = null; state.pending = [];
+  renderSkills(); refresh();
 }));
-document.querySelectorAll('input[name=rtype]').forEach(r => r.addEventListener('change', () => {
-  state.rulerType = r.value; refresh();
-}));
+document.querySelectorAll('input[name=rtype]').forEach(r => r.addEventListener('change', () => { state.rulerType = r.value; refresh(); }));
 document.getElementById('showLabels').addEventListener('change', e => { state.showLabels = e.target.checked; draw(); });
+document.getElementById('btnRemeasure').addEventListener('click', () => { state.width = null; state.widthCost = 0; state.pending = []; updateWidthBox(); refresh(); });
 document.getElementById('btnUndo').addEventListener('click', undo);
 document.getElementById('btnReset').addEventListener('click', resetWork);
 document.getElementById('btnCheck').addEventListener('click', onCheck);
-document.getElementById('btnSubmit').addEventListener('click', submit);
+document.getElementById('btnSubmit').addEventListener('click', () => submit(false));
+document.getElementById('btnSkip').addEventListener('click', () => {
+  if (progress.skipped[problem.id]){
+    progress.skipped[problem.id] = false;
+    document.getElementById('btnSkip').textContent = '이 챌린지 건너뛰기';
+    showMsg('다시 도전합니다. 화이팅!', 'info'); return;
+  }
+  progress.skipped[problem.id] = true;
+  progress.records.push({ id:problem.id, title:problem.title, stage:state.stage, solved:'건너뜀',
+    sec:elapsed(), ruler:0, compass:0, rulerM:'', compassM:'', rulerX:'', compassX:'',
+    width:0, undo:0, reset:0, check:0, hints:'', tokens:0, strategy:'' });
+  addLog('skip', '보너스 건너뛰기');
+  document.getElementById('btnSkip').textContent = '다시 도전하기';
+  showMsg('건너뛰었습니다. 나중에 이 화면에서 다시 도전할 수 있습니다.', 'info');
+});
+document.getElementById('btnAgain').addEventListener('click', () => {
+  const i = state.idx; loadProblem(i);
+  showMsg('앞에서 쓴 것과 <b>다른 계열의 방법</b>으로 다시 작도해 보세요. 성공하면 토큰을 더 받습니다.', 'info');
+});
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  const st = t.dataset.stage;
+  if (!stageOpen(st)){ showMsg('🔒 아직 열리지 않은 단계입니다. ' + stageNeed(st), 'warn'); return; }
+  state.stage = st; loadProblem(0);
+}));
 document.addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') return;
-  if (e.key === 'Escape'){ state.pending = []; refresh(); }
+  if (e.key === 'Escape'){ state.pending = []; state.skill = null; renderSkills(); refresh(); }
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z'){ e.preventDefault(); undo(); }
 });
-
-const sel = document.getElementById('problemSelect');
-PROBLEMS.forEach((p, i) => { const o = document.createElement('option'); o.value = i; o.textContent = `${p.id}. ${p.title}`; sel.appendChild(o); });
-let currentIdx = 0;
-sel.addEventListener('change', async () => {
-  const idx = Number(sel.value);
-  if (actions.length && !stats.submitted && !(await askConfirm('다른 문제로 바꾸면 지금 작도가 지워져요. 바꿀까요?'))){ sel.value = currentIdx; return; }
-  currentIdx = idx; loadProblem(idx);
+window.addEventListener('beforeunload', e => {
+  if (progress.records.length && progress.submitted < progress.records.length){ e.preventDefault(); e.returnValue = ''; }
 });
 
-if (!CONFIG.SHOW_LIVE_COUNTS){
-  document.getElementById('sRuler').parentElement.style.display = 'none';
-  document.getElementById('sCompass').parentElement.style.display = 'none';
-  document.getElementById('statsBox').style.gridTemplateColumns = '1fr';
-}
-
-// URL 옵션 (?p=P3&lock=1)
-const params = new URLSearchParams(location.search);
-const pIdx = PROBLEMS.findIndex(p => p.id === (params.get('p') || '').toUpperCase());
-if (pIdx >= 0) currentIdx = pIdx;
-sel.value = currentIdx;
-if (params.get('lock') === '1') sel.disabled = true;
-
-new ResizeObserver(resize).observe(document.getElementById('board'));
-setInterval(updateTimer, 1000);
-loadProblem(currentIdx);
+document.querySelector('footer').textContent = CONFIG.FOOTER;
+progress.startAll = Date.now();
+new ResizeObserver(queueResize).observe(document.getElementById('board'));
+window.addEventListener('resize', queueResize);
+loadProblem(0);
 resize();
 </script>
 </body>
