@@ -6,94 +6,201 @@
 <title>작도 교실</title>
 <style>
   :root{
-    --bg:#f5f3ee; --card:#fff; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
-    --blue:#2563eb; --orange:#ea580c; --green:#16a34a; --red:#dc2626; --purple:#7c3aed; --gold:#b45309;
+    --deep:#081A2E; --deep2:#113A63;
+    --glass:rgba(255,255,255,.10); --glass2:rgba(255,255,255,.16); --glass3:rgba(255,255,255,.22);
+    --edge:rgba(150,205,255,.30); --edge2:rgba(170,220,255,.55);
+    --text:#E8F1FB; --muted:#9DB4CE;
+    --cobalt:#3B82F6; --cyan:#22D3EE; --amber:#F6B93B; --mint:#34D399; --rose:#FB7185;
+    --r:14px;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:'Pretendard','Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--bg);color:var(--ink);}
-  header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--line);}
-  header h1{font-size:19px;margin:0;}
+  html,body{height:100%}
+  body{
+    margin:0;color:var(--text);
+    font-family:'Pretendard','Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    background:
+      radial-gradient(1100px 620px at 12% -8%, #1C5285 0%, rgba(28,82,133,0) 62%),
+      radial-gradient(900px 560px at 98% 4%, #0E5C73 0%, rgba(14,92,115,0) 58%),
+      linear-gradient(170deg, var(--deep) 0%, var(--deep2) 58%, #0A2742 100%);
+    background-attachment:fixed;
+  }
+  /* 제도용지 모눈 */
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(140,200,255,.055) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(140,200,255,.055) 1px,transparent 1px);
+    background-size:34px 34px;
+  }
+  header,main,footer{position:relative;z-index:1}
+  .glass{
+    background:var(--glass);
+    border:1px solid var(--edge);
+    border-radius:var(--r);
+    backdrop-filter:blur(16px) saturate(150%);
+    -webkit-backdrop-filter:blur(16px) saturate(150%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.26), 0 10px 30px rgba(3,16,32,.30);
+  }
+  header{
+    display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+    padding:12px 20px;margin:12px 12px 0;
+    background:var(--glass2);border:1px solid var(--edge);border-radius:var(--r);
+    backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 10px 30px rgba(3,16,32,.28);
+  }
+  header h1{font-size:19px;margin:0;letter-spacing:-.01em;font-weight:800;display:flex;align-items:center;gap:9px}
+  header h1 svg{width:26px;height:26px;opacity:.95}
   .who{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .who input{padding:7px 9px;border:1px solid #d1d5db;border-radius:8px;font-size:15px;width:120px;font-family:inherit}
-  .tokenbox{display:flex;align-items:center;gap:6px;background:#fffbeb;border:1px solid #fde68a;border-radius:999px;padding:6px 14px;font-weight:800;color:var(--gold)}
-  main{display:grid;grid-template-columns:168px minmax(0,1fr) 310px;gap:12px;padding:12px;max-width:1560px;margin:0 auto;align-items:start}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;}
-  h3.sec{font-size:12px;letter-spacing:.04em;color:var(--muted);margin:2px 0 8px;font-weight:800}
-  .tools{display:flex;flex-direction:column;gap:6px}
-  .tool-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 5px;border:2px solid var(--line);border-radius:10px;background:#fff;cursor:pointer;font-size:13.5px;font-weight:700;color:var(--ink);font-family:inherit;line-height:1.25}
+  .who input{
+    padding:8px 11px;border:1px solid var(--edge);border-radius:10px;font-size:15px;width:118px;
+    font-family:inherit;background:rgba(255,255,255,.09);color:var(--text);
+  }
+  .who input::placeholder{color:rgba(205,222,240,.55)}
+  .who input:focus{outline:2px solid var(--cyan);outline-offset:1px;background:rgba(255,255,255,.14)}
+  .meter{
+    display:flex;align-items:center;gap:7px;padding:7px 15px;border-radius:999px;
+    background:rgba(255,255,255,.10);border:1px solid var(--edge);font-weight:800;font-size:15px;
+    font-variant-numeric:tabular-nums;
+  }
+  .meter.coin{color:var(--amber)}
+  .meter.score{color:var(--cyan)}
+  main{display:grid;grid-template-columns:176px minmax(0,1fr) 320px;gap:12px;padding:12px;max-width:1580px;margin:0 auto;align-items:start}
+  .card{
+    background:var(--glass);border:1px solid var(--edge);border-radius:var(--r);padding:11px;
+    backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 10px 26px rgba(3,16,32,.26);
+  }
+  h3.sec{font-size:11.5px;letter-spacing:.06em;color:var(--muted);margin:2px 0 9px;font-weight:700}
+  .tools{display:flex;flex-direction:column;gap:7px}
+  .tool-btn{
+    display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 5px;
+    border:1px solid var(--edge);border-radius:12px;background:rgba(255,255,255,.07);
+    cursor:pointer;font-size:13.5px;font-weight:700;color:var(--text);font-family:inherit;line-height:1.25;
+    transition:background .15s, border-color .15s, transform .08s;
+  }
+  .tool-btn small{font-weight:400;color:var(--muted)}
   .tool-btn svg{width:30px;height:30px}
-  .tool-btn.active{border-color:var(--blue);background:#eff6ff;color:var(--blue)}
-  .sub{display:flex;flex-direction:column;gap:3px;font-size:12.5px;padding:6px 3px 2px;border-top:1px dashed var(--line)}
-  .widthbox{font-size:12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:6px;margin-top:6px;line-height:1.5}
-  .widthbox b{color:var(--orange)}
-  .mini{width:100%;padding:5px;margin-top:5px;border:1px solid #d1d5db;border-radius:7px;background:#fff;font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:700}
-  .skill{display:flex;align-items:center;gap:6px;width:100%;padding:7px 8px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:13px;cursor:pointer;font-family:inherit;text-align:left;margin-bottom:5px;color:var(--ink);font-weight:700}
-  .skill.locked{opacity:.45;cursor:not-allowed;font-weight:400}
-  .skill.active{border-color:var(--purple);background:#f5f3ff;color:var(--purple)}
+  .tool-btn:hover{background:rgba(255,255,255,.13)}
+  .tool-btn:active{transform:translateY(1px)}
+  .tool-btn.active{
+    background:linear-gradient(180deg, rgba(34,211,238,.26), rgba(59,130,246,.20));
+    border-color:var(--edge2);color:#fff;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.45), 0 0 0 1px rgba(34,211,238,.35);
+  }
+  .sub{display:flex;flex-direction:column;gap:4px;font-size:12.5px;padding:7px 3px 2px;border-top:1px solid rgba(150,205,255,.18);color:var(--text)}
+  .sub label{cursor:pointer;display:flex;align-items:center;gap:5px}
+  .widthbox{font-size:12px;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.32);border-radius:10px;padding:7px;margin-top:6px;line-height:1.5}
+  .widthbox b{color:var(--cyan)}
+  .mini{width:100%;padding:6px;margin-top:5px;border:1px solid var(--edge);border-radius:9px;background:rgba(255,255,255,.08);font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:700;color:var(--text)}
+  .mini:hover{background:rgba(255,255,255,.14)}
+  .viewctl{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
+  .viewctl button{padding:6px;border:1px solid var(--edge);border-radius:9px;background:rgba(255,255,255,.08);color:var(--text);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+  .viewctl button:hover{background:rgba(255,255,255,.14)}
+  .viewctl .wide{grid-column:1/3;font-size:12px;font-weight:700}
+  .skill{
+    display:flex;align-items:center;gap:7px;width:100%;padding:8px 9px;border:1px solid var(--edge);
+    border-radius:10px;background:rgba(255,255,255,.07);font-size:13px;cursor:pointer;font-family:inherit;
+    text-align:left;margin-bottom:5px;color:var(--text);font-weight:700;
+  }
+  .skill:hover{background:rgba(255,255,255,.13)}
+  .skill.locked{opacity:.38;cursor:not-allowed;font-weight:400}
+  .skill.active{background:linear-gradient(180deg,rgba(34,211,238,.26),rgba(59,130,246,.18));border-color:var(--edge2);color:#fff}
   .skill .k{font-size:15px}
   #board{padding:0;overflow:hidden;position:relative}
-  canvas{display:block;touch-action:none;cursor:crosshair}
-  #hint{padding:7px 12px;font-size:14px;color:#374151;background:#f9fafb;border-top:1px solid var(--line);min-height:36px}
-  #hint.flash{background:#fef3c7}
-  .panel{display:flex;flex-direction:column;gap:10px}
-  .tabs{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(6,auto);gap:5px}
-  .tab{font-size:12.5px;white-space:normal;line-height:1.35;padding:8px 5px}
+  canvas{display:block;touch-action:none;cursor:crosshair;background:#FBFDFF}
+  canvas.panning{cursor:grab}
+  #hint{padding:8px 13px;font-size:14px;color:var(--text);background:rgba(255,255,255,.07);border-top:1px solid var(--edge);min-height:37px}
+  #hint.flash{background:rgba(246,185,59,.22)}
+  .panel{display:flex;flex-direction:column;gap:11px}
+  .tabs{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(6,auto);gap:6px}
+  .tab{
+    font-size:12.5px;white-space:normal;line-height:1.35;padding:9px 6px;border:1px solid var(--edge);
+    border-radius:11px;background:rgba(255,255,255,.07);font-weight:800;cursor:pointer;font-family:inherit;color:var(--text);
+  }
+  .tab:hover{background:rgba(255,255,255,.13)}
+  .tab.on{background:linear-gradient(180deg,rgba(34,211,238,.30),rgba(59,130,246,.22));border-color:var(--edge2);color:#fff}
+  .tab.lock{opacity:.4;cursor:not-allowed}
   .tab[data-stage="step1"]{grid-column:1;grid-row:1/3}
   .tab[data-stage="step2"]{grid-column:1;grid-row:3/5}
   .tab[data-stage="step3"]{grid-column:1;grid-row:5/7}
   .tab[data-stage="practice"]{grid-column:2;grid-row:1/4}
   .tab[data-stage="bonus"]{grid-column:2;grid-row:4/7}
-  .tab{flex:1;padding:7px;border:1px solid var(--line);border-radius:9px;background:#fff;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;color:var(--ink)}
-  .tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-  .tab.lock{opacity:.45;cursor:not-allowed}
   .plist{display:flex;flex-wrap:wrap;gap:5px}
-  .pbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;color:var(--ink)}
-  .pbtn.on{background:var(--blue);color:#fff;border-color:var(--blue)}
-  .pbtn.done{background:#dcfce7;border-color:#86efac;color:#166534}
-  .pbtn.lock{opacity:.4;cursor:not-allowed}
-  .ptitle{font-size:16px;font-weight:800;margin:0 0 5px}
-  .pdesc{font-size:14.5px;line-height:1.6;margin:0;color:#374151}
-  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;text-align:center}
-  .stat{background:#f9fafb;border-radius:8px;padding:6px 3px}
-  .stat b{display:block;font-size:18px}
+  .pbtn{
+    width:31px;height:31px;border-radius:9px;border:1px solid var(--edge);background:rgba(255,255,255,.07);
+    font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;color:var(--text);font-variant-numeric:tabular-nums;
+  }
+  .pbtn:hover{background:rgba(255,255,255,.14)}
+  .pbtn.on{background:linear-gradient(180deg,rgba(34,211,238,.34),rgba(59,130,246,.26));border-color:var(--edge2);color:#fff}
+  .pbtn.done{background:rgba(52,211,153,.20);border-color:rgba(52,211,153,.5);color:#BFF4DF}
+  .pbtn.lock{opacity:.35;cursor:not-allowed}
+  .ptitle{font-size:16px;font-weight:800;margin:0 0 6px;letter-spacing:-.01em}
+  .pdesc{font-size:14.5px;line-height:1.62;margin:0;color:#D5E5F6}
+  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;text-align:center}
+  .stat{background:rgba(255,255,255,.07);border:1px solid rgba(150,205,255,.2);border-radius:10px;padding:7px 3px}
+  .stat b{display:block;font-size:19px;font-variant-numeric:tabular-nums}
   .stat span{font-size:11px;color:var(--muted)}
   .btns{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-  .btn{padding:9px;border-radius:8px;border:1px solid #d1d5db;background:#fff;font-size:14.5px;cursor:pointer;font-weight:700;font-family:inherit;color:var(--ink)}
-  .btn:disabled{opacity:.5;cursor:not-allowed}
-  .btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
-  .btn.success{background:var(--green);color:#fff;border-color:var(--green)}
-  .hintrow{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;margin-bottom:5px;font-size:13px}
-  .hintrow button{padding:4px 9px;border-radius:7px;border:1px solid #d1d5db;background:#fff;font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:700;white-space:nowrap;color:var(--ink)}
-  .hintrow.used{background:#f9fafb;color:var(--muted)}
-  .msg{padding:9px 11px;border-radius:8px;font-size:13.5px;line-height:1.6;display:none}
+  .btn{
+    padding:10px;border-radius:10px;border:1px solid var(--edge);background:rgba(255,255,255,.08);
+    font-size:14.5px;cursor:pointer;font-weight:700;font-family:inherit;color:var(--text);
+  }
+  .btn:hover{background:rgba(255,255,255,.15)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.primary{background:linear-gradient(180deg,#3B82F6,#2563EB);border-color:rgba(190,225,255,.5);color:#fff}
+  .btn.primary:hover{background:linear-gradient(180deg,#4C8DF8,#2E6CE8)}
+  .btn.success{background:linear-gradient(180deg,#10B981,#059669);border-color:rgba(190,255,230,.45);color:#fff}
+  .btn.success:hover{background:linear-gradient(180deg,#17C78B,#06A678)}
+  .hintrow{
+    display:flex;justify-content:space-between;align-items:center;gap:7px;padding:7px 9px;
+    border:1px solid rgba(150,205,255,.2);border-radius:10px;margin-bottom:5px;font-size:13px;
+  }
+  .hintrow button{
+    padding:5px 10px;border-radius:8px;border:1px solid var(--edge);background:rgba(255,255,255,.09);
+    font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:700;white-space:nowrap;color:var(--text);
+  }
+  .hintrow button:hover{background:rgba(255,255,255,.16)}
+  .hintrow.used{opacity:.6}
+  .msg{padding:10px 12px;border-radius:11px;font-size:13.5px;line-height:1.6;display:none;border:1px solid transparent}
   .msg.show{display:block}
-  .msg.ok{background:#dcfce7;color:#166534}
-  .msg.warn{background:#fef3c7;color:#92400e}
-  .msg.err{background:#fee2e2;color:#991b1b}
-  .msg.info{background:#e0f2fe;color:#075985}
-  .legend{font-size:11.5px;color:var(--muted);line-height:1.7}
+  .msg.ok{background:rgba(52,211,153,.16);border-color:rgba(52,211,153,.45);color:#C7F5E3}
+  .msg.warn{background:rgba(246,185,59,.16);border-color:rgba(246,185,59,.45);color:#FBE6BC}
+  .msg.err{background:rgba(251,113,133,.16);border-color:rgba(251,113,133,.45);color:#FFD2DA}
+  .msg.info{background:rgba(34,211,238,.14);border-color:rgba(34,211,238,.4);color:#CBF2FA}
+  .legend{font-size:11.5px;color:var(--muted);line-height:1.75}
   .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:middle}
-  footer{text-align:center;padding:14px;font-size:12px;color:#9ca3af}
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:50}
+  footer{text-align:center;padding:16px;font-size:12px;color:rgba(190,212,234,.6)}
+  .modal{position:fixed;inset:0;background:rgba(5,16,30,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50}
   .modal.hidden{display:none}
-  .modal-box{background:#fff;border-radius:12px;padding:20px;max-width:380px;width:90%}
+  .modal-box{
+    background:rgba(18,48,80,.86);border:1px solid var(--edge2);border-radius:16px;padding:22px;max-width:380px;width:90%;
+    backdrop-filter:blur(18px) saturate(150%);box-shadow:0 24px 60px rgba(2,12,26,.5);
+  }
   .modal-box p{margin:0 0 16px;line-height:1.6}
   .modal-box .row{display:flex;gap:8px;justify-content:flex-end}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
   @media (max-width:1050px){
     main{grid-template-columns:1fr}
     .tools{flex-direction:row;flex-wrap:wrap}
-    .tool-btn{flex:1;min-width:74px}
+    .tool-btn{flex:1;min-width:78px}
     .sub{width:100%;flex-direction:row;flex-wrap:wrap;gap:12px}
   }
 </style>
 </head>
 <body>
 <header>
-  <h1>📐 작도 교실</h1>
+  <h1>
+    <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <circle cx="16" cy="5" r="2.6" fill="#22D3EE"/>
+      <path d="M16 7.6 L8 27 M16 7.6 L24 27" stroke="#BFE3FF" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M6.5 23.5 A12 12 0 0 0 25.5 23.5" stroke="#3B82F6" stroke-width="1.8" fill="none" stroke-dasharray="3.5 2.5"/>
+    </svg>
+    작도 교실
+  </h1>
   <div class="who">
     <input id="sid" placeholder="학번" autocomplete="off" />
     <input id="sname" placeholder="이름" autocomplete="off" />
-    <div class="tokenbox">🪙 <span id="tok">0</span></div>
+    <div class="meter coin" title="힌트를 살 때 쓰는 코인입니다">🪙 <span id="tok">0</span></div>
+    <div class="meter score" title="작도 결과로 쌓인 점수입니다">◆ <span id="score">0</span></div>
   </div>
 </header>
 
@@ -101,8 +208,21 @@
   <aside class="card">
     <h3 class="sec">도구</h3>
     <div class="tools" id="tools">
+      <button class="tool-btn" data-tool="pan" title="작도판을 끌어 옮기고, 확대·축소합니다">
+        <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 5 L20 35 M5 20 L35 20"/>
+          <path d="M20 5 L16.5 9 M20 5 L23.5 9 M20 35 L16.5 31 M20 35 L23.5 31"/>
+          <path d="M5 20 L9 16.5 M5 20 L9 23.5 M35 20 L31 16.5 M35 20 L31 23.5"/>
+        </svg>
+        이동·확대
+      </button>
+      <div class="viewctl">
+        <button id="btnZoomIn" title="확대">+</button>
+        <button id="btnZoomOut" title="축소">−</button>
+        <button id="btnZoomReset" class="wide">처음 화면으로</button>
+      </div>
       <button class="tool-btn active" data-tool="ruler" title="두 점을 지나는 선을 긋습니다">
-        <svg viewBox="0 0 40 40"><rect x="4" y="16" width="32" height="8" rx="2" transform="rotate(-30 20 20)" fill="#dbeafe" stroke="currentColor" stroke-width="2"/></svg>
+        <svg viewBox="0 0 40 40"><rect x="4" y="16" width="32" height="8" rx="2" transform="rotate(-30 20 20)" fill="rgba(34,211,238,.18)" stroke="currentColor" stroke-width="2"/></svg>
         자
       </button>
       <div class="sub">
@@ -111,11 +231,11 @@
         <label><input type="radio" name="rtype" value="line"> 직선</label>
       </div>
       <button class="tool-btn" data-tool="compass" title="중심과 원 위의 한 점으로 원을 그립니다">
-        <svg viewBox="0 0 40 40"><circle cx="20" cy="7" r="3" fill="currentColor"/><path d="M20 9 L10 34 M20 9 L30 34" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M8 30 A16 16 0 0 0 32 30" stroke="#ea580c" stroke-width="1.5" fill="none" stroke-dasharray="3 2"/></svg>
+        <svg viewBox="0 0 40 40"><circle cx="20" cy="7" r="3" fill="currentColor"/><path d="M20 9 L10 34 M20 9 L30 34" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none"/><path d="M8 30 A16 16 0 0 0 32 30" stroke="#22D3EE" stroke-width="1.5" fill="none" stroke-dasharray="3 2"/></svg>
         컴퍼스<br><small style="font-weight:400">원 그리기</small>
       </button>
       <button class="tool-btn" data-tool="transfer" title="길이를 재어 옮깁니다. 잰 폭은 고정됩니다">
-        <svg viewBox="0 0 40 40"><path d="M4 32 L16 32" stroke="currentColor" stroke-width="2.5"/><circle cx="4" cy="32" r="2" fill="currentColor"/><circle cx="16" cy="32" r="2" fill="currentColor"/><path d="M19 24 L26 21" stroke="#ea580c" stroke-width="2"/><circle cx="30" cy="16" r="8" stroke="#ea580c" stroke-width="1.5" fill="none"/><circle cx="30" cy="16" r="1.8" fill="currentColor"/></svg>
+        <svg viewBox="0 0 40 40"><path d="M4 32 L16 32" stroke="currentColor" stroke-width="2.5"/><circle cx="4" cy="32" r="2" fill="currentColor"/><circle cx="16" cy="32" r="2" fill="currentColor"/><path d="M19 24 L26 21" stroke="#22D3EE" stroke-width="2"/><circle cx="30" cy="16" r="8" stroke="#22D3EE" stroke-width="1.5" fill="none"/><circle cx="30" cy="16" r="1.8" fill="currentColor"/></svg>
         컴퍼스<br><small style="font-weight:400">길이 옮기기</small>
       </button>
       <div class="widthbox" id="widthbox">폭: <b>없음</b></div>
@@ -170,10 +290,10 @@
       <div id="hintList"></div>
     </div>
     <div class="card legend">
-      <span class="dot" style="background:#111"></span>주어진 점
-      <span class="dot" style="background:var(--red);margin-left:6px"></span>교점
-      <span class="dot" style="background:var(--purple);margin-left:6px"></span>선 위의 점
-      <span class="dot" style="background:#9ca3af;margin-left:6px"></span>임의의 점<br>
+      <span class="dot" style="background:#0B2545"></span>주어진 점
+      <span class="dot" style="background:#E11D48;margin-left:6px"></span>교점
+      <span class="dot" style="background:#7C3AED;margin-left:6px"></span>선 위의 점
+      <span class="dot" style="background:#94A3B8;margin-left:6px"></span>임의의 점<br>
       점 가까이를 누르면 교점에 자동으로 맞춰집니다. Esc 선택 취소 · Ctrl+Z 되돌리기
     </div>
   </aside>
@@ -203,27 +323,37 @@ const CONFIG = {
   LOCK_STAGES: false,    // true 로 바꾸면 평행선은 기본 작도를, 보너스·도전은 평행선을 끝내야 열립니다
   SEND_IMAGE: true
 };
-// 토큰 규칙 (필요하면 이 숫자만 고치면 됩니다)
-const TOKEN = {
-  solveStep1: 2, solvePractice: 1,
-  minimal: 2, nearMinimal: 1,   // 최소 횟수 / 1~2회 초과
-  firstTry: 1,                  // 확인 한 번에 통과
-  widthKept: 1                  // 컴퍼스 폭을 한 번도 안 바꿈(해당 문제만)
+// 코인 — 힌트를 사는 데 쓰며, 수업 시작 때 한 번에 지급합니다.
+const COIN = {
+  start: 30,     // 처음 지급하는 코인
+  perPoint: 2    // 끝까지 남긴 코인 1개당 점수
 };
+// 점수 — 작도 결과로 쌓입니다. (필요하면 이 숫자만 고치면 됩니다)
+const SCORE = {
+  step1: 10, practice: 5, step2: 20, step3: 30,   // 단계별 기본 점수
+  minimal: 10, nearMinimal: 5,   // 최소 횟수 / 1~2회 초과
+  firstTry: 5,                   // 확인 한 번에 통과
+  widthKept: 5,                  // 컴퍼스 폭을 한 번도 안 바꿈
+  badge: 10,                     // 평행선을 컴퍼스 2·자 1로 해결
+  second: 15                     // 평행선을 다른 계열의 방법으로 또 해결
+};
+const TOKEN = {};
 const HINT_COST = { step1:[1,2,3,5], practice:[1,2,3,5], step2:[2,3,5,8], bonus:[2,3,5,8], step3:[3,4,6,10] };
-TOKEN.secondMethod = 3;   // Step 2 에서 다른 계열의 방법으로 또 성공했을 때
+
 
 // ===================== 기본 상수 =====================
 const W = 1000, H = 640;
 const EPS_LEN = 0.25, EPS_ANG = 0.2, ON_EPS = 1e-4;
-const COL = { given:'#111827', ruler:'#2563eb', compass:'#ea580c', hint:'#16a34a' };
-const PCOL = { given:'#111111', intersection:'#dc2626', on:'#7c3aed', free:'#9ca3af' };
+const COL = { given:'#0B2545', ruler:'#1D4ED8', compass:'#0891B2', hint:'#059669' };
+const PCOL = { given:'#0B2545', intersection:'#E11D48', on:'#7C3AED', free:'#94A3B8' };
 const PTYPE_KO = { given:'주어진 점', intersection:'교점', on:'선 위의 점', free:'임의의 점' };
 const RULER_KO = { segment:'선분', ray:'반직선', line:'직선' };
 
 const cv = document.getElementById('cv');
 const ctx = cv.getContext('2d');
 let scale = 1, dpr = 1;
+// 화면 배율 = 작도판 배율 × 사용자의 확대 배율
+function zs(){ return scale * state.view.k; }
 
 // ===================== 상태 =====================
 let objs = [], M = new Map(), nextId = 1;
@@ -231,8 +361,9 @@ let actions = [], log = [], seq = 0;
 let problem = null, G = null, stats = null;
 let busy = false;
 const state = { tool:'ruler', rulerType:'segment', pending:[], snap:null, highlight:null,
-                showLabels:true, width:null, skill:null, ghost:null, stage:'step1', idx:0 };
-const progress = { tokens:0, skills:[], solved:{}, records:[], hints:[], submitted:0, strategies:[], skipped:{} };
+                showLabels:true, width:null, skill:null, ghost:null, stage:'step1', idx:0,
+                view:{ x:0, y:0, k:1 }, drag:null };
+const progress = { coins:COIN.start, score:0, skills:[], solved:{}, records:[], hints:[], submitted:0, strategies:[], skipped:{} };
 
 // ===================== 객체 =====================
 function addObj(o){ o.id = nextId++; objs.push(o); M.set(o.id, o); return o; }
@@ -333,7 +464,7 @@ function perpTo(L, A, B){ // 직선 L 과 선분 AB 가 수직인가
 
 // ===================== 스냅 =====================
 function snapCandidate(p){
-  const tp = 14 / scale, tc = 10 / scale;
+  const tp = 14 / zs(), tc = 10 / zs();
   let pt = null, pd = tp;
   for (const o of objs){
     if (o.kind !== 'point' || o.hidden) continue;
@@ -346,7 +477,7 @@ function snapCandidate(p){
       const d = dist(q, p);
       if (d < idd){ idd = d; it = { x:q.x, y:q.y, parents:[near[i].id, near[j].id] }; }
     }
-  if (pt && (!it || pd <= idd + 3 / scale)) return { type:'existing', point:pt, x:pt.x, y:pt.y };
+  if (pt && (!it || pd <= idd + 3 / zs())) return { type:'existing', point:pt, x:pt.x, y:pt.y };
   if (it){
     for (const o of objs) if (o.kind === 'point' && !o.hidden && dist(o, it) < 1e-6)
       return { type:'existing', point:o, x:o.x, y:o.y };
@@ -378,7 +509,7 @@ function newPtsText(created){
   return pts.length ? ` (새 점 ${pts.map(o => o.label).join(', ')})` : '';
 }
 function pickLine(p){
-  let best = null, bd = 12 / scale;
+  let best = null, bd = 12 / zs();
   for (const o of objs){
     if (o.kind !== 'line') continue;
     const d = distToCurve(o, p).d;
@@ -735,7 +866,7 @@ function classify(ansIds, g){
   return '각 이용 (각 옮기기)';
 }
 const STEP2 = [
-  { id:'C1', title:'평행선 작도', token:5, strategy:true,
+  { id:'C1', title:'평행선 작도', score:SCORE.step2, strategy:true,
     desc:'직선 l 밖의 점 P를 지나고 직선 l에 평행한 직선을 작도하세요. 방법은 자유입니다.',
     hints:['평행선은 바로 그릴 수 없습니다. 평행이 되는 조건(동위각·엇각가 같다, 한 직선에 수직인 두 직선, 마름모·평행사변형)을 만들어야 합니다.',
            '점 P를 지나는 직선을 하나 그어 l과 만나게 한 뒤, 생긴 각을 점 P로 옮겨 보세요. 또는 점 P에서 l에 수선을 내린 뒤 그 수선에 다시 수선을 세워도 됩니다.'],
@@ -745,14 +876,14 @@ const STEP2 = [
 ];
 // ---------- 보너스 ----------
 const BONUS = [
-  { id:'D1', title:'Normal · 자는 단 한 번', token:5, limit:{ ruler:1 },
+  { id:'D1', title:'Normal · 자는 단 한 번', score:20, limit:{ ruler:1 },
     desc:'컴퍼스는 자유롭게 쓰되, 자는 마지막에 단 한 번만 써서 평행선을 작도하세요.',
     hints:['새로운 점을 만드는 일은 모두 컴퍼스에 맡기고, 자는 마지막에 두 점을 잇는 데에만 씁니다.',
            '점 P를 중심으로 원을 그려 l과 만나는 점 A를 잡고, 같은 반지름으로 A와 B를 중심으로 원을 그려 보세요. (강의 자료 방법 6)'],
     setup(){ return parallelSetup(230); },
     solve(g){ const Pp = P(g.P), l = P(g.l), f = distToLine(l, Pp); return [{ k:'circle', c:Pp, r:f.d*1.4 }]; },
     check(g){ return parallelCheck(g); } },
-  { id:'D2', title:'Hard · 컴퍼스는 단 한 번', token:8, limit:{ compass:1, skills:false }, skill:'diam',
+  { id:'D2', title:'Hard · 컴퍼스는 단 한 번', score:30, limit:{ compass:1, skills:false }, skill:'diam',
     desc:'자는 자유롭게 쓰되, 컴퍼스는 단 한 번만 써서 평행선을 작도하세요. 이 문제에서는 스킬을 쓸 수 없습니다.',
     hints:['원을 어디에 그리면 좋을까요? 원의 중심은 무엇의 중점이 될까요?',
            '직선 l 위의 점 M을 중심으로 원을 그리면 M은 두 교점 B, C의 중점이 됩니다. 그다음은 자만으로 할 수 있습니다. (강의 자료 방법 20)'],
@@ -762,7 +893,7 @@ const BONUS = [
 ];
 // ---------- Step 3 · 도전 ----------
 const STEP3 = [
-  { id:'E1', title:'원 밖의 점에서 접선 긋기', token:8,
+  { id:'E1', title:'원 밖의 점에서 접선 긋기', score:SCORE.step3,
     desc:'원 O와 그 밖의 점 P가 있습니다. 점 P에서 원 O에 그은 접선을 작도하세요.',
     hints:['접선은 접점에서 반지름과 수직입니다. 직각을 만드는 방법을 떠올려 보세요.',
            '선분 OP의 중점 M을 찾아 OP를 지름으로 하는 보조원을 그려 보세요. 두 원의 교점이 접점입니다.'],
@@ -788,7 +919,7 @@ const STEP3 = [
       }
       return { ok:false, msg:'점 P를 지나면서 원에 꼭 한 점에서 닿는 직선을 아직 찾지 못했어요.' };
     } },
-  { id:'E2', title:'선분의 3등분', token:8,
+  { id:'E2', title:'선분의 3등분', score:SCORE.step3,
     desc:'선분 AB를 세 등분하는 두 점을 작도하세요.',
     hints:['점 A에서 비스듬한 반직선을 긋고, 같은 길이를 세 번 옮겨 보세요.',
            '반직선 위의 세 번째 점과 B를 이은 선분에 평행한 선을 그으면 선분 AB가 3등분됩니다.'],
@@ -870,7 +1001,7 @@ function meaningfulCount(ansIds){
 
 // ===================== 입력 =====================
 function handleClick(p){
-  if (busy) return;
+  if (busy || state.tool === 'pan') return;
   if (state.skill){ skillClick(p); return; }
   const c = snapCandidate(p), t = state.tool;
   if (t === 'point'){
@@ -996,11 +1127,16 @@ async function resetWork(){
   state.width = null; state.widthCost = 0; state.highlight = null; hideMsg(); refresh();
 }
 
-// ===================== 채점과 토큰 =====================
+// ===================== 채점과 점수 =====================
 function minimalCost(pr){
   const m = { A1:1, A2:4, A3:3, A4:3, A5:4, A6:2, A7:4, A8:4, B1:4, B2:6, B3:7, B4:8,
               C1:3, D1:3, D2:7, E1:5, E2:9 };
   return m[pr.id] || 4;
+}
+function finalScore(){ return progress.score + progress.coins * COIN.perPoint; }
+function baseScore(){
+  if (problem.score) return problem.score;
+  return state.stage === 'practice' ? SCORE.practice : state.stage === 'step1' ? SCORE.step1 : SCORE.step2;
 }
 function onCheck(){
   if (busy) return;
@@ -1008,54 +1144,55 @@ function onCheck(){
   const r = problem.check(G);
   addLog('check', r.ok ? '작도 확인: 성공' : '작도 확인: 미완성');
   if (!r.ok){ showMsg(r.msg, 'warn'); refresh(); return; }
+
   const mc = meaningfulCount(r.ids), tot = totals();
   state.highlight = ancestors(r.ids);
-  let gained = 0, why = [];
-  const already = !!progress.solved[problem.id];
   const strat = problem.strategy ? classify(r.ids, G) : '';
-  let secondOk = false;
+  const already = !!progress.solved[problem.id];
+  let gained = 0, why = [], secondOk = false;
+
   if (already && problem.strategy && strat && !progress.strategies.includes(strat)){
-    secondOk = true; gained += TOKEN.secondMethod; why.push('다른 계열의 방법');
-    progress.strategies.push(strat); progress.tokens += TOKEN.secondMethod;
-    progress.records.push({ id:problem.id + '-2', title:problem.title + ' (다른 방법)', stage:state.stage,
-      solved:'O', sec:elapsed(), ruler:tot.ruler, compass:tot.compass, rulerM:mc.ruler, compassM:mc.compass,
-      rulerX:tot.ruler - mc.ruler, compassX:tot.compass - mc.compass, width:stats.widthChanges,
-      undo:stats.undo, reset:stats.reset, check:stats.check, hints:stats.hintsUsed.join(','),
-      tokens:TOKEN.secondMethod, strategy:strat });
+    secondOk = true;
+    gained += SCORE.second; why.push(`다른 계열의 방법 +${SCORE.second}`);
+    progress.strategies.push(strat);
   }
   if (!already){
-    gained += problem.token || (state.stage === 'step1' ? TOKEN.solveStep1 : TOKEN.solvePractice);
-    why.push('성공');
+    const base = baseScore();
+    gained += base; why.push(`성공 +${base}`);
     const min = minimalCost(problem), used = mc.total;
-    if (used <= min){ gained += TOKEN.minimal; why.push('최소 횟수'); }
-    else if (used <= min + 2){ gained += TOKEN.nearMinimal; why.push('거의 최소'); }
-    if (stats.check === 1){ gained += TOKEN.firstTry; why.push('한 번에 통과'); }
-    if (stats.widthChanges <= 1 && tot.compass >= 2){ gained += TOKEN.widthKept; why.push('폭 유지'); }
-    if (problem.strategy && mc.compass <= 2 && mc.ruler <= 1){ gained += 2; why.push('최소 작도 배지'); }
-    if (strat) progress.strategies.push(strat);
-    progress.tokens += gained;
+    if (used <= min){ gained += SCORE.minimal; why.push(`최소 횟수 +${SCORE.minimal}`); }
+    else if (used <= min + 2){ gained += SCORE.nearMinimal; why.push(`거의 최소 +${SCORE.nearMinimal}`); }
+    if (stats.check === 1){ gained += SCORE.firstTry; why.push(`한 번에 통과 +${SCORE.firstTry}`); }
+    if (stats.widthChanges <= 1 && tot.compass >= 2){ gained += SCORE.widthKept; why.push(`폭 유지 +${SCORE.widthKept}`); }
+    if (problem.strategy && mc.compass <= 2 && mc.ruler <= 1){ gained += SCORE.badge; why.push(`최소 작도 배지 +${SCORE.badge}`); }
+    if (strat && !progress.strategies.includes(strat)) progress.strategies.push(strat);
     progress.solved[problem.id] = true;
     if (problem.skill && !hasSkill(problem.skill)) progress.skills.push(problem.skill);
+  }
+  if (gained){
+    progress.score += gained;
     progress.records.push({
-      id:problem.id, title:problem.title, stage:state.stage, solved:'O',
-      sec:elapsed(), ruler:tot.ruler, compass:tot.compass,
-      rulerM:mc.ruler, compassM:mc.compass,
+      id:already ? problem.id + '-2' : problem.id,
+      title:already ? problem.title + ' (다른 방법)' : problem.title,
+      stage:state.stage, solved:'O', sec:elapsed(),
+      ruler:tot.ruler, compass:tot.compass, rulerM:mc.ruler, compassM:mc.compass,
       rulerX:tot.ruler - mc.ruler, compassX:tot.compass - mc.compass,
       width:stats.widthChanges, undo:stats.undo, reset:stats.reset, check:stats.check,
-      hints:stats.hintsUsed.join(','), tokens:gained, strategy:strat
+      hints:stats.hintsUsed.map(l => l + 1).join(','), score:gained, strategy:strat
     });
   }
+
   let txt = '🎉 ' + r.msg;
   if (strat) txt += `<br>사용한 방법: <b>${strat}</b>`;
   txt += `<br>정답에 쓰인 작도: 자 <b>${mc.ruler}</b>, 컴퍼스 <b>${mc.compass}</b>`;
   const ur = tot.ruler - mc.ruler, uc = tot.compass - mc.compass;
   if (ur + uc > 0) txt += ` · 쓰이지 않은 작도: 자 ${ur}, 컴퍼스 ${uc} (흐리게 표시)`;
-  if (!already || secondOk){
-    txt += `<br>🪙 <b>+${gained}</b> 토큰 (${why.join(' · ')})`;
-    if (problem.skill) txt += `<br>✨ <b>${skill(problem.skill).name}</b> 스킬을 얻었습니다.`;
-    const nx = nextIndex();
-    if (nx >= 0) txt += `<br>다음 문제가 열렸습니다.`;
-    else if (state.stage === 'step1') txt += `<br>Step 1을 모두 마쳤습니다. [진행 제출]을 눌러 기록을 보내세요.`;
+  if (gained){
+    txt += `<br>◆ <b>+${gained}점</b> (${why.join(' · ')})`;
+    if (problem.skill && !already) txt += `<br>✨ <b>${skill(problem.skill).name}</b> 스킬을 얻었습니다.`;
+    txt += `<br>지금까지 <b>${progress.score}점</b> · 남은 코인 ${progress.coins}개(${progress.coins * COIN.perPoint}점) → 합계 <b>${finalScore()}점</b>`;
+  } else {
+    txt += '<br>이미 점수를 받은 문제입니다.';
   }
   showMsg(txt, 'ok');
   if (!already && problems().every(p => progress.solved[p.id])) submit(true);
@@ -1079,11 +1216,12 @@ function useHint(lv){
     if (lv === 2 && steps.every(alreadyDone)){ showMsg('표준 해법의 원과 선은 이미 다 그렸습니다. 이제 교점을 점으로 찍거나 자로 이어 보세요.', 'info'); return; }
   }
   const cost = lv === 0 ? 0 : hintCost(lv);
-  if (progress.tokens < cost){ showMsg(`토큰이 부족합니다. (필요 ${cost}개)`, 'warn'); return; }
-  progress.tokens -= cost;
+  if (progress.coins < cost){ showMsg(`코인이 부족합니다. (필요 ${cost}개 · 남은 코인 ${progress.coins}개)`, 'warn'); return; }
+  progress.coins -= cost;
   stats.hintsUsed.push(lv);
   progress.hints.push({ id:problem.id, lv, t:elapsed(), cost });
-  addLog('hint', `힌트 ${lv + 1}단계 사용 (${cost} 토큰)`);
+  addLog('hint', `힌트 ${lv + 1}단계 사용 (코인 ${cost}개)`);
+  if (cost) showMsg(`코인 ${cost}개를 썼습니다. 남은 코인 ${progress.coins}개 (합계 ${finalScore()}점)`, 'info');
   showHint(lv); renderAll();
 }
 function showHint(lv){
@@ -1118,7 +1256,10 @@ function buildPayload(auto){
     name:document.getElementById('sname').value.trim(),
     stage:state.stage === 'step1' ? 'Step 1' : '연습 문제',
     auto:auto ? '자동' : '수동',
-    tokens:progress.tokens,
+    score:progress.score,
+    coins:progress.coins,
+    coinBonus:progress.coins * COIN.perPoint,
+    finalScore:finalScore(),
     skills:progress.skills.map(id => skill(id).name).join(', '),
     solvedCount:progress.records.length,
     strategies:progress.strategies.join(' / '),
@@ -1141,7 +1282,7 @@ async function submit(auto){
   btn.disabled = true; if (!auto) showMsg('제출 중입니다…', 'info');
   const r = await sendData(payload);
   btn.disabled = false;
-  if (r.ok){ progress.submitted++; showMsg(`✅ 제출 완료 (문제 ${payload.solvedCount}개 · 토큰 ${payload.tokens})`, 'ok'); }
+  if (r.ok){ progress.submitted++; showMsg(`✅ 제출 완료 — 문제 ${payload.solvedCount}개 · 작도 점수 ${payload.score} + 코인 ${payload.coins}개(${payload.coinBonus}점) = <b>${payload.finalScore}점</b>`, 'ok'); }
   else { showMsg('제출에 실패했습니다. 다시 눌러 주세요.<br><small>' + r.reason + '</small>', 'err'); downloadBackup(payload); }
 }
 async function sendData(payload){
@@ -1167,14 +1308,25 @@ function downloadBackup(payload){
 
 // ===================== 그리기 =====================
 function lineEnds(ax, ay, bx, by, type){
-  const dx = bx - ax, dy = by - ay, T = 3000 / Math.hypot(dx, dy);
+  const dx = bx - ax, dy = by - ay, T = 9000 / Math.hypot(dx, dy);
   if (type === 'segment') return [{x:ax,y:ay},{x:bx,y:by}];
   if (type === 'ray') return [{x:ax,y:ay},{x:ax+T*dx,y:ay+T*dy}];
   return [{x:ax-T*dx,y:ay-T*dy},{x:ax+T*dx,y:ay+T*dy}];
 }
-function drawScene(c, s, hl){
+function drawScene(c, s, hl, box){
   const px = v => v / s;
-  c.fillStyle = '#fffdf8'; c.fillRect(0, 0, W, H);
+  const b = box || { x:0, y:0, w:W, h:H };
+  c.fillStyle = '#FBFDFF'; c.fillRect(b.x, b.y, b.w, b.h);
+  // 제도용지 모눈
+  c.strokeStyle = 'rgba(37,99,235,.09)'; c.lineWidth = px(1);
+  const g = 50, x0 = Math.floor(b.x/g)*g, y0 = Math.floor(b.y/g)*g;
+  c.beginPath();
+  for (let x = x0; x <= b.x + b.w; x += g){ c.moveTo(x, b.y); c.lineTo(x, b.y + b.h); }
+  for (let y = y0; y <= b.y + b.h; y += g){ c.moveTo(b.x, y); c.lineTo(b.x + b.w, y); }
+  c.stroke();
+  // 작도판 기준 테두리
+  c.strokeStyle = 'rgba(37,99,235,.28)'; c.lineWidth = px(1.5);
+  c.strokeRect(0, 0, W, H);
   const alphaFor = o => (hl && !o.given && !hl.has(o.id)) ? 0.18 : 1;
   const strong = o => hl && hl.has(o.id);
   for (const o of objs) if (o.kind === 'circle'){
@@ -1239,18 +1391,22 @@ function drawPreview(c, s){
     }
   }
   c.setLineDash([]);
-  pend.forEach(q => { if (q.type !== 'line') ring(c, q, 9, '#16a34a', s); });
+  pend.forEach(q => { if (q.type !== 'line') ring(c, q, 9, '#059669', s); });
   if (sn){
-    const colr = { existing:'#16a34a', intersection:'#dc2626', on:'#7c3aed', free:'#9ca3af' }[sn.type];
+    const colr = { existing:'#059669', intersection:'#E11D48', on:'#7C3AED', free:'#94A3B8' }[sn.type];
     ring(c, sn, sn.type === 'free' ? 5 : 11, state.skill ? '#7c3aed' : colr, s);
   }
   c.restore();
 }
 function draw(){
-  ctx.setTransform(dpr*scale, 0, 0, dpr*scale, 0, 0);
-  drawScene(ctx, scale, state.highlight);
-  drawGhost(ctx, scale);
-  drawPreview(ctx, scale);
+  const k = state.view.k, v = state.view;
+  ctx.setTransform(dpr*scale*k, 0, 0, dpr*scale*k, dpr*scale*v.x, dpr*scale*v.y);
+  // 지금 화면에 보이는 작도판 영역
+  const wCss = cv.width / dpr, hCss = cv.height / dpr;
+  const box = { x:(-v.x)/k - 40, y:(-v.y)/k - 40, w:(wCss/scale)/k + 80, h:(hCss/scale)/k + 80 };
+  drawScene(ctx, zs(), state.highlight, box);
+  drawGhost(ctx, zs());
+  drawPreview(ctx, zs());
 }
 function exportImage(hl){
   const c = document.createElement('canvas'); c.width = W; c.height = H;
@@ -1286,6 +1442,7 @@ function setHint(){
   }
   const n = state.pending.length, t = state.tool;
   const H_ = {
+    pan:['작도판을 끌어 옮기고, 휠을 굴려 확대·축소합니다. (+ − 단추도 있습니다)'],
     point:['점을 찍을 곳을 누르세요.'],
     ruler:['자: 첫 번째 점을 선택하세요.', '자: 두 번째 점을 선택하세요.'],
     compass:['컴퍼스: 원의 중심을 선택하세요.', '컴퍼스: 원이 지날 점을 선택하세요.'],
@@ -1357,7 +1514,8 @@ function updateCounts(){
   document.getElementById('sRuler').textContent = t.ruler;
   document.getElementById('sCompass').textContent = t.compass;
   document.getElementById('sWidth').textContent = stats ? stats.widthChanges : 0;
-  document.getElementById('tok').textContent = progress.tokens;
+  document.getElementById('tok').textContent = progress.coins;
+  document.getElementById('score').textContent = finalScore();
 }
 function renderTabs(){
   document.querySelectorAll('.tab').forEach(t => {
@@ -1391,6 +1549,7 @@ function loadProblem(i){
   state.pending = []; state.highlight = null; state.snap = null; state.width = null; state.widthCost = 0;
   state.skill = null; state.ghost = null; busy = false;
   stats = { start:Date.now(), undo:0, reset:0, check:0, widthChanges:0, hintsUsed:[] };
+  state.view = { x:0, y:0, k:1 };
   G = problem.setup();
   document.getElementById('pTitle').textContent = `${i+1}. ${problem.title}`;
   document.getElementById('pDesc').textContent = problem.desc;
@@ -1411,14 +1570,59 @@ function loadProblem(i){
 }
 
 // ===================== 이벤트 =====================
-function evtPoint(e){ const r = cv.getBoundingClientRect(); return { x:(e.clientX-r.left)/scale, y:(e.clientY-r.top)/scale }; }
-cv.addEventListener('pointermove', e => { state.snap = snapCandidate(evtPoint(e)); draw(); });
+function evtPoint(e){
+  const r = cv.getBoundingClientRect(), v = state.view;
+  return { x:((e.clientX - r.left)/scale - v.x)/v.k, y:((e.clientY - r.top)/scale - v.y)/v.k };
+}
+// 확대·축소 (cx, cy 는 캔버스 안의 CSS 픽셀 좌표)
+function zoomAt(f, cx, cy){
+  const v = state.view, nk = Math.min(4, Math.max(0.35, v.k * f));
+  if (Math.abs(nk - v.k) < 1e-6) return;
+  const wx = (cx/scale - v.x)/v.k, wy = (cy/scale - v.y)/v.k;
+  v.k = nk; v.x = cx/scale - wx*nk; v.y = cy/scale - wy*nk;
+  draw(); updateViewLabel();
+}
+function resetView(){ state.view = { x:0, y:0, k:1 }; draw(); updateViewLabel(); }
+function updateViewLabel(){
+  const el = document.getElementById('btnZoomReset');
+  if (el) el.textContent = state.view.k === 1 && !state.view.x && !state.view.y
+    ? '처음 화면으로' : `처음 화면으로 (${Math.round(state.view.k*100)}%)`;
+}
+cv.addEventListener('pointerdown', e => {
+  if (state.tool !== 'pan' && e.button !== 1) return;     // 가운데 버튼으로도 옮길 수 있습니다
+  e.preventDefault();
+  const r = cv.getBoundingClientRect();
+  state.drag = { x:e.clientX - r.left, y:e.clientY - r.top, vx:state.view.x, vy:state.view.y };
+  try { cv.setPointerCapture(e.pointerId); } catch(_){}
+});
+cv.addEventListener('pointermove', e => {
+  if (state.drag){
+    const r = cv.getBoundingClientRect();
+    state.view.x = state.drag.vx + ((e.clientX - r.left) - state.drag.x)/scale;
+    state.view.y = state.drag.vy + ((e.clientY - r.top) - state.drag.y)/scale;
+    draw(); return;
+  }
+  if (state.tool === 'pan'){ state.snap = null; return; }
+  state.snap = snapCandidate(evtPoint(e)); draw();
+});
+cv.addEventListener('pointerup', e => {
+  if (state.drag){ state.drag = null; try { cv.releasePointerCapture(e.pointerId); } catch(_){} updateViewLabel(); }
+});
 cv.addEventListener('pointerleave', () => { state.snap = null; draw(); });
 cv.addEventListener('click', e => { handleClick(evtPoint(e)); state.snap = null; draw(); });
 cv.addEventListener('contextmenu', e => { e.preventDefault(); state.pending = []; refresh(); });
+cv.addEventListener('wheel', e => {
+  e.preventDefault();
+  const r = cv.getBoundingClientRect();
+  zoomAt(e.deltaY < 0 ? 1.12 : 1/1.12, e.clientX - r.left, e.clientY - r.top);
+}, { passive:false });
+document.getElementById('btnZoomIn').addEventListener('click', () => zoomAt(1.25, cv.clientWidth/2, cv.clientHeight/2));
+document.getElementById('btnZoomOut').addEventListener('click', () => zoomAt(1/1.25, cv.clientWidth/2, cv.clientHeight/2));
+document.getElementById('btnZoomReset').addEventListener('click', resetView);
 document.querySelectorAll('.tool-btn').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.tool-btn').forEach(x => x.classList.remove('active'));
   b.classList.add('active'); state.tool = b.dataset.tool; state.skill = null; state.pending = [];
+  cv.classList.toggle('panning', state.tool === 'pan');
   renderSkills(); refresh();
 }));
 document.querySelectorAll('input[name=rtype]').forEach(r => r.addEventListener('change', () => { state.rulerType = r.value; refresh(); }));
@@ -1437,14 +1641,14 @@ document.getElementById('btnSkip').addEventListener('click', () => {
   progress.skipped[problem.id] = true;
   progress.records.push({ id:problem.id, title:problem.title, stage:state.stage, solved:'건너뜀',
     sec:elapsed(), ruler:0, compass:0, rulerM:'', compassM:'', rulerX:'', compassX:'',
-    width:0, undo:0, reset:0, check:0, hints:'', tokens:0, strategy:'' });
+    width:0, undo:0, reset:0, check:0, hints:'', score:0, strategy:'' });
   addLog('skip', '보너스 건너뛰기');
   document.getElementById('btnSkip').textContent = '다시 도전하기';
   showMsg('건너뛰었습니다. 나중에 이 화면에서 다시 도전할 수 있습니다.', 'info');
 });
 document.getElementById('btnAgain').addEventListener('click', () => {
   const i = state.idx; loadProblem(i);
-  showMsg('앞에서 쓴 것과 <b>다른 계열의 방법</b>으로 다시 작도해 보세요. 성공하면 토큰을 더 받습니다.', 'info');
+  showMsg('앞에서 쓴 것과 <b>다른 계열의 방법</b>으로 다시 작도해 보세요. 성공하면 점수를 더 받습니다.', 'info');
 });
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
   const st = t.dataset.stage;
