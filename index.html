@@ -95,7 +95,7 @@
   .viewctl{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
   .viewctl button{padding:6px;border:1px solid var(--edge);border-radius:9px;background:rgba(255,255,255,.08);color:var(--text);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
   .viewctl button:hover{background:rgba(255,255,255,.14)}
-  .viewctl .wide{grid-column:1/3;font-size:12px;font-weight:700}
+  .viewctl button{font-size:12px}
   .skill{
     display:flex;align-items:center;gap:7px;width:100%;padding:8px 9px;border:1px solid var(--edge);
     border-radius:10px;background:rgba(255,255,255,.07);font-size:13px;cursor:pointer;font-family:inherit;
@@ -219,8 +219,13 @@
       <div class="viewctl">
         <button id="btnZoomIn" title="확대">+</button>
         <button id="btnZoomOut" title="축소">−</button>
-        <button id="btnZoomReset" class="wide">처음 화면으로</button>
+        <button id="btnZoomReset">처음 화면</button>
+        <button id="btnFit">전체 보기</button>
       </div>
+      <button class="tool-btn" data-tool="point" title="점을 찍습니다">
+        <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="5" fill="currentColor"/></svg>
+        점
+      </button>
       <button class="tool-btn active" data-tool="ruler" title="두 점을 지나는 선을 긋습니다">
         <svg viewBox="0 0 40 40"><rect x="4" y="16" width="32" height="8" rx="2" transform="rotate(-30 20 20)" fill="rgba(34,211,238,.18)" stroke="currentColor" stroke-width="2"/></svg>
         자
@@ -236,14 +241,10 @@
       </button>
       <button class="tool-btn" data-tool="transfer" title="길이를 재어 옮깁니다. 잰 폭은 고정됩니다">
         <svg viewBox="0 0 40 40"><path d="M4 32 L16 32" stroke="currentColor" stroke-width="2.5"/><circle cx="4" cy="32" r="2" fill="currentColor"/><circle cx="16" cy="32" r="2" fill="currentColor"/><path d="M19 24 L26 21" stroke="#22D3EE" stroke-width="2"/><circle cx="30" cy="16" r="8" stroke="#22D3EE" stroke-width="1.5" fill="none"/><circle cx="30" cy="16" r="1.8" fill="currentColor"/></svg>
-        컴퍼스<br><small style="font-weight:400">길이 옮기기</small>
+        컴퍼스<br><small style="font-weight:400">길이 옮기기 · 같은 반지름 원</small>
       </button>
       <div class="widthbox" id="widthbox">폭: <b>없음</b></div>
       <button class="mini" id="btnRemeasure">다시 재기</button>
-      <button class="tool-btn" data-tool="point" title="점을 찍습니다">
-        <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="5" fill="currentColor"/></svg>
-        점
-      </button>
       <div class="sub"><label><input type="checkbox" id="showLabels" checked> 점 이름</label></div>
     </div>
     <h3 class="sec" style="margin-top:12px">내 스킬</h3>
@@ -276,7 +277,7 @@
     <div class="card stats">
       <div class="stat"><b id="sRuler">0</b><span>자</span></div>
       <div class="stat"><b id="sCompass">0</b><span>컴퍼스</span></div>
-      <div class="stat"><b id="sWidth">0</b><span>폭 변경</span></div>
+      <div class="stat"><b id="sWidth">0</b><span>폭 설정</span></div>
     </div>
     <div class="card btns">
       <button class="btn" id="btnUndo">↶ 되돌리기</button>
@@ -300,6 +301,21 @@
 </main>
 
 <footer>© 2026 또빈쌤. All rights reserved.</footer>
+
+<div class="modal" id="startModal">
+  <div class="modal-box">
+    <p style="font-size:18px;font-weight:800;margin-bottom:6px">작도 교실</p>
+    <p style="color:#CBDDF0;font-size:14px">학번과 이름을 입력하고 시작하세요. 작도 기록이 선생님께 전달됩니다.</p>
+    <div style="display:flex;gap:8px;margin:14px 0 6px">
+      <input id="startId" placeholder="학번" autocomplete="off"
+        style="flex:1;padding:10px 12px;border:1px solid var(--edge);border-radius:10px;font-size:15px;font-family:inherit;background:rgba(255,255,255,.1);color:var(--text)" />
+      <input id="startName" placeholder="이름" autocomplete="off"
+        style="flex:1;padding:10px 12px;border:1px solid var(--edge);border-radius:10px;font-size:15px;font-family:inherit;background:rgba(255,255,255,.1);color:var(--text)" />
+    </div>
+    <p id="startErr" style="color:#FFD2DA;font-size:13px;min-height:18px;margin:0 0 10px"></p>
+    <div class="row"><button class="btn primary" id="btnStart" style="width:100%">시작하기</button></div>
+  </div>
+</div>
 
 <div class="modal hidden" id="modal">
   <div class="modal-box">
@@ -457,6 +473,18 @@ function js(label, kind){
 function cpts(){ return objs.filter(o => o.kind === 'point' && o.ptype === 'intersection'); }
 function rulerLines(){ return objs.filter(o => o.kind === 'line' && !o.given); }
 function connecting(a, b){ return objs.filter(L => L.kind === 'line' && !L.given && onCurve(L, a) && onCurve(L, b)); }
+// 작도로 그은 선인가 (주어진 선이 아니고, 눈대중으로 찍은 점으로 결정되지 않았는가)
+function drawnLine(L){
+  if (L.given) return false;
+  const a = P(L.p1), b = P(L.p2);
+  return a.ptype !== 'free' && b.ptype !== 'free';
+}
+function through(L, pt){ return distToCurve(L, pt).d < 0.3; }
+function dirOf(L){ const g = lineGeom(L), n = Math.hypot(g.dx, g.dy); return { x:g.dx/n, y:g.dy/n }; }
+function onRayPoints(L, O, d){
+  const u = dirOf(L);
+  return [{ x:O.x + d*u.x, y:O.y + d*u.y }, { x:O.x - d*u.x, y:O.y - d*u.y }];
+}
 function perpTo(L, A, B){ // 직선 L 과 선분 AB 가 수직인가
   const g = lineGeom(L);
   return Math.abs(g.dx * (B.x - A.x) + g.dy * (B.y - A.y)) < 1e-6 * Math.hypot(g.dx, g.dy) * dist(A, B);
@@ -604,30 +632,25 @@ const STEP1 = [
     check(g){
       const O = P(g.O), X = P(g.X), Y = P(g.Y), Pp = P(g.P), Q = P(g.Q), t = angleAt(O,X,Y);
       for (const L of rulerLines()){
-        if (!onCurve(L, Pp)) continue;
-        for (const R of cpts()){
-          if (dist(R,Pp) < 1e-6 || !onCurve(L,R)) continue;
+        if (!drawnLine(L) || !through(L, Pp)) continue;
+        for (const R of onRayPoints(L, Pp, 200))
           if (Math.abs(angleAt(Pp,Q,R) - t) < EPS_ANG)
-            return { ok:true, ids:[L.id,R.id], msg:`∠QP${R.label}와 ∠XOY의 크기가 같습니다.` };
-        }
+            return { ok:true, ids:[L.id], msg:'점 P를 꼭짓점으로 하는, ∠XOY와 크기가 같은 각을 작도했습니다.' };
       }
       return { ok:false, msg:'점 P를 꼭짓점으로 하는 같은 크기의 각을 아직 찾지 못했어요.' };
     } },
   { id:'A3', title:'선분의 수직이등분선', skill:'perpbis',
     desc:'선분 AB의 수직이등분선을 작도하세요.',
     hints:['두 점 A, B에서 거리가 같은 점을 찾아보세요.', '점 A와 점 B를 중심으로 반지름이 같은 원을 그려 보세요.'],
-    setup(){ const A = gp('A',320,390), B = gp('B',680,280); gl(A,B,'segment'); return { A,B }; },
+    setup(){ const A = gp('A',320,400), B = gp('B',640,300); gl(A,B,'segment'); return { A,B }; },
     solve(g){ const A = P(g.A), B = P(g.B), r = dist(A,B)*0.75;
       return [{ k:'circle', c:A, r }, { k:'circle', c:B, r }]; },
     check(g){
-      const A = P(g.A), B = P(g.B);
-      for (const L of rulerLines()){
-        const a = P(L.p1), b = P(L.p2);
-        if (a.ptype === 'free' || b.ptype === 'free') continue;
-        if (nearLen(dist(a,A), dist(a,B)) && nearLen(dist(b,A), dist(b,B)))
-          return { ok:true, ids:[L.id], msg:`직선 ${js(a.label+b.label,"은")} 선분 AB의 수직이등분선입니다.` };
-      }
-      return { ok:false, msg:'A, B에서 같은 거리에 있는 두 점을 지나는 선을 아직 찾지 못했어요.' };
+      const A = P(g.A), B = P(g.B), Mp = { x:(A.x+B.x)/2, y:(A.y+B.y)/2 };
+      for (const L of rulerLines())
+        if (drawnLine(L) && through(L, Mp) && perpTo(L, A, B))
+          return { ok:true, ids:[L.id], msg:'선분 AB의 수직이등분선을 작도했습니다.' };
+      return { ok:false, msg:'선분 AB의 중점을 지나면서 AB에 수직인 선을 아직 찾지 못했어요.' };
     } },
   { id:'A4', title:'선분의 중점', skill:'mid',
     desc:'선분 AB의 중점 M을 작도하세요. 점은 작도로 얻은 교점이어야 합니다.',
@@ -651,16 +674,14 @@ const STEP1 = [
     check(g){
       const O = P(g.O), X = P(g.X), Y = P(g.Y), t = angleAt(O,X,Y);
       for (const L of rulerLines()){
-        const a = P(L.p1), b = P(L.p2);
-        let R = null;
-        if (dist(a,O) < 1e-6 && b.ptype === 'intersection') R = b;
-        else if (dist(b,O) < 1e-6 && a.ptype === 'intersection') R = a;
-        if (!R) continue;
-        const a1 = angleAt(O,X,R), a2 = angleAt(O,R,Y);
-        if (Math.abs(a1-a2) < EPS_ANG && Math.abs(a1+a2-t) < EPS_ANG)
-          return { ok:true, ids:[L.id], msg:`반직선 ${js("O"+R.label,"은")} ∠XOY의 이등분선입니다.` };
+        if (!drawnLine(L) || !through(L, O)) continue;
+        for (const R of onRayPoints(L, O, 200)){
+          const a1 = angleAt(O,X,R), a2 = angleAt(O,R,Y);
+          if (Math.abs(a1-a2) < EPS_ANG && Math.abs(a1+a2-t) < EPS_ANG)
+            return { ok:true, ids:[L.id], msg:'∠XOY의 이등분선을 작도했습니다.' };
+        }
       }
-      return { ok:false, msg:'∠XOY 를 똑같이 나누는 선을 아직 찾지 못했어요.' };
+      return { ok:false, msg:'점 O를 지나면서 ∠XOY를 똑같이 나누는 선을 아직 찾지 못했어요.' };
     } },
   { id:'A6', title:'점대칭으로 옮기기', skill:'sym',
     desc:'점 M을 중심으로 점 A와 대칭인 점을 작도하세요. 즉 선분 AM을 M 쪽으로 같은 길이만큼 늘인 점입니다.',
@@ -687,7 +708,7 @@ const STEP1 = [
       return [{ k:'circle', c:Pp, r:f.d*1.5 }]; },
     check(g){
       const Pp = P(g.P), l = P(g.l);
-      for (const L of rulerLines()) if (onCurve(L, Pp) && perpTo(l, P(L.p1), P(L.p2)))
+      for (const L of rulerLines()) if (drawnLine(L) && through(L, Pp) && perpTo(l, P(L.p1), P(L.p2)))
         return { ok:true, ids:[L.id], msg:'점 P를 지나고 직선 l에 수직인 직선을 작도했습니다.' };
       return { ok:false, msg:'점 P를 지나면서 l에 수직인 직선을 아직 찾지 못했어요.' };
     } },
@@ -700,7 +721,7 @@ const STEP1 = [
     solve(g){ const Hp = P(g.H); return [{ k:'circle', c:Hp, r:160 }]; },
     check(g){
       const Hp = P(g.H), l = P(g.l);
-      for (const L of rulerLines()) if (onCurve(L, Hp) && perpTo(l, P(L.p1), P(L.p2)))
+      for (const L of rulerLines()) if (drawnLine(L) && through(L, Hp) && perpTo(l, P(L.p1), P(L.p2)))
         return { ok:true, ids:[L.id], msg:'점 H를 지나고 직선 l에 수직인 직선을 작도했습니다.' };
       return { ok:false, msg:'점 H를 지나면서 l에 수직인 직선을 아직 찾지 못했어요.' };
     } }
@@ -833,9 +854,7 @@ function parallelSetup(py){
 function parallelCheck(g){
   const l = P(g.l), Pp = P(g.P), gg = lineGeom(l), n1 = Math.hypot(gg.dx, gg.dy);
   for (const L of rulerLines()){
-    if (!onCurve(L, Pp)) continue;
-    const a = P(L.p1), b = P(L.p2);
-    if (a.ptype === 'free' || b.ptype === 'free') continue;
+    if (!drawnLine(L) || !through(L, Pp)) continue;
     const h = lineGeom(L), n2 = Math.hypot(h.dx, h.dy);
     if (Math.abs(gg.dx*h.dy - gg.dy*h.dx) / (n1*n2) < 1e-6)
       return { ok:true, ids:[L.id], msg:'점 P를 지나고 직선 l에 평행한 직선을 작도했습니다.' };
@@ -909,9 +928,7 @@ const STEP3 = [
     check(g){
       const O = P(g.O), Pp = P(g.P);
       for (const L of rulerLines()){
-        if (!onCurve(L, Pp)) continue;
-        const a = P(L.p1), b = P(L.p2);
-        if (a.ptype === 'free' || b.ptype === 'free') continue;
+        if (!drawnLine(L) || !through(L, Pp)) continue;
         const h = lineGeom(L), n = Math.hypot(h.dx, h.dy);
         const d = Math.abs(h.dx*(O.y - h.y) - h.dy*(O.x - h.x)) / n;
         if (Math.abs(d - g.r) < 0.35)
@@ -958,7 +975,7 @@ function commit(kind, detail, ids, cost){
   const s = ++seq;
   actions.push({ seq:s, ids:ids.slice(), ruler:cost.ruler || 0, compass:cost.compass || 0, kind });
   log.push({ seq:s, t:elapsed(), kind, detail, ids:ids.slice() });
-  state.highlight = null; hideMsg();
+  state.highlight = null; hideMsg(); warnOutside();
 }
 function addLog(kind, detail){ log.push({ seq:++seq, t:elapsed(), kind, detail }); }
 function liveActions(){ return actions; }
@@ -1010,6 +1027,15 @@ function handleClick(p){
     commit('point', `점 ${pt.label} 찍기 (${PTYPE_KO[pt.ptype]})`, created, {});
     refresh(); return;
   }
+  if (t === 'transfer' && !state.width && !state.pending.length){
+    const near = objs.filter(o => o.kind === 'circle' && distToCircle(o, p).d < 10 / zs());
+    if (near.length){
+      const c = near.sort((a, b) => distToCircle(a, p).d - distToCircle(b, p).d)[0];
+      setWidth(c.r, '원 ' + P(c.center).label, [c.center]);
+      flashHint(`원의 반지름을 폭으로 가져왔습니다. 이제 중심을 찍으세요.`);
+      refresh(); return;
+    }
+  }
   if (t === 'transfer' && state.width){
     const created = [], o = materialize(c, created);
     const C = addObj({ kind:'circle', center:o.id, r:state.width.r, parents:[o.id, ...state.width.src], tool:'compass' });
@@ -1041,7 +1067,7 @@ function handleClick(p){
     const created = [], a = materialize(state.pending[0], created), b = materialize(state.pending[1], created);
     setWidth(dist(a,b), `${a.label}${b.label}`, [a.id,b.id], true);
     state.pending = [];
-    flashHint(`폭을 ${a.label}${b.label} 로 맞췄습니다. 이제 중심을 찍으세요.`);
+    flashHint(`폭을 ${a.label}${b.label} 로 맞췄습니다. 이제 중심을 찍으세요. (같은 폭으로 여러 번 그릴 수 있습니다)`);
   }
   refresh();
 }
@@ -1184,7 +1210,7 @@ function onCheck(){
 
   let txt = '🎉 ' + r.msg;
   if (strat) txt += `<br>사용한 방법: <b>${strat}</b>`;
-  txt += `<br>정답에 쓰인 작도: 자 <b>${mc.ruler}</b>, 컴퍼스 <b>${mc.compass}</b>`;
+  txt += `<br>정답에 쓰인 작도: 자 <b>${mc.ruler}</b>, 컴퍼스 <b>${mc.compass}</b> (합계 ${mc.total}회 · 이 문제의 최소는 ${minimalCost(problem)}회)`;
   const ur = tot.ruler - mc.ruler, uc = tot.compass - mc.compass;
   if (ur + uc > 0) txt += ` · 쓰이지 않은 작도: 자 ${ur}, 컴퍼스 ${uc} (흐리게 표시)`;
   if (gained){
@@ -1194,7 +1220,11 @@ function onCheck(){
   } else {
     txt += '<br>이미 점수를 받은 문제입니다.';
   }
+  const ps = problems();
+  if (state.idx < ps.length - 1) txt += `<br><button class="btn" id="btnNext" style="margin-top:9px;width:100%">다음 문제로 →</button>`;
   showMsg(txt, 'ok');
+  const nb = document.getElementById('btnNext');
+  if (nb) nb.onclick = () => loadProblem(state.idx + 1);
   if (!already && problems().every(p => progress.solved[p.id])) submit(true);
   renderAll(); draw();
 }
@@ -1473,7 +1503,9 @@ function renderSkills(){
     const on = hasSkill(s.id) && !noSkill;
     const b = document.createElement('button');
     b.className = 'skill' + (on ? '' : ' locked') + (state.skill === s.id ? ' active' : '');
-    b.innerHTML = `<span class="k">${on ? s.icon : '🔒'}</span> ${s.name}`;
+    const cost = [s.cost.ruler ? `자${s.cost.ruler}` : '', s.cost.compass ? `컴${s.cost.compass}` : ''].filter(Boolean).join('·');
+    b.innerHTML = `<span class="k">${on ? s.icon : '🔒'}</span> ${s.name}` +
+      `<span style="margin-left:auto;font-size:11px;font-weight:600;opacity:.72">${cost}</span>`;
     if (on) b.onclick = () => {
       state.skill = state.skill === s.id ? null : s.id;
       state.pending = []; refresh(); renderSkills();
@@ -1548,7 +1580,7 @@ function loadProblem(i){
   objs = []; M = new Map(); nextId = 1; actions = []; log = []; seq = 0;
   state.pending = []; state.highlight = null; state.snap = null; state.width = null; state.widthCost = 0;
   state.skill = null; state.ghost = null; busy = false;
-  stats = { start:Date.now(), undo:0, reset:0, check:0, widthChanges:0, hintsUsed:[] };
+  stats = { start:Date.now(), undo:0, reset:0, check:0, widthChanges:0, hintsUsed:[], outWarned:false };
   state.view = { x:0, y:0, k:1 };
   G = problem.setup();
   document.getElementById('pTitle').textContent = `${i+1}. ${problem.title}`;
@@ -1583,6 +1615,35 @@ function zoomAt(f, cx, cy){
   draw(); updateViewLabel();
 }
 function resetView(){ state.view = { x:0, y:0, k:1 }; draw(); updateViewLabel(); }
+// 지금 그린 것이 모두 들어오도록 맞춥니다
+function bounds(){
+  let x0 = 0, y0 = 0, x1 = W, y1 = H;
+  for (const o of objs){
+    if (o.kind === 'point' && !o.hidden){ x0 = Math.min(x0, o.x); x1 = Math.max(x1, o.x); y0 = Math.min(y0, o.y); y1 = Math.max(y1, o.y); }
+    else if (o.kind === 'circle'){
+      const c = P(o.center);
+      x0 = Math.min(x0, c.x - o.r); x1 = Math.max(x1, c.x + o.r);
+      y0 = Math.min(y0, c.y - o.r); y1 = Math.max(y1, c.y + o.r);
+    }
+  }
+  return { x0:x0 - 30, y0:y0 - 30, x1:x1 + 30, y1:y1 + 30 };
+}
+function fitView(){
+  const b = bounds(), bw = b.x1 - b.x0, bh = b.y1 - b.y0;
+  const k = Math.max(0.2, Math.min(1, Math.min(W / bw, H / bh)));
+  state.view = { k, x:W/2 - ((b.x0 + b.x1)/2) * k, y:H/2 - ((b.y0 + b.y1)/2) * k };
+  draw(); updateViewLabel();
+}
+// 그린 것이 화면 밖으로 나가면 한 번만 알려 줍니다
+function warnOutside(){
+  if (stats.outWarned) return;
+  const v = state.view, k = v.k, b = bounds();
+  const vx0 = (-v.x)/k, vy0 = (-v.y)/k, vx1 = vx0 + W/k, vy1 = vy0 + H/k;
+  if (b.x0 < vx0 || b.y0 < vy0 || b.x1 > vx1 || b.y1 > vy1){
+    stats.outWarned = true;
+    flashHint('작도한 것이 화면 밖으로 나갔습니다. [전체 보기]를 누르면 모두 보입니다.');
+  }
+}
 function updateViewLabel(){
   const el = document.getElementById('btnZoomReset');
   if (el) el.textContent = state.view.k === 1 && !state.view.x && !state.view.y
@@ -1619,13 +1680,22 @@ cv.addEventListener('wheel', e => {
 document.getElementById('btnZoomIn').addEventListener('click', () => zoomAt(1.25, cv.clientWidth/2, cv.clientHeight/2));
 document.getElementById('btnZoomOut').addEventListener('click', () => zoomAt(1/1.25, cv.clientWidth/2, cv.clientHeight/2));
 document.getElementById('btnZoomReset').addEventListener('click', resetView);
+document.getElementById('btnFit').addEventListener('click', fitView);
 document.querySelectorAll('.tool-btn').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.tool-btn').forEach(x => x.classList.remove('active'));
   b.classList.add('active'); state.tool = b.dataset.tool; state.skill = null; state.pending = [];
   cv.classList.toggle('panning', state.tool === 'pan');
   renderSkills(); refresh();
 }));
-document.querySelectorAll('input[name=rtype]').forEach(r => r.addEventListener('change', () => { state.rulerType = r.value; refresh(); }));
+document.querySelectorAll('input[name=rtype]').forEach(r => r.addEventListener('change', () => {
+  state.rulerType = r.value;
+  if (state.tool !== 'ruler' || state.skill){            // 선 종류를 고르면 자가 바로 켜집니다
+    state.tool = 'ruler'; state.skill = null; state.pending = [];
+    document.querySelectorAll('.tool-btn').forEach(x => x.classList.toggle('active', x.dataset.tool === 'ruler'));
+    cv.classList.remove('panning'); renderSkills();
+  }
+  refresh();
+}));
 document.getElementById('showLabels').addEventListener('change', e => { state.showLabels = e.target.checked; draw(); });
 document.getElementById('btnRemeasure').addEventListener('click', () => { state.width = null; state.widthCost = 0; state.pending = []; updateWidthBox(); refresh(); });
 document.getElementById('btnUndo').addEventListener('click', undo);
@@ -1663,6 +1733,21 @@ document.addEventListener('keydown', e => {
 window.addEventListener('beforeunload', e => {
   if (progress.records.length && progress.submitted < progress.records.length){ e.preventDefault(); e.returnValue = ''; }
 });
+
+// 시작 화면
+function startApp(){
+  const id = document.getElementById('startId').value.trim();
+  const nm = document.getElementById('startName').value.trim();
+  if (!id || !nm){ document.getElementById('startErr').textContent = '학번과 이름을 모두 입력하세요.'; return; }
+  document.getElementById('sid').value = id;
+  document.getElementById('sname').value = nm;
+  document.getElementById('startModal').classList.add('hidden');
+  progress.startAll = Date.now();
+  resize();
+}
+document.getElementById('btnStart').addEventListener('click', startApp);
+['startId','startName'].forEach(i => document.getElementById(i).addEventListener('keydown', e => { if (e.key === 'Enter') startApp(); }));
+setTimeout(() => document.getElementById('startId').focus(), 100);
 
 document.querySelector('footer').textContent = CONFIG.FOOTER;
 progress.startAll = Date.now();
