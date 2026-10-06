@@ -199,6 +199,7 @@
   <div class="who">
     <input id="sid" placeholder="학번" autocomplete="off" />
     <input id="sname" placeholder="이름" autocomplete="off" />
+    <button class="btn primary" id="btnStart" style="padding:8px 18px">시작</button>
     <div class="meter coin" title="힌트를 살 때 쓰는 코인입니다">🪙 <span id="tok">0</span></div>
     <div class="meter score" title="작도 결과로 쌓인 점수입니다">◆ <span id="score">0</span></div>
   </div>
@@ -302,21 +303,6 @@
 
 <footer>© 2026 또빈쌤. All rights reserved.</footer>
 
-<div class="modal" id="startModal">
-  <div class="modal-box">
-    <p style="font-size:18px;font-weight:800;margin-bottom:6px">작도 교실</p>
-    <p style="color:#CBDDF0;font-size:14px">학번과 이름을 입력하고 시작하세요. 작도 기록이 선생님께 전달됩니다.</p>
-    <div style="display:flex;gap:8px;margin:14px 0 6px">
-      <input id="startId" placeholder="학번" autocomplete="off"
-        style="flex:1;padding:10px 12px;border:1px solid var(--edge);border-radius:10px;font-size:15px;font-family:inherit;background:rgba(255,255,255,.1);color:var(--text)" />
-      <input id="startName" placeholder="이름" autocomplete="off"
-        style="flex:1;padding:10px 12px;border:1px solid var(--edge);border-radius:10px;font-size:15px;font-family:inherit;background:rgba(255,255,255,.1);color:var(--text)" />
-    </div>
-    <p id="startErr" style="color:#FFD2DA;font-size:13px;min-height:18px;margin:0 0 10px"></p>
-    <div class="row"><button class="btn primary" id="btnStart" style="width:100%">시작하기</button></div>
-  </div>
-</div>
-
 <div class="modal hidden" id="modal">
   <div class="modal-box">
     <p id="modalText"></p>
@@ -375,7 +361,7 @@ function zs(){ return scale * state.view.k; }
 let objs = [], M = new Map(), nextId = 1;
 let actions = [], log = [], seq = 0;
 let problem = null, G = null, stats = null;
-let busy = false;
+let busy = false, started = false;
 const state = { tool:'ruler', rulerType:'segment', pending:[], snap:null, highlight:null,
                 showLabels:true, width:null, skill:null, ghost:null, stage:'step1', idx:0,
                 view:{ x:0, y:0, k:1 }, drag:null };
@@ -1019,6 +1005,7 @@ function meaningfulCount(ansIds){
 // ===================== 입력 =====================
 function handleClick(p){
   if (busy || state.tool === 'pan') return;
+  if (!started){ flashHint('먼저 학번과 이름을 입력하고 [시작]을 누르세요.'); return; }
   if (state.skill){ skillClick(p); return; }
   const c = snapCandidate(p), t = state.tool;
   if (t === 'point'){
@@ -1465,6 +1452,7 @@ function queueResize(){            // 되먹임을 막기 위해 다음 그리�
 function setHint(){
   const el = document.getElementById('hint');
   el.classList.remove('flash');
+  if (!started){ el.textContent = '학번과 이름을 입력하고 오른쪽 [시작]을 누르면 작도를 시작할 수 있습니다.'; return; }
   if (state.skill){
     const s = skill(state.skill);
     el.textContent = `[${s.name}] ${s.tips[state.pending.length] || ''} 를 선택하세요.  (Esc 취소)`;
@@ -1734,20 +1722,24 @@ window.addEventListener('beforeunload', e => {
   if (progress.records.length && progress.submitted < progress.records.length){ e.preventDefault(); e.returnValue = ''; }
 });
 
-// 시작 화면
+// 학번·이름을 입력하고 [시작]을 누르면 입력칸이 잠깁니다
 function startApp(){
-  const id = document.getElementById('startId').value.trim();
-  const nm = document.getElementById('startName').value.trim();
-  if (!id || !nm){ document.getElementById('startErr').textContent = '학번과 이름을 모두 입력하세요.'; return; }
-  document.getElementById('sid').value = id;
-  document.getElementById('sname').value = nm;
-  document.getElementById('startModal').classList.add('hidden');
+  const idEl = document.getElementById('sid'), nmEl = document.getElementById('sname');
+  if (!idEl.value.trim() || !nmEl.value.trim()){
+    flashHint('학번과 이름을 입력한 뒤 [시작]을 누르세요.');
+    (idEl.value.trim() ? nmEl : idEl).focus();
+    return;
+  }
+  started = true;
+  [idEl, nmEl].forEach(el => { el.readOnly = true; el.style.opacity = '.65'; el.style.cursor = 'default'; });
+  const b = document.getElementById('btnStart');
+  b.textContent = '작도 시작됨'; b.disabled = true; b.classList.remove('primary');
   progress.startAll = Date.now();
-  resize();
+  setHint();
 }
 document.getElementById('btnStart').addEventListener('click', startApp);
-['startId','startName'].forEach(i => document.getElementById(i).addEventListener('keydown', e => { if (e.key === 'Enter') startApp(); }));
-setTimeout(() => document.getElementById('startId').focus(), 100);
+['sid','sname'].forEach(i => document.getElementById(i).addEventListener('keydown', e => { if (e.key === 'Enter') startApp(); }));
+setTimeout(() => document.getElementById('sid').focus(), 100);
 
 document.querySelector('footer').textContent = CONFIG.FOOTER;
 progress.startAll = Date.now();
