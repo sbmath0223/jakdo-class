@@ -295,6 +295,7 @@
   .widthbox .wsub{display:block;font-size:11px;color:var(--muted);margin-top:1px}
   .tool-btn small{display:block}
   canvas.panning{cursor:grab}
+  canvas.hiding{cursor:pointer}
   #hint{display:flex;align-items:center;gap:12px;padding:8px 13px;font-size:14px;color:var(--text);
         background:rgba(255,255,255,.07);border-top:1px solid var(--edge);min-height:37px}
   #hintText{flex:1;min-width:0}
@@ -3112,6 +3113,7 @@ function pickTool(t, keepSkill){
   if (t !== 'pan' && t !== 'hide') state.lastTool = t;        // 이동에서 돌아올 자리를 기억해 둡니다
   document.querySelectorAll('.tool-btn').forEach(x => x.classList.toggle('active', x.dataset.tool === t));
   cv.classList.toggle('panning', t === 'pan');
+  cv.classList.toggle('hiding', t === 'hide');
   if (t !== 'hide') state.snap = null;
   renderSkills(); updateWidthBox(); refresh();
 }
