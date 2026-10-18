@@ -2067,7 +2067,7 @@ function onCheck(){
   stats.check++; renderHints();
   const r = problem.check(G);
   addLog('check', r.ok ? '작도 확인: 성공' : '작도 확인: 미완성');
-  if (!r.ok){ showMsg(r.msg, 'warn'); refresh(); return; }
+  if (!r.ok){ showMsg(r.msg, 'info'); refresh(); return; }
 
   const mc = meaningfulCount(r.ids), tot = totals();
   state.highlight = ancestors(r.ids);
@@ -2133,7 +2133,7 @@ function updateSubmitNudge(){
 }
 function blockedBySubmit(){
   if (!state.needSubmit) return false;
-  showMsg('먼저 <b>[제출하기]</b>를 눌러 주세요. 제출해야 점수가 선생님께 전달되고 다른 문제로 갈 수 있어요.', 'warn');
+  showMsg('먼저 <b>[제출하기]</b>를 눌러 주세요. 제출해야 점수가 선생님께 전달되고 다른 문제로 갈 수 있어요.', 'err');
   updateSubmitNudge();
   return true;
 }
@@ -2170,7 +2170,7 @@ function useHint(lv, note){
   if (lv < 0 || lv >= hintCount()) return;
   if (stats.hintsUsed.includes(lv)){ showHint(lv); return; }
   if (stats.check < 1){                                      // 힌트는 [작도 확인]을 한 번 눌러 본 뒤부터 — 힌트대로 그려 '한 번에 통과'를 받는 것을 막습니다
-    showMsg('힌트는 <b>[작도 확인]</b>을 한 번 눌러 본 뒤에 쓸 수 있어요.<br>지금까지 그린 작도를 먼저 확인해 보세요.', 'info'); return; }
+    showMsg('힌트는 <b>[작도 확인]</b>을 한 번 눌러 본 뒤에 쓸 수 있어요.<br>지금까지 그린 작도를 먼저 확인해 보세요.', 'warn'); return; }
   const cost = hintCost(lv);
   if (progress.coins < cost){
     showMsg(`코인이 모자랍니다. (남은 코인 ${progress.coins}개)`, 'warn'); return; }
@@ -2395,8 +2395,8 @@ function buildPayload(auto){
 }
 async function submit(auto){
   const sid = document.getElementById('sid').value.trim(), nm = document.getElementById('sname').value.trim();
-  if (!sid || !nm){ if (!auto) showMsg('학번과 이름을 먼저 입력하세요.', 'warn'); return; }
-  if (progress.sentRec >= progress.records.length && !state.needSubmit){ if (!auto) showMsg('아직 제출할 기록이 없습니다.', 'warn'); return; }
+  if (!sid || !nm){ if (!auto) showMsg('학번과 이름을 먼저 입력하세요.', 'err'); return; }
+  if (progress.sentRec >= progress.records.length && !state.needSubmit){ if (!auto) showMsg('아직 제출할 기록이 없습니다.', 'err'); return; }
   const payload = buildPayload(auto), nRec = progress.records.length, nHint = progress.hints.length, lastSeq = seq;
   if (!/^https:\/\/script\.google\.com\//.test(CONFIG.SCRIPT_URL)){
     showMsg('선생님 설정 필요: SCRIPT_URL이 비어 있습니다.', 'err'); return; }
@@ -3158,7 +3158,7 @@ document.getElementById('btnAgain').addEventListener('click', () => {
 });
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
   const st = t.dataset.stage;
-  if (!stageOpen(st)){ showMsg('🔒 아직 열리지 않은 단계입니다. ' + stageNeed(st), 'warn'); return; }
+  if (!stageOpen(st)){ showMsg('🔒 아직 열리지 않은 단계입니다. ' + stageNeed(st), 'err'); return; }
   if (st === state.stage) return;          // 지금 단계의 탭을 다시 눌러도 작도가 지워지지 않습니다
   if (blockedBySubmit()) return;
   state.stage = st; loadProblem(0);
