@@ -135,6 +135,9 @@
   }
   h3.sec{font-size:11.5px;letter-spacing:.06em;color:var(--muted);margin:2px 0 9px;font-weight:700}
   .tools{display:flex;flex-direction:column;gap:7px}
+  main > .leftcol, .leftcol > aside.card{min-width:0;width:100%;box-sizing:border-box}
+  .widthbox{min-height:74px;box-sizing:border-box;overflow:hidden}
+  .widthbox .wsub{overflow-wrap:anywhere}
   .tool-btn{
     display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 5px;
     border:1px solid var(--edge);border-radius:12px;background:rgba(255,255,255,.07);
@@ -303,6 +306,8 @@
   #hint.flash{background:rgba(246,185,59,.22)}
   .panel{display:flex;flex-direction:column;gap:11px}
   .tabs{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(6,auto);gap:6px}
+  #plist{padding-bottom:10px;border-bottom:1px solid rgba(150,205,255,.28)}
+  .tabs{margin-top:10px}
   .tab{
     font-size:12.5px;white-space:normal;line-height:1.35;padding:9px 6px;border:1px solid var(--edge);
     border-radius:11px;background:rgba(255,255,255,.07);font-weight:800;cursor:pointer;font-family:inherit;color:var(--text);
@@ -490,7 +495,7 @@
     .tools .tool-btn[data-tool="compass"]{order:2}
     .tools .tool-btn[data-tool="point"]{order:3}
     .wgroup{order:4;flex:1 1 100%;display:flex;gap:6px;align-items:stretch}
-    .wgroup .widthbox{flex:1;margin:0;padding:6px 8px}
+    .wgroup .widthbox{flex:1;margin:0;padding:6px 8px;min-height:0}
     .wgroup .widthbox .wsub{display:none}
     .wgroup .mini{width:auto;margin:0;padding:6px 12px;white-space:nowrap}
     .boardwrap{flex:none;display:block}
@@ -682,7 +687,7 @@ h3.sec{font-size:13px!important;color:#D2E2F4!important}
       <button class="btn primary" id="btnLogin" style="padding:8px 18px">로그인</button>
     </div>
     <div class="meters">
-      <button class="meter score" id="btnScore" title="작도로 얻은 점수입니다. 누르면 코인으로 바꿀 수 있습니다. (남은 코인은 마지막 합계에서 1개당 2점으로 더해집니다)">
+      <button class="meter score" id="btnScore" title="작도로 얻은 점수입니다. 누르면 코인으로 바꿀 수 있어요. (코인은 힌트를 살 때만 쓰고, 점수로 다시 바꿀 수는 없어요)">
         <span class="lab">스코어</span><svg class="ic" aria-hidden="true"><use href="#i-gem"/></svg><span class="val" id="score">0</span>
       </button>
       <div class="meter coin" title="힌트를 살 때 쓰는 코인입니다">
@@ -780,7 +785,7 @@ h3.sec{font-size:13px!important;color:#D2E2F4!important}
 
   <aside class="panel">
     <div class="card">
-      <div class="plist" id="plist" style="margin-bottom:9px"></div>
+      <div class="plist" id="plist" style="margin-bottom:0"></div>
       <div class="tabs">
         <button class="tab on" data-stage="step1">1. 기본 작도</button>
         <button class="tab" data-stage="step2">2. 평행선 작도</button>
@@ -872,7 +877,7 @@ let busy = false, started = false;
 const state = { needSubmit:false, vis:{}, tool:'pan', rulerType:'segment', pointType:'inter', bagOpen:false, pinchedAt:0, pending:[], snap:null, highlight:null,
                 showLabels:true, width:null, skill:null, ghost:null, stage:'step1', idx:0,
                 view:{ x:0, y:0, k:1 }, drag:null, measuring:false, lastTool:'ruler' };
-const progress = { coins:COIN.start, score:0, skills:[], solved:{}, records:[], hints:[], submitted:0, strategies:[], skipped:{}, exchanged:0 };
+const progress = { coins:COIN.start, score:0, skills:[], solved:{}, records:[], hints:[], submitted:0, sentRec:0, sentHint:0, strategies:[], skipped:{}, exchanged:0 };
 
 // ===================== 객체 =====================
 function addObj(o){ o.id = nextId++; objs.push(o); M.set(o.id, o); return o; }
@@ -2014,7 +2019,7 @@ function undo(){
   a.ids.forEach(removeObj);
   const le = log.find(l => l.seq === a.seq); if (le) le.removedBy = '되돌림';
   redoStack.push({ action:a, objects:kept });
-  stats.undo++; addLog('undo', '되돌리기');
+  stats.undo++; addLog('undo', '실행 취소');
   state.highlight = null; hideMsg(); refresh();
 }
 // 되돌린 작도를 다시 살립니다. 새로 작도하면 앞으로 갈 자리는 사라집니다.
@@ -2027,7 +2032,7 @@ function redo(){
   objs.sort((x, y) => x.id - y.id);
   actions.push(r.action);
   const le = log.find(l => l.seq === r.action.seq); if (le) le.removedBy = null;
-  stats.redo++; addLog('redo', '앞으로 가기');
+  stats.redo++; addLog('redo', '재실행');
   state.pending = []; state.highlight = null; hideMsg(); refresh();
 }
 async function resetWork(){
@@ -2091,11 +2096,11 @@ function onCheck(){
     progress.records.push({
       id:already ? problem.id + '-2' : problem.id,
       title:already ? problem.title + ' (다른 방법)' : problem.title,
-      stage:state.stage, solved:'O', sec:elapsed(),
+      stage:STAGE_KO[state.stage] || state.stage, solved:'O', sec:elapsed(),
       ruler:tot.ruler, compass:tot.compass, rulerM:mc.ruler, compassM:mc.compass,
       rulerX:tot.ruler - mc.ruler, compassX:tot.compass - mc.compass,
       width:0,   // 구글 시트의 '폭 설정' 열이 비지 않도록 0으로 보냅니다(폭 설정은 더 이상 세지 않습니다)
-      undo:stats.undo, reset:stats.reset, check:stats.check,
+      undo:stats.undo, redo:stats.redo, reset:stats.reset, check:stats.check,
       hints:stats.hintsUsed.map(l => l + 1).join(','), score:gained, strategy:strat
     });
   }
@@ -2361,6 +2366,7 @@ function showHint(lv, note){
   renderHints();
 }
 // ===================== 제출 =====================
+const STAGE_KO = { step1:'1 기본 작도', practice:'1.5 기본 작도 연습', step2:'2 평행선 작도', bonus:'2.5 평행선 작도 심화', step3:'3 도전 문제' };
 function buildPayload(auto){
   const tot = totals();
   return {
@@ -2368,7 +2374,7 @@ function buildPayload(auto){
     clientTime:new Date().toLocaleString('ko-KR'),
     studentId:document.getElementById('sid').value.trim(),
     name:document.getElementById('sname').value.trim(),
-    stage:state.stage === 'step1' ? 'Step 1' : '연습 문제',
+    stage:STAGE_KO[state.stage] || state.stage,
     auto:auto ? '자동' : '수동',
     score:progress.score,
     coins:progress.coins,
@@ -2376,12 +2382,12 @@ function buildPayload(auto){
     coinBonus:0,
     finalScore:finalScore(),
     skills:progress.skills.map(id => skill(id).name).join(', '),
-    solvedCount:progress.records.length,
+    solvedCount:Object.keys(progress.solved).length,
     strategies:progress.strategies.join(' / '),
     totalSec:Math.round((Date.now() - progress.startAll) / 100) / 10,
-    records:progress.records,
-    hints:progress.hints,
-    log:log.map(l => ({ seq:l.seq, t:l.t, kind:l.kind, detail:l.detail, status:l.removedBy || '' })),
+    records:progress.records.slice(progress.sentRec),      // 이미 보낸 기록은 다시 보내지 않습니다 (시트에 같은 줄이 겹치지 않게)
+    hints:progress.hints.slice(progress.sentHint),
+    log:log.filter(l => l.seq > (state.logSent || 0)).map(l => ({ seq:l.seq, t:l.t, kind:l.kind, detail:l.detail, status:l.removedBy || '' })),
     problemId:problem ? problem.id : '',
     image:CONFIG.SEND_IMAGE ? exportImage(null) : ''
   };
@@ -2389,15 +2395,15 @@ function buildPayload(auto){
 async function submit(auto){
   const sid = document.getElementById('sid').value.trim(), nm = document.getElementById('sname').value.trim();
   if (!sid || !nm){ if (!auto) showMsg('학번과 이름을 먼저 입력하세요.', 'warn'); return; }
-  if (!progress.records.length){ if (!auto) showMsg('아직 제출할 기록이 없습니다.', 'warn'); return; }
-  const payload = buildPayload(auto);
+  if (progress.sentRec >= progress.records.length && !state.needSubmit){ if (!auto) showMsg('아직 제출할 기록이 없습니다.', 'warn'); return; }
+  const payload = buildPayload(auto), nRec = progress.records.length, nHint = progress.hints.length, lastSeq = seq;
   if (!/^https:\/\/script\.google\.com\//.test(CONFIG.SCRIPT_URL)){
     showMsg('선생님 설정 필요: SCRIPT_URL이 비어 있습니다.', 'err'); return; }
   const btn = document.getElementById('btnSubmit');
   btn.disabled = true; if (!auto) showMsg('제출 중입니다…', 'info');
   const r = await sendData(payload);
   btn.disabled = false;
-  if (r.ok){ progress.submitted++; state.needSubmit = false; updateSubmitNudge(); showMsg(`✅ 제출 완료 — 문제 ${payload.solvedCount}개 · 작도 점수 <b>${payload.finalScore}점</b>`, 'ok'); }
+  if (r.ok){ progress.submitted++; progress.sentRec = nRec; progress.sentHint = nHint; state.logSent = lastSeq; state.needSubmit = false; updateSubmitNudge(); showMsg(`✅ 제출 완료 — 문제 ${payload.solvedCount}개 · 작도 점수 <b>${payload.finalScore}점</b>`, 'ok'); }
   else { showMsg('제출에 실패했습니다. 다시 눌러 주세요.<br><small>' + r.reason + '</small>', 'err'); downloadBackup(payload); }
 }
 async function sendData(payload){
@@ -2952,7 +2958,7 @@ function loadProblem(i){
   const ps = problems();
   state.idx = i; problem = ps[i];
   objs = []; M = new Map(); nextId = 1; actions = []; log = []; seq = 0; redoStack = [];
-  state.pending = []; state.highlight = null; state.snap = null; state.width = null; state.widthCost = 0; picks = []; state.vis = {};
+  state.pending = []; state.highlight = null; state.snap = null; state.width = null; state.widthCost = 0; picks = []; state.vis = {}; state.logSent = 0;
   state.skill = null; state.ghost = null; state.hintAt = null; state.measuring = false; busy = false;
   stats = { start:Date.now(), undo:0, redo:0, reset:0, check:0, hintsUsed:[], outWarned:false };
   state.view = baseView();
@@ -3136,9 +3142,9 @@ document.getElementById('btnSkip').addEventListener('click', () => {
     showMsg('다시 도전합니다. 화이팅!', 'info'); return;
   }
   progress.skipped[problem.id] = true;
-  progress.records.push({ id:problem.id, title:problem.title, stage:state.stage, solved:'건너뜀',
+  progress.records.push({ id:problem.id, title:problem.title, stage:STAGE_KO[state.stage] || state.stage, solved:'건너뜀',
     sec:elapsed(), ruler:0, compass:0, rulerM:'', compassM:'', rulerX:'', compassX:'',
-    width:0, undo:0, reset:0, check:0, hints:'', score:0, strategy:'' });
+    width:0, undo:0, redo:0, reset:0, check:0, hints:'', score:0, strategy:'' });
   addLog('skip', '보너스 건너뛰기');
   document.getElementById('btnSkip').textContent = '다시 도전하기';
   showMsg('건너뛰었습니다. 나중에 이 화면에서 다시 도전할 수 있습니다.', 'info');
@@ -3162,7 +3168,7 @@ document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y'){ e.preventDefault(); redo(); }
 });
 window.addEventListener('beforeunload', e => {
-  if (progress.records.length && progress.submitted < progress.records.length){ e.preventDefault(); e.returnValue = ''; }
+  if (progress.records.length > progress.sentRec){ e.preventDefault(); e.returnValue = ''; }
 });
 
 // 로그인하기 전에는 [로그인]을 빼고 어떤 버튼도 눌리지 않습니다
@@ -3189,11 +3195,11 @@ function login(){
 }
 async function logout(){
   if (busy) return;
-  const unsent = progress.records.length > progress.submitted;
+  const unsent = progress.records.length > progress.sentRec;
   const ok = await askConfirm('로그아웃하면 지금까지의 작도 기록 · 점수 · 코인 · 스킬이 모두 사라집니다.' +
     (unsent ? ' 아직 제출하지 않은 기록도 있습니다.' : '') + ' 로그아웃할까요?');
   if (!ok) return;
-  Object.assign(progress, { coins:COIN.start, score:0, skills:[], solved:{}, records:[], hints:[], submitted:0,
+  Object.assign(progress, { coins:COIN.start, score:0, skills:[], solved:{}, records:[], hints:[], submitted:0, sentRec:0, sentHint:0,
                             strategies:[], skipped:{}, exchanged:0, startAll:Date.now() });
   state.needSubmit = false; updateSubmitNudge();
   started = false; document.body.classList.add('locked'); lastSkillN = 0; closeBag(); toggleExchange(false);
