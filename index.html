@@ -1389,12 +1389,10 @@ const STEP1 = [
 ];
 
 function sideMarks(){
-  const a1 = gp('',60,60,{noLabel:true}), a2 = gp('',300,60,{noLabel:true});
-  const b1 = gp('',60,105,{noLabel:true}), b2 = gp('',260,105,{noLabel:true});
-  const c1 = gp('',60,150,{noLabel:true}), c2 = gp('',220,150,{noLabel:true});
-  gl(a1,a2,'segment',{ text:'a', textAt:{x:312,y:66} });
-  gl(b1,b2,'segment',{ text:'b', textAt:{x:272,y:111} });
-  gl(c1,c2,'segment',{ text:'c', textAt:{x:232,y:156} });
+  const a1 = gp('P',60,60), a2 = gp('Q',300,60);
+  const b1 = gp('R',60,115), b2 = gp('S',260,115);
+  const c1 = gp('T',60,170), c2 = gp('U',220,170);
+  gl(a1,a2,'segment'); gl(b1,b2,'segment'); gl(c1,c2,'segment');
   return { a:240, b:200, c:160 };
 }
 const PRACTICE = [
@@ -1418,8 +1416,8 @@ const PRACTICE = [
       return { ok:false, msg: partial ? '꼭짓점은 찾았어요. 자로 세 변을 이어 보세요.' : '선분 AB와 길이가 같은 두 변을 만드는 점을 찾아보세요.' };
     } },
   { id:'B2', title:'세 변이 주어진 삼각형 (SSS)', score:20,
-    desc:'세 선분 a, b, c를 세 변으로 하는 삼각형을 작도하세요. 점 B를 한 꼭짓점으로 하고, 길이가 a인 변은 직선 l 위에 놓이게 합니다.',
-    hints:['가장 긴 변을 먼저 직선 위에 옮겨 놓으세요.', '점 B를 중심으로 반지름의 길이가 a인 원을 그려 직선 l 위의 점 C를 잡습니다.'],
+    desc:'세 선분 PQ, RS, TU를 세 변으로 하는 삼각형을 작도하세요. 점 B를 한 꼭짓점으로 하고, ⟦s:PQ⟧와 길이가 같은 변은 직선 l 위에 놓이게 합니다.',
+    hints:['가장 긴 변을 먼저 직선 위에 옮겨 놓으세요.', '점 B를 중심으로 반지름의 길이가 ⟦s:PQ⟧인 원을 그려 직선 l 위의 점 C를 잡습니다.'],
     setup(){ const s = sideMarks();
       const l1 = gp('',30,540,{hidden:true}), l2 = gp('',970,540,{hidden:true});
       const l = gl(l1,l2,'line',{ text:'l', textAt:{x:940,y:528} });
@@ -1447,20 +1445,19 @@ const PRACTICE = [
           if (!((nearLen(ab,g.c) && nearLen(ac,g.b)) || (nearLen(ab,g.b) && nearLen(ac,g.c)))) continue;
           const bc = connecting(B,C), ca = connecting(C,A), abL = connecting(A,B);
           if (bc.length && ca.length && abL.length)
-            return { ok:true, ids:[C.id,A.id,bc[0].id,ca[0].id,abL[0].id], msg:`삼각형 ${A.label}B${C.label}의 세 변이 a, b, c와 같습니다.` };
+            return { ok:true, ids:[C.id,A.id,bc[0].id,ca[0].id,abL[0].id], msg:`삼각형 ${A.label}B${C.label}의 세 변의 길이가 각각 ⟦s:PQ⟧, ⟦s:RS⟧, ⟦s:TU⟧와 같습니다.` };
           partial = true;
         }
       }
       return { ok:false, msg: partial ? '세 꼭짓점은 찾았어요. 자로 세 변을 모두 이어 보세요.' : '조건에 맞는 꼭짓점을 아직 찾지 못했어요.' };
     } },
   { id:'B3', title:'두 변과 끼인각 (SAS)', score:20,
-    desc:'선분 p, q를 두 변으로 하고 ∠XOY를 끼인각으로 하는 삼각형을 점 A에서 작도하세요. 길이가 p인 변은 반직선 AK 위에 놓습니다.',
-    hints:['먼저 한 변을 반직선 위에 옮기고, 그다음 각을 옮기세요.', '∠XOY를 점 A로 옮긴 뒤, 새 변 위에 선분 q의 길이를 옮깁니다.'],
+    desc:'선분 PQ, RS를 두 변으로 하고 ∠XOY를 끼인각으로 하는 삼각형을 점 A에서 작도하세요. ⟦s:PQ⟧와 길이가 같은 변은 반직선 AK 위에 놓습니다.',
+    hints:['먼저 한 변을 반직선 위에 옮기고, 그다음 각을 옮기세요.', '∠XOY를 점 A로 옮긴 뒤, 새 변 위에 선분 RS의 길이를 옮깁니다.'],
     setup(){
-      const p1 = gp('',60,60,{noLabel:true}), p2 = gp('',280,60,{noLabel:true});
-      const q1 = gp('',60,105,{noLabel:true}), q2 = gp('',230,105,{noLabel:true});
-      gl(p1,p2,'segment',{ text:'p', textAt:{x:292,y:66} });
-      gl(q1,q2,'segment',{ text:'q', textAt:{x:242,y:111} });
+      const p1 = gp('P',60,60), p2 = gp('Q',280,60);
+      const q1 = gp('R',60,115), q2 = gp('S',230,115);
+      gl(p1,p2,'segment'); gl(q1,q2,'segment');
       const O = gp('O',120,300), X = gp('X',330,300), Y = gp('Y',260,180);
       gl(O,X,'ray'); gl(O,Y,'ray');
       const A = gp('A',420,540), K = gp('K',940,540); gl(A,K,'ray');
@@ -1492,14 +1489,14 @@ const PRACTICE = [
           partial = true;
         }
       }
-      return { ok:false, msg: partial ? '꼭짓점은 찾았어요. 자로 세 변을 이어 보세요.' : '반직선 AK 위에서 점 A로부터 거리가 p인 점과, 각을 옮긴 변 위에서 점 A로부터 거리가 q인 점을 만드세요.' };
+      return { ok:false, msg: partial ? '꼭짓점은 찾았어요. 자로 세 변을 이어 보세요.' : '반직선 AK 위에서 점 A로부터 거리가 ⟦s:PQ⟧인 점과, 각을 옮긴 변 위에서 점 A로부터 거리가 ⟦s:RS⟧인 점을 만드세요.' };
     } },
   { id:'B4', title:'한 변과 양 끝 각 (ASA)', score:25,
-    desc:'선분 p를 한 변으로 하고, 양 끝 각이 ∠XOY와 ∠UVW인 삼각형을 점 A에서 작도하세요. 변 p는 반직선 AK 위에 놓습니다.',
+    desc:'선분 PQ를 한 변으로 하고, 양 끝 각이 ∠XOY와 ∠UVW인 삼각형을 점 A에서 작도하세요. 선분 PQ는 반직선 AK 위에 놓습니다.',
     hints:['한 변을 옮긴 뒤, 양 끝에서 각을 하나씩 옮기세요.', '두 각의 변이 만나는 점이 세 번째 꼭짓점입니다.'],
     setup(){
-      const p1 = gp('',60,60,{noLabel:true}), p2 = gp('',300,60,{noLabel:true});
-      gl(p1,p2,'segment',{ text:'p', textAt:{x:312,y:66} });
+      const p1 = gp('P',60,60), p2 = gp('Q',300,60);
+      gl(p1,p2,'segment');
       const O = gp('O',110,300), X = gp('X',300,300), Y = gp('Y',250,190);
       gl(O,X,'ray'); gl(O,Y,'ray');
       const V = gp('V',560,300), U = gp('U',760,300), Wp = gp('W',640,160);
@@ -1536,7 +1533,7 @@ const PRACTICE = [
           partial = true;
         }
       }
-      return { ok:false, msg: partial ? '꼭짓점은 찾았어요. 자로 세 변을 이어 보세요.' : '변 p를 옮기고, 양 끝에서 각을 각각 옮겨 보세요.' };
+      return { ok:false, msg: partial ? '꼭짓점은 찾았어요. 자로 세 변을 이어 보세요.' : '선분 PQ를 옮기고, 양 끝에서 각을 각각 옮겨 보세요.' };
     } }
 ];
 
@@ -1725,28 +1722,28 @@ const STEP_HINTS = {
     { t:'자로 점 B와도 이으면 정삼각형이 완성됩니다.', g:3 }
   ],
   B2: [
-    { t:'가장 긴 변 a를 먼저 직선 l 위에 옮깁니다. 컴퍼스로 선분 a의 길이를 재어 점 B를 중심으로 원을 그리고, 직선 l과 만나는 점 C를 찍습니다.', g:0 },
-    { t:'컴퍼스로 변 c의 길이를 재어, 점 B를 중심으로 원을 그립니다.', g:1 },
-    { t:'컴퍼스로 변 b의 길이를 재어, 점 C를 중심으로 원을 그립니다.', g:2 },
+    { t:'가장 긴 선분 PQ를 먼저 직선 l 위에 옮깁니다. 컴퍼스로 선분 PQ의 길이를 재어 점 B를 중심으로 원을 그리고, 직선 l과 만나는 점 C를 찍습니다.', g:0 },
+    { t:'컴퍼스로 선분 TU의 길이를 재어, 점 B를 중심으로 원을 그립니다.', g:1 },
+    { t:'컴퍼스로 선분 RS의 길이를 재어, 점 C를 중심으로 원을 그립니다.', g:2 },
     { t:'두 원이 만나는 점을 찍습니다. 이 점이 꼭짓점 A입니다. 자로 점 B와 점 C를 이으세요.', g:3 },
     { t:'자로 점 C와 점 A를 잇습니다.', g:4 },
     { t:'자로 점 A와 점 B를 이으면 삼각형이 완성됩니다.', g:5 }
   ],
   B3: [
-    { t:'먼저 한 변을 옮기고, 그다음 각을 옮깁니다. 컴퍼스로 선분 p를 재어, 그 폭으로 점 O를 중심으로 원을 그려 ∠XOY의 두 변과 만나는 점을 찍습니다.', g:0 },
+    { t:'먼저 한 변을 옮기고, 그다음 각을 옮깁니다. 컴퍼스로 선분 PQ를 재어, 그 폭으로 점 O를 중심으로 원을 그려 ∠XOY의 두 변과 만나는 점을 찍습니다.', g:0 },
     { t:'폭을 바꾸지 말고 점 A를 중심으로 원을 그립니다. 반직선 AK와 만나는 점이 꼭짓점 B입니다.', g:1 },
     { t:'1에서 생긴 두 점 사이의 거리를 재어, 점 B를 중심으로 원을 그립니다.', g:2 },
     { t:'3의 원과 2의 원이 만나는 점을 찍고, 자로 점 A와 이어 반직선을 긋습니다. 이것이 ∠XOY를 옮긴 변입니다.', g:3 },
-    { t:'컴퍼스로 선분 q를 재어 점 A를 중심으로 원을 그리고, 4의 반직선과 만나는 점 C를 찍습니다.', g:4 },
+    { t:'컴퍼스로 선분 RS를 재어 점 A를 중심으로 원을 그리고, 4의 반직선과 만나는 점 C를 찍습니다.', g:4 },
     { t:'자로 점 A와 B를 잇습니다. (반직선 AK는 주어진 것이므로 따로 그어야 합니다)', g:5 },
     { t:'자로 점 B와 C를 이으면 삼각형이 완성됩니다.', g:6 }
   ],
   B4: [
-    { t:'한 변을 옮긴 뒤 양 끝에서 각을 하나씩 옮깁니다. 컴퍼스로 선분 p를 재어, 그 폭으로 점 O를 중심으로 원을 그려 ∠XOY의 두 변과 만나는 점을 찍습니다.', g:0 },
+    { t:'한 변을 옮긴 뒤 양 끝에서 각을 하나씩 옮깁니다. 컴퍼스로 선분 PQ를 재어, 그 폭으로 점 O를 중심으로 원을 그려 ∠XOY의 두 변과 만나는 점을 찍습니다.', g:0 },
     { t:'폭을 바꾸지 말고 점 A를 중심으로 원을 그립니다. 반직선 AK와 만나는 점이 점 B입니다.', g:1 },
     { t:'1에서 생긴 두 점 사이를 재어, 점 B를 중심으로 원을 그립니다.', g:2 },
     { t:'2의 원과 3의 원이 만나는 점을 찍고, 자로 점 A와 이어 반직선을 긋습니다. ∠XOY를 점 A로 옮긴 변입니다.', g:3 },
-    { t:'다시 선분 p의 길이로 폭을 맞춰 점 V를 중심으로 원을 그려 ∠UVW의 두 변과 만나는 점을 찍습니다.', g:4 },
+    { t:'다시 선분 PQ의 길이로 폭을 맞춰 점 V를 중심으로 원을 그려 ∠UVW의 두 변과 만나는 점을 찍습니다.', g:4 },
     { t:'같은 폭으로 점 B를 중심으로 원을 그리고, 반직선 AK 위의 점 A 쪽 교점을 찍습니다.', g:5 },
     { t:'5에서 생긴 두 점 사이를 재어, 6에서 찍은 점을 중심으로 원을 그립니다.', g:6 },
     { t:'6의 원과 7의 원이 만나는 점을 찍고, 자로 점 B와 이어 반직선을 긋습니다. 4의 반직선과 만나는 점이 점 C입니다.', g:7 },
@@ -2996,15 +2993,32 @@ function askConfirm(text, o){
 }
 
 // ===================== 문제 불러오기 =====================
-function loadProblem(i){
+// 문제를 오갈 때 학생이 그린 작도가 그대로 남도록, 떠나는 문제의 작업 상태를 보관합니다
+const savedWork = {};
+function saveWork(){
+  if (!state.curKey || !problem) return;
+  savedWork[state.curKey] = { objs, M, nextId, actions, log, seq, redoStack, picks, G, stats,
+    width:state.width, widthCost:state.widthCost, vis:state.vis, logSent:state.logSent, view:state.view };
+}
+function loadProblem(i, fresh){
+  if (fresh === 'forget'){ for (const k in savedWork) delete savedWork[k]; state.curKey = null; }
+  else saveWork();
   const ps = problems();
   state.idx = i; problem = ps[i];
-  objs = []; M = new Map(); nextId = 1; actions = []; log = []; seq = 0; redoStack = [];
-  state.pending = []; state.highlight = null; state.snap = null; state.width = null; state.widthCost = 0; picks = []; state.vis = {}; state.logSent = 0;
+  const key = state.stage + ':' + problem.id, sv = fresh ? null : savedWork[key];
+  state.curKey = key;
+  state.pending = []; state.highlight = null; state.snap = null;
   state.skill = null; state.ghost = null; state.hintAt = null; state.measuring = false; busy = false;
-  stats = { start:Date.now(), undo:0, redo:0, reset:0, check:0, hintsUsed:[], outWarned:false };
-  state.view = baseView();
-  G = problem.setup();
+  if (sv){
+    ({ objs, M, nextId, actions, log, seq, redoStack, picks, G, stats } = sv);
+    state.width = sv.width; state.widthCost = sv.widthCost; state.vis = sv.vis; state.logSent = sv.logSent; state.view = sv.view;
+  } else {
+    objs = []; M = new Map(); nextId = 1; actions = []; log = []; seq = 0; redoStack = [];
+    state.width = null; state.widthCost = 0; picks = []; state.vis = {}; state.logSent = 0;
+    stats = { start:Date.now(), undo:0, redo:0, reset:0, check:0, hintsUsed:[], outWarned:false };
+    state.view = baseView();
+    G = problem.setup();
+  }
   document.getElementById('pTitle').textContent = `${i+1}. ${problem.title}`;
   document.getElementById('pDesc').textContent = problem.desc;
   const lim = document.getElementById('pLimit');
@@ -3194,7 +3208,7 @@ document.getElementById('btnSkip').addEventListener('click', () => {
 });
 document.getElementById('btnAgain').addEventListener('click', () => {
   if (blockedBySubmit()) return;
-  const i = state.idx; loadProblem(i);
+  const i = state.idx; loadProblem(i, true);
   showMsg('앞에서 쓴 것과 <b>다른 계열의 방법</b>으로 다시 작도해 보세요. 성공하면 점수를 더 받습니다.', 'info');
 });
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
@@ -3250,7 +3264,7 @@ async function logout(){
   loginBtn.textContent = '로그인'; loginBtn.classList.add('primary'); loginBtn.classList.remove('danger');
   state.stage = 'step1'; state.rulerType = 'segment'; state.lastTool = 'ruler';
   pickTool('pan');
-  loadProblem(0);
+  loadProblem(0, 'forget');
   flashHint('로그아웃했습니다. 학번과 이름을 입력하고 다시 로그인하세요.');
   idEl.focus();
 }
