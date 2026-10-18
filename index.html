@@ -283,6 +283,9 @@
   .hintpane .note{margin-top:7px;font-size:12px;font-weight:700;color:#FFE3A6}
   .hintpane .hfoot{margin-top:8px;padding-top:7px;border-top:1px dashed rgba(246,185,59,.35);font-size:11.5px;line-height:1.55;color:rgba(251,232,194,.85)}
   .hintpane .hfoot b{color:#FFE3A6}
+  .hintpane .hjn{display:inline-flex;gap:4px;margin-left:8px;vertical-align:middle}
+  .hintpane .hjn button{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1px solid #F6B93B;background:rgba(120,88,20,.85);color:#FFF1D4;font-family:inherit;font-size:20px;font-weight:800;line-height:1;padding:0;cursor:pointer}
+  .hintpane .hjn button:disabled{opacity:.3;cursor:default}
   #overlay .msg:has(.rs){max-height:min(52vh,340px)}
   .rs{display:flex;flex-direction:column;gap:9px;padding-right:26px}
   .rs-t{font-weight:700;font-size:1.05em;line-height:1.4}
@@ -2452,11 +2455,18 @@ function showHint(lv, note){
   hideMsg();
   pane.innerHTML =
     `<div class="hd"><b>힌트 ${lv+1}</b><span style="margin-left:6px;font-size:12px;opacity:.7">/ ${n}</span>` +
+    `<span class="hjn"><button type="button" id="hjPrev" aria-label="앞에서 열어 본 힌트"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M10 3 L5 8 L10 13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" id="hjNext" aria-label="뒤에서 열어 본 힌트"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 3 L11 8 L6 13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span>` +
     `<button class="x" id="btnHintClose" title="힌트 닫기">✕</button></div>` +
     `<div class="bd">${list[lv].t}</div>` +
-    (note ? `<div class="note">${note}</div>` : '') + `<div class="hfoot" id="hintFoot"></div>`;
+    (note ? `<div class="note">${note}</div>` : '') + ``;
   pane.classList.add('show');
   document.getElementById('btnHintClose').onclick = closeHint;
+  const op = stats.hintsUsed.slice().sort((x, y) => x - y);      // 열어 본 힌트끼리 돌아가며 봅니다 (끝에서 처음으로, 처음에서 끝으로)
+  const po = op.filter(v => v < lv).pop(), no = op.find(v => v > lv);
+  const prevTo = po !== undefined ? po : op[op.length - 1], nextTo = no !== undefined ? no : op[0];
+  const hp = document.getElementById('hjPrev'), hn = document.getElementById('hjNext');
+  hp.disabled = hn.disabled = op.filter(v => v !== lv).length < 1;
+  hp.onclick = () => showHint(prevTo); hn.onclick = () => showHint(nextTo);
   renderHints();
 }
 // ===================== 제출 =====================
@@ -2944,13 +2954,6 @@ function renderHints(){
     nx.title = lock ? (tgt > at + 1 ? `${HINT_COST}코인을 내고 지금 작도에 맞는 힌트(${tgt + 1}번)로 건너뛰기` : `${HINT_COST}코인을 내고 다음 힌트 열기`) : (tgt > at + 1 ? `지금 작도에 맞는 힌트(${tgt + 1}번)로 건너뛰기` : '다음 힌트');
     pv.onclick = () => (stats.hintsUsed.includes(at - 1) ? showHint(at - 1) : useHint(at - 1));
     // 태블릿에서는 마우스를 올려 볼 수 없으므로, 화살표의 쓰임과 코인을 힌트 창 안에 글자로 보여 줍니다
-    const ft = document.getElementById('hintFoot');
-    if (ft){
-      const parts = [];
-      if (at > 0) parts.push(`<b>‹</b> 이전 힌트(${at}번)${stats.hintsUsed.includes(at - 1) ? '' : ` · 코인 ${HINT_COST}개`}`);
-      if (at < n - 1) parts.push(`<b>›</b> ${tgt > at + 1 ? `지금 작도에 맞는 <b>${tgt + 1}번</b> 힌트로 건너뜀` : `다음 힌트(${tgt + 1}번)`}${stats.hintsUsed.includes(tgt) ? ' · 이미 열어 본 힌트라 무료' : ` · 코인 ${HINT_COST}개`}`);
-      ft.innerHTML = parts.join('<br>'); ft.style.display = parts.length ? '' : 'none';
-    }
     nx.onclick = () => (stats.hintsUsed.includes(tgt) ? showHint(tgt) : useHint(tgt, tgt > at + 1 ? smartNote(tgt) : ''));
   }
 }
