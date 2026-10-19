@@ -2011,7 +2011,9 @@ const STAGES = { step1:STEP1, practice:PRACTICE, step2:STEP2, bonus:BONUS, step3
 // 잠금 여부는 교사용 화면에서 정하며(서버에 저장), 교사용 화면에서는 항상 모두 열립니다.
 let lockStages = CONFIG.LOCK_STAGES;
 function stageOpen(st){
-  if (state.teacher || !lockStages) return true;
+  if (state.teacher) return true;
+  if (!lockReady && started) return st === 'step1';   // 서버의 잠금 상태를 아직 모를 때는 처음 단계만 열어 둡니다
+  if (!lockStages) return true;
   if (st === 'step1') return true;
   const step1Done = STEP1.every(p => progress.solved[p.id]);
   if (st === 'practice' || st === 'step2') return step1Done;
@@ -3580,7 +3582,8 @@ function login(){
   loginBtn.textContent = '로그아웃'; loginBtn.classList.remove('primary'); loginBtn.classList.add('danger');
   progress.startAll = Date.now();
   setHint();
-  fetchLock();
+  if (!lockReady){ fetchLock(); setTimeout(() => { if (!lockReady){ lockReady = true; renderTabs(); } }, 6000); }   // 서버에 닿지 않으면 6초 뒤 기본값을 씁니다
+  else fetchLock();
   startTour();
 }
 
@@ -3649,19 +3652,23 @@ document.getElementById('tLock').addEventListener('click', async () => {
   else st.textContent = '⚠️ 저장하지 못했어요. ' + why;
 });
 // 학생 화면: 서버에 저장된 잠금 상태를 불러옵니다 (로그인할 때 · 잠긴 탭을 눌렀을 때 · 1분마다)
-let lockFetchedAt = 0;
+let lockFetchedAt = 0, lockReady = false;
+try { const v = localStorage.getItem('stageLockLast'); if (v === '1' || v === '0') lockStages = v === '1'; } catch (e) {}   // 서버에 닿지 않을 때를 위한 마지막 값
 async function fetchLock(){
-  if (!/^https:\/\/script\.google\.com\//.test(CONFIG.SCRIPT_URL)) return;
-  if (Date.now() - lockFetchedAt < 3000) return;
+  if (!/^https:\/\/script\.google\.com\//.test(CONFIG.SCRIPT_URL)){ lockReady = true; return; }
+  if (Date.now() - lockFetchedAt < 2000) return;
   lockFetchedAt = Date.now();
   try {
-    const res = await fetch(CONFIG.SCRIPT_URL + '?action=lock', { redirect:'follow' });
+    // 주소 뒤에 시각을 붙이고 캐시를 쓰지 않아, 예전에 받아 둔 값이 아니라 서버의 최신 잠금 상태를 읽습니다
+    const res = await fetch(CONFIG.SCRIPT_URL + '?action=lock&t=' + Date.now(), { redirect:'follow', cache:'no-store' });
     const j = JSON.parse(await res.text());
-    if (j && typeof j.lock === 'boolean' && j.lock !== lockStages){ lockStages = j.lock; renderTabs(); refreshTeacherBtn(); }
-  } catch (e){}
+    if (j && typeof j.lock === 'boolean'){ lockReady = true; lockStages = j.lock; try { localStorage.setItem('stageLockLast', j.lock ? '1' : '0'); } catch (e) {} renderTabs(); refreshTeacherBtn(); }
+    else { lockReady = true; renderTabs(); }
+  } catch (e){ console.warn('lock fetch failed', e); lockFetchedAt = 0; }
 }
 setInterval(() => { if (started && !state.teacher) fetchLock(); }, 60000);
 refreshTeacherBtn();
+fetchLock();            // 로그인하기 전에 미리 잠금 상태를 받아 둡니다
 
 // ===================== 처음 안내(튜토리얼) · 도움말 =====================
 const TOUR_STEPS = [
