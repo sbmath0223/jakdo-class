@@ -1028,11 +1028,22 @@ function removeObj(id){ M.delete(id); objs = objs.filter(o => o.id !== id); }
 function P(id){ return M.get(id); }
 function gp(label, x, y, opt = {}){
   return addObj({ kind:'point', x, y, label, ptype:'given', given:true, parents:[],
-                  hidden:!!opt.hidden, noLabel:!!opt.noLabel, labelDir:opt.dir || null }).id;
+                  hidden:!!opt.hidden, noLabel:!!opt.noLabel, labelDir:opt.dir || null, arc:null }).id;
 }
 function gl(p1, p2, ltype, opt = {}){
   return addObj({ kind:'line', ltype, p1, p2, parents:[p1, p2], tool:'given', given:true,
                   text:opt.text || '', textAt:opt.textAt || null }).id;
+}
+
+// 교과서처럼 꼭짓점에서 뻗은 두 변을 짧게 자른 '각' 그림 (꼭짓점 이름 O, 점 X, Y와 직각 표시 호)
+function givenAngle(names, O, u1, u2, dot, len){
+  const o = gp(names[0], O.x, O.y, { dir:names[3] });
+  const mk = (nm, u) => gp(nm, O.x + u[0]*dot, O.y + u[1]*dot);
+  const far = u => gp('', O.x + u[0]*len, O.y + u[1]*len, { hidden:true });
+  const x = mk(names[1], u1), y = mk(names[2], u2), f1 = far(u1), f2 = far(u2);
+  gl(o, f1, 'segment'); gl(o, f2, 'segment');
+  M.get(o).arc = [x, y];
+  return { o, x, y };
 }
 const LETTERS = 'ABCDEFGHJKLMNOPQRSTUVWXYZ'.split('');
 function subNum(n){ return String(n).split('').map(d => '₀₁₂₃₄₅₆₇₈₉'[d]).join(''); }
@@ -1506,10 +1517,10 @@ const STEP1 = [
     } }
 ];
 
-function sideMarks(){
-  const a1 = gp('P',100,45,{dir:'sw'}), a2 = gp('Q',340,45,{dir:'sw'});         // 세 선분의 점 이름은 모두 8시 방향
-  const b1 = gp('R',100,180,{dir:'sw'}), b2 = gp('S',300,180,{dir:'sw'});
-  const c1 = gp('T',100,315,{dir:'sw'}), c2 = gp('U',260,315,{dir:'sw'});
+function sideMarks(){                                        // 주어진 세 선분은 작도판 오른쪽에 세로로 놓습니다 (점 이름은 모두 8시 방향)
+  const a1 = gp('P',45,50,{dir:'sw'}), a2 = gp('Q',285,50,{dir:'sw'});
+  const b1 = gp('R',45,120,{dir:'sw'}), b2 = gp('S',245,120,{dir:'sw'});
+  const c1 = gp('T',45,190,{dir:'sw'}), c2 = gp('U',205,190,{dir:'sw'});
   gl(a1,a2,'segment'); gl(b1,b2,'segment'); gl(c1,c2,'segment');
   return { a:240, b:200, c:160 };
 }
@@ -1537,9 +1548,9 @@ const PRACTICE = [
     desc:'세 선분 PQ, RS, TU를 세 변으로 하는 삼각형을 작도하세요. 점 B를 한 꼭짓점으로 하고, ⟦s:PQ⟧와 길이가 같은 변은 직선 l 위에 놓이게 합니다.',
     hints:['가장 긴 변을 먼저 직선 위에 옮겨 놓으세요.', '점 B를 중심으로 반지름의 길이가 ⟦s:PQ⟧인 원을 그려 직선 l 위의 점 C를 잡습니다.'],
     setup(){ const s = sideMarks();
-      const l1 = gp('',30,540,{hidden:true}), l2 = gp('',970,540,{hidden:true});
-      const l = gl(l1,l2,'line',{ text:'l', textAt:{x:940,y:528} });
-      const B = gp('B',300,540); return { B, l, ...s }; },
+      const l1 = gp('',30,400,{hidden:true}), l2 = gp('',970,400,{hidden:true});
+      const l = gl(l1,l2,'line',{ text:'l', textAt:{x:940,y:388} });
+      const B = gp('B',480,400); return { B, l, ...s }; },
     solve(g){
       const B = P(g.B), l = P(g.l), { A:la, u } = lineAxis(l);
       const C = farFrom(lc2(la, u, B, g.a), movePt(la, u, -9000));
@@ -1573,13 +1584,12 @@ const PRACTICE = [
     desc:'선분 PQ, RS를 두 변으로 하고 ∠XOY를 끼인각으로 하는 삼각형을 점 A에서 작도하세요. ⟦s:PQ⟧와 길이가 같은 변은 반직선 AK 위에 놓습니다.',
     hints:['먼저 한 변을 반직선 위에 옮기고, 그다음 각을 옮기세요.', '∠XOY를 점 A로 옮긴 뒤, 새 변 위에 선분 RS의 길이를 옮깁니다.'],
     setup(){
-      const p1 = gp('P',100,45,{dir:'sw'}), p2 = gp('Q',320,45,{dir:'sw'});
-      const q1 = gp('R',100,150,{dir:'sw'}), q2 = gp('S',270,150,{dir:'sw'});
+      const p1 = gp('P',45,40,{dir:'sw'}), p2 = gp('Q',245,40,{dir:'sw'});
+      const q1 = gp('R',45,95,{dir:'sw'}), q2 = gp('S',195,95,{dir:'sw'});
       gl(p1,p2,'segment'); gl(q1,q2,'segment');
-      const O = gp('O',240,300), X = gp('X',450,300), Y = gp('Y',380,180);
-      gl(O,X,'ray'); gl(O,Y,'ray');
-      const A = gp('A',420,540), K = gp('K',940,540); gl(A,K,'ray');
-      return { O,X,Y,A,K, p:220, q:170 };
+      const { o:O, x:X, y:Y } = givenAngle(['O','X','Y','sw'], { x:45, y:320 }, [1,0], [0.759,-0.651], 215, 250);
+      const A = gp('A',390,430), K = gp('K',960,430); gl(A,K,'segment');
+      return { O,X,Y,A,K, p:200, q:150 };
     },
     solve(g){
       const O = P(g.O), X = P(g.X), Y = P(g.Y), A = P(g.A), K = P(g.K);
@@ -1614,14 +1624,12 @@ const PRACTICE = [
     desc:'선분 PQ를 한 변으로 하고, 양 끝 각이 ∠XOY와 ∠UVW인 삼각형을 점 A에서 작도하세요. 선분 PQ는 반직선 AK 위에 놓습니다.',
     hints:['한 변을 옮긴 뒤, 양 끝에서 각을 하나씩 옮기세요.', '두 각의 변이 만나는 점이 세 번째 꼭짓점입니다.'],
     setup(){
-      const p1 = gp('P',100,50), p2 = gp('Q',340,50);
+      const p1 = gp('P',45,35,{dir:'sw'}), p2 = gp('Q',245,35,{dir:'sw'});
       gl(p1,p2,'segment');
-      const O = gp('O',110,300), X = gp('X',300,300), Y = gp('Y',250,190);
-      gl(O,X,'ray'); gl(O,Y,'ray');
-      const V = gp('V',560,300), U = gp('U',760,300), Wp = gp('W',640,160);
-      gl(V,U,'ray'); gl(V,Wp,'ray');
-      const A = gp('A',330,560), K = gp('K',940,560); gl(A,K,'ray');
-      return { O,X,Y,V,U,W:Wp,A,K, p:240 };
+      const a1 = givenAngle(['O','X','Y','sw'], { x:45, y:255 }, [1,0], [0.786,-0.618], 215, 250);
+      const a2 = givenAngle(['V','U','W','sw'], { x:45, y:495 }, [1,0], [0.5,-0.866], 200, 230);
+      const A = gp('A',390,430), K = gp('K',960,430); gl(A,K,'segment');
+      return { O:a1.o, X:a1.x, Y:a1.y, V:a2.o, U:a2.x, W:a2.y, A, K, p:200 };
     },
     solve(g){
       const O = P(g.O), X = P(g.X), Y = P(g.Y), V = P(g.V), U = P(g.U), Wp = P(g.W), A = P(g.A), K = P(g.K);
@@ -2012,7 +2020,7 @@ const STAGES = { step1:STEP1, practice:PRACTICE, step2:STEP2, bonus:BONUS, step3
 let lockStages = CONFIG.LOCK_STAGES;
 function stageOpen(st){
   if (state.teacher) return true;
-  if (!lockReady && started) return st === 'step1';   // 서버의 잠금 상태를 아직 모를 때는 처음 단계만 열어 둡니다
+  if (!lockReady) return st === 'step1';   // 서버의 잠금 상태를 아직 모를 때는 처음 단계만 열어 둡니다
   if (!lockStages) return true;
   if (st === 'step1') return true;
   const step1Done = STEP1.every(p => progress.solved[p.id]);
@@ -2748,6 +2756,13 @@ function drawScene(c, s, hl, box, forSubmit){
   for (let x = x0; x <= b.x + b.w; x += g){ c.moveTo(x, b.y); c.lineTo(x, b.y + b.h); }
   for (let y = y0; y <= b.y + b.h; y += g){ c.moveTo(b.x, y); c.lineTo(b.x + b.w, y); }
   c.stroke();
+  for (const o of objs){
+    if (o.kind !== 'point' || !o.arc || o.hidden) continue;
+    const a = P(o.id), p1 = P(o.arc[0]), p2 = P(o.arc[1]);
+    const t1 = Math.atan2(p1.y - a.y, p1.x - a.x), t2 = Math.atan2(p2.y - a.y, p2.x - a.x);
+    let d = t2 - t1; while (d > Math.PI) d -= 2*Math.PI; while (d < -Math.PI) d += 2*Math.PI;
+    c.strokeStyle = '#0f2a4a'; c.lineWidth = px(1.6); c.beginPath(); c.arc(a.x, a.y, 34, t1, t1 + d, d < 0); c.stroke();
+  }
   // 테두리는 제출용 그림에만 그립니다.
   // (화면에서는 축소할 때 네모 박스처럼 보여 작도를 방해합니다)
   if (!box){
@@ -3584,6 +3599,7 @@ function login(){
   setHint();
   if (!lockReady){ fetchLock(); setTimeout(() => { if (!lockReady){ lockReady = true; renderTabs(); } }, 6000); }   // 서버에 닿지 않으면 6초 뒤 기본값을 씁니다
   else fetchLock();
+  renderTabs();
   startTour();
 }
 
@@ -3669,6 +3685,8 @@ async function fetchLock(){
 setInterval(() => { if (started && !state.teacher) fetchLock(); }, 60000);
 refreshTeacherBtn();
 fetchLock();            // 로그인하기 전에 미리 잠금 상태를 받아 둡니다
+setTimeout(() => { if (!lockReady){ lockReady = true; renderTabs(); } }, 6000);
+renderTabs();
 
 // ===================== 처음 안내(튜토리얼) · 도움말 =====================
 const TOUR_STEPS = [
