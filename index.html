@@ -49,7 +49,7 @@
     backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.28), 0 10px 30px rgba(3,16,32,.28);
   }
-  header h1{font-size:19px;margin:0;letter-spacing:-.01em;font-weight:800;display:flex;align-items:center;gap:9px}
+  header h1{white-space:nowrap;font-size:19px;margin:0;letter-spacing:-.01em;font-weight:800;display:flex;align-items:center;gap:9px}
   header h1 svg{width:26px;height:26px;opacity:.95}
   .who{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-self:end}
   .who input{
@@ -128,7 +128,8 @@
   .xft .xh{font-size:11.5px;color:var(--muted);line-height:1.4}
   .xft .btn{padding:8px 16px;font-size:13.5px;flex:none}
   body.locked button:not(#btnLogin){opacity:.45;cursor:not-allowed}
-  main{display:grid;grid-template-columns:176px minmax(0,1fr) 320px;gap:12px;padding:12px;max-width:1580px;margin:0 auto;align-items:start}
+  :root{--T:176px;--P:320px;--G:12px;--MP:12px}
+  main{display:grid;grid-template-columns:var(--T) minmax(0,1fr) var(--P);gap:var(--G);padding:12px;max-width:1580px;margin:0 auto;align-items:start}
   .card{
     background:var(--glass);border:1px solid var(--edge);border-radius:var(--r);padding:11px;
     backdrop-filter:blur(16px) saturate(150%);-webkit-backdrop-filter:blur(16px) saturate(150%);
@@ -440,7 +441,7 @@
     .panel > .card:nth-child(2){order:-1}
     html,body{height:100%;overflow:hidden}
     body{display:flex;flex-direction:column}
-    main{flex:1;min-height:0;width:100%;padding:10px 12px;align-items:stretch;
+    main{flex:1;min-height:0;width:100%;padding:10px var(--MP);align-items:stretch;
          grid-template-rows:minmax(0,1fr)}
     #board{height:100%;min-height:0}
     main aside.card,main > .panel{max-height:100%;overflow-y:auto;overflow-x:hidden}
@@ -618,7 +619,19 @@ h3.sec{font-size:13px!important;color:#D2E2F4!important}
     .panel > #overlay .msg .rs-sub{font-size:12px;margin-top:0;padding:5px 8px;line-height:1.4}
     .panel > #overlay{order:-2}      /* 성공·실패·힌트 안내창은 오른쪽 패널 맨 위에 뜨고, 닫으면 아래 패널이 다시 올라옵니다 */
   }
-  @media (min-width:900px){ header .who{grid-column:2 / -1} }
+  /* 큰 화면 머리글: 아래 작도판 칸과 같은 선에 맞춥니다 — 학번·이름·로그인은 작도판 왼쪽 끝, 스코어·코인은 작도판 오른쪽 끝, 힌트는 오른쪽 패널 왼쪽 끝에서 시작
+     (힌트를 눌러 화살표·번호가 생겨도 다른 단추가 움직이지 않습니다) */
+  @media (min-width:900px){
+    header{width:calc(100% - 2 * var(--MP));max-width:calc(1580px - 2 * var(--MP));column-gap:var(--G);
+           grid-template-columns:calc(var(--T) - 13px) minmax(0,1fr) auto auto calc(var(--P) - 13px)}
+    header .who,header .meters{display:contents}
+    header h1{grid-column:1;grid-row:1}
+    header .login{grid-column:2;grid-row:1;justify-self:start;min-width:0;max-width:100%}
+    header .login input{width:auto;flex:1 1 90px;min-width:0;max-width:118px}
+    header #btnScore{grid-column:3;grid-row:1}
+    header .meter.coin{grid-column:4;grid-row:1}
+    header .hintgroup{grid-column:5;grid-row:1;justify-self:start;max-width:100%}
+  }
   /* 문제 번호 1~8은 한 줄로, 단계 탭 위에 */
   .plist{flex-wrap:nowrap;gap:4px}
   .plist .pbtn{flex:1 1 0;min-width:0!important;width:auto!important;height:30px;padding:0}
@@ -648,6 +661,8 @@ h3.sec{font-size:13px!important;color:#D2E2F4!important}
   }
   .viewbar .vlab{display:none}   /* 아이콘만 보입니다 (글자 크기 0에 기대지 않고 아예 감춥니다) */
   /* 수학 기호 표기: 선분 AB̅ · 반직선 AB→ · 직선 AB↔ (글 속에서 길이나 식과 함께 쓸 때) */
+  .mi{font-family:"Times New Roman","Liberation Serif","Nimbus Roman","Noto Serif","Noto Serif KR",Times,serif;font-style:italic}
+  .mi{font-size:1.1em}
   .ov{position:relative;display:inline-block;white-space:nowrap;line-height:1.15}
   .ov.sg::before{content:"";position:absolute;left:.04em;right:.04em;top:-.06em;border-top:1.4px solid currentColor}
   .ov.ry::before,.ov.ln::before{position:absolute;left:0;right:0;top:-.78em;text-align:center;font-size:.8em;line-height:1;letter-spacing:-.05em}
@@ -657,12 +672,13 @@ h3.sec{font-size:13px!important;color:#D2E2F4!important}
 @media (pointer:coarse){
   #btnUndo,#btnRedo,#btnReset,#btnCheck,#btnSubmit,#btnRemeasure{min-height:42px}
   #btnUndo,#btnRedo{min-width:42px}
-  #btnHintTop,#btnScore{min-height:40px}
+  #btnHintTop{min-height:38px}
   .plist .pbtn{height:40px!important}
 }
 @media (min-width:900px) and (max-width:1180px){
-  main{grid-template-columns:150px minmax(0,1fr) 250px;gap:8px;padding:8px}
-  header{grid-template-columns:140px minmax(0,1fr) auto}
+  :root{--T:150px;--P:250px;--G:8px;--MP:8px}
+  header h1{font-size:17px;gap:6px;white-space:nowrap}
+  header h1 .helpbtn{width:26px;height:26px;font-size:15px;margin-left:0}
 }
 .hintbtn{min-height:38px;padding:8px 16px!important;font-size:14px!important;gap:6px}
 .harr{width:36px!important;height:36px!important;font-size:22px!important}
@@ -671,6 +687,42 @@ h3.sec{font-size:13px!important;color:#D2E2F4!important}
 .harr.lock b{font-size:14px}
 .hno{min-width:28px;font-size:16px}
 .hintgroup{gap:5px}
+.meters{align-items:center}
+.meters .meter{display:inline-flex;align-items:center;justify-content:center;height:38px;min-height:38px;max-height:38px;box-sizing:border-box;margin:0;align-self:center;flex:none;transform:none}
+.meters .meter.bump{animation:none}
+#btnScore{font-size:inherit;line-height:1}
+.meters .meter .lab,.meters .meter .val{line-height:1;display:inline-flex;align-items:center}
+
+/* ===== 도움말 단추 · 처음 안내(튜토리얼) ===== */
+.helpbtn{flex:none;width:30px;height:30px;margin-left:2px;padding:0;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+  border:1.5px solid rgba(34,211,238,.7);background:rgba(34,211,238,.14);color:#BDF3FF;font-family:inherit;font-size:17px;font-weight:800;line-height:1;cursor:pointer}
+.helpbtn:hover{background:rgba(34,211,238,.28)}
+.meters > .helpbtn{width:38px;height:38px;margin:0;font-size:19px;align-self:center}
+@media (max-width:899px){ .meters > .helpbtn{order:0} }
+#tour{position:fixed;inset:0;z-index:20000;font-family:inherit}
+#tour .tblock{position:absolute;inset:0;background:transparent}
+#tour .thole{position:absolute;border-radius:16px;box-shadow:0 0 0 9999px rgba(3,12,26,.74),0 0 0 3px #F6B93B,0 0 22px 4px rgba(246,185,59,.55);
+  transition:left .25s ease,top .25s ease,width .25s ease,height .25s ease;pointer-events:none}
+#tour.nohole .tblock{background:rgba(3,12,26,.74)}
+#tour.nohole .thole{display:none}
+#tour .tbub{position:absolute;width:min(310px,calc(100vw - 24px));box-sizing:border-box;background:#FFF8E6;color:#2B2100;border-radius:16px;padding:14px 16px 12px;
+  box-shadow:0 14px 34px rgba(0,0,0,.5);line-height:1.5}
+#tour .tcaret{position:absolute;width:18px;height:18px;background:#FFF8E6;transform:rotate(45deg)}
+#tour .tno{font-size:12px;font-weight:800;color:#9A6B00;margin-bottom:3px}
+#tour .tti{font-size:17px;font-weight:800;margin-bottom:4px}
+#tour .tdc{font-size:14px;word-break:keep-all}
+#tour .tlive{margin-top:9px;padding:9px 10px;border-radius:12px;background:#F6EBCB}
+#tour .tchips{display:flex;gap:5px;flex-wrap:wrap}
+#tour .tchip{font-size:13px;font-weight:800;padding:5px 10px;border-radius:999px;background:#EADFC2;color:#8A7A55}
+#tour .tchip.on{background:#F6B93B;color:#3A2A00;box-shadow:0 0 0 2px #fff inset}
+#tour .tnow{font-size:13.5px;margin-top:7px;word-break:keep-all;min-height:3em}
+#tour .tbt{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px}
+#tour .tbt button{font-family:inherit;font-weight:800;border:0;cursor:pointer;min-height:42px}
+#tour .tskip{background:none;color:#7A6A45;font-size:13.5px;padding:8px 6px}
+#tour .tgo{display:flex;gap:6px}
+#tour .tprev{font-size:14px;padding:9px 15px;border-radius:999px;background:#EADFC2;color:#5A4A20}
+#tour .tnext{font-size:14px;padding:9px 20px;border-radius:999px;background:#F6B93B;color:#3A2A00}
+#tour .tprev[hidden]{display:none}
 </style>
 </head>
 <body class="locked">
@@ -698,6 +750,7 @@ h3.sec{font-size:13px!important;color:#D2E2F4!important}
       <path d="M6.5 23.5 A12 12 0 0 0 25.5 23.5" stroke="#3B82F6" stroke-width="1.8" fill="none" stroke-dasharray="3.5 2.5"/>
     </svg>
     작도 교실
+    <button type="button" class="helpbtn" id="btnHelp" aria-label="도움말" title="버튼 설명 다시 보기">?</button>
   </h1>
   <div class="viewbar">
     <button class="tool-btn vbtn active" data-tool="pan" title="작도판을 끌어서 옮깁니다">
@@ -919,6 +972,7 @@ const POINT_KO = { inter:'교점', on:'대상 위의 점', free:'임의의 점' 
 
 const cv = document.getElementById('cv');
 const ctx = cv.getContext('2d');
+const MATH_FONT = '"Times New Roman", "Liberation Serif", "Nimbus Roman", "Noto Serif", "Noto Serif KR", Times, serif';   // 모의고사처럼 기울인 명조(Times) 계열 — 점·직선 이름
 let scale = 1, dpr = 1;
 // 화면 배율 = 작도판 배율 × 사용자의 확대 배율
 function zs(){ return scale * state.view.k; }
@@ -939,7 +993,7 @@ function removeObj(id){ M.delete(id); objs = objs.filter(o => o.id !== id); }
 function P(id){ return M.get(id); }
 function gp(label, x, y, opt = {}){
   return addObj({ kind:'point', x, y, label, ptype:'given', given:true, parents:[],
-                  hidden:!!opt.hidden, noLabel:!!opt.noLabel }).id;
+                  hidden:!!opt.hidden, noLabel:!!opt.noLabel, labelDir:opt.dir || null }).id;
 }
 function gl(p1, p2, ltype, opt = {}){
   return addObj({ kind:'line', ltype, p1, p2, parents:[p1, p2], tool:'given', given:true,
@@ -1417,9 +1471,9 @@ const STEP1 = [
 ];
 
 function sideMarks(){
-  const a1 = gp('P',60,60), a2 = gp('Q',300,60);
-  const b1 = gp('R',60,115), b2 = gp('S',260,115);
-  const c1 = gp('T',60,170), c2 = gp('U',220,170);
+  const a1 = gp('P',100,45,{dir:'sw'}), a2 = gp('Q',340,45,{dir:'sw'});         // 세 선분의 점 이름은 모두 8시 방향
+  const b1 = gp('R',100,180,{dir:'sw'}), b2 = gp('S',300,180,{dir:'sw'});
+  const c1 = gp('T',100,315,{dir:'sw'}), c2 = gp('U',260,315,{dir:'sw'});
   gl(a1,a2,'segment'); gl(b1,b2,'segment'); gl(c1,c2,'segment');
   return { a:240, b:200, c:160 };
 }
@@ -1483,10 +1537,10 @@ const PRACTICE = [
     desc:'선분 PQ, RS를 두 변으로 하고 ∠XOY를 끼인각으로 하는 삼각형을 점 A에서 작도하세요. ⟦s:PQ⟧와 길이가 같은 변은 반직선 AK 위에 놓습니다.',
     hints:['먼저 한 변을 반직선 위에 옮기고, 그다음 각을 옮기세요.', '∠XOY를 점 A로 옮긴 뒤, 새 변 위에 선분 RS의 길이를 옮깁니다.'],
     setup(){
-      const p1 = gp('P',60,60), p2 = gp('Q',280,60);
-      const q1 = gp('R',60,115), q2 = gp('S',230,115);
+      const p1 = gp('P',100,45,{dir:'sw'}), p2 = gp('Q',320,45,{dir:'sw'});
+      const q1 = gp('R',100,150,{dir:'sw'}), q2 = gp('S',270,150,{dir:'sw'});
       gl(p1,p2,'segment'); gl(q1,q2,'segment');
-      const O = gp('O',120,300), X = gp('X',330,300), Y = gp('Y',260,180);
+      const O = gp('O',240,300), X = gp('X',450,300), Y = gp('Y',380,180);
       gl(O,X,'ray'); gl(O,Y,'ray');
       const A = gp('A',420,540), K = gp('K',940,540); gl(A,K,'ray');
       return { O,X,Y,A,K, p:220, q:170 };
@@ -1524,7 +1578,7 @@ const PRACTICE = [
     desc:'선분 PQ를 한 변으로 하고, 양 끝 각이 ∠XOY와 ∠UVW인 삼각형을 점 A에서 작도하세요. 선분 PQ는 반직선 AK 위에 놓습니다.',
     hints:['한 변을 옮긴 뒤, 양 끝에서 각을 하나씩 옮기세요.', '두 각의 변이 만나는 점이 세 번째 꼭짓점입니다.'],
     setup(){
-      const p1 = gp('P',60,60), p2 = gp('Q',300,60);
+      const p1 = gp('P',100,50), p2 = gp('Q',340,50);
       gl(p1,p2,'segment');
       const O = gp('O',110,300), X = gp('X',300,300), Y = gp('Y',250,190);
       gl(O,X,'ray'); gl(O,Y,'ray');
@@ -1626,14 +1680,14 @@ const BONUS = [
   { id:'D1', title:'Normal · 눈금 없는 자는 단 한 번', score:20, limit:{ ruler:1 },
     desc:'컴퍼스는 자유롭게 쓰되, 눈금 없는 자는 마지막에 단 한 번만 써서 평행선을 작도하세요.',
     hints:['새로운 점을 만드는 일은 모두 컴퍼스에 맡기고, 자는 마지막에 두 점을 잇는 데에만 씁니다.',
-           '폭을 한 번 정한 뒤 바꾸지 마세요. 점 P를 중심으로 원을 그려 직선 l과 만나는 점 A를 잡고, 그 폭으로 점 A를 중심으로 원을 그려 직선 l 위의 점 B를 잡고, 다시 점 B를 중심으로 원을 그립니다. 점 P를 중심으로 그린 원과 만나는 점을 점 P와 이으면 마름모가 되어 평행선이 됩니다. (강의 자료 방법 6)'],
+           '폭을 한 번 정한 뒤 바꾸지 마세요. 점 P를 중심으로 원을 그려 직선 l과 만나는 점 A를 잡고, 그 폭으로 점 A를 중심으로 원을 그려 직선 l 위의 점 B를 잡고, 다시 점 B를 중심으로 원을 그립니다. 점 P를 중심으로 그린 원과 만나는 점을 점 P와 이으면 마름모가 되어 평행선이 됩니다.'],
     setup(){ return parallelSetup(230); },
     solve(g){ return rhombusSteps(P(g.l), P(g.P)); },
     check(g){ return parallelCheck(g); } },
   { id:'D2', title:'Hard · 컴퍼스는 단 한 번', score:30, limit:{ compass:1, skills:false }, skill:'diam', partial:true,
     desc:'눈금 없는 자는 자유롭게 쓰되, 컴퍼스는 단 한 번만 써서 평행선을 작도하세요. 이 문제에서는 스킬을 쓸 수 없습니다.',
     hints:['원을 어디에 그리면 좋을까요? 원의 중심은 무엇의 중점이 될까요?',
-           '직선 l 위의 점 M을 중심으로 원을 그리면 점 M은 두 교점 B, C의 중점이 됩니다. 그다음은 자만으로 할 수 있습니다. (강의 자료 방법 20)'],
+           '직선 l 위의 점 M을 중심으로 원을 그리면 점 M은 두 교점 B, C의 중점이 됩니다. 그다음은 자만으로 할 수 있습니다.'],
     setup(){ return parallelSetup(250); },
     solve(g){ const l = P(g.l); return [{ k:'circle', c:{x:520,y:500}, r:180 }]; },
     check(g){ return parallelCheck(g); } }
@@ -1794,13 +1848,13 @@ const STEP_HINTS = {
     { t:'자를 한 번만 쓸 수 있으니 새 점은 모두 컴퍼스로 만들어야 합니다. <b>폭을 한 번 정하면 끝까지 바꾸지 마세요.</b> 점 P를 중심으로 원을 그려 직선 l과 만나는 점 A를 찍습니다.', g:0 },
     { t:'같은 폭으로 점 A를 중심으로 원을 그려, 직선 l 위의 점 B를 찍습니다.', g:1 },
     { t:'같은 폭으로 점 B를 중심으로 원을 그립니다.', g:2 },
-    { t:'1의 원과 3의 원이 만나는 점 Q를 찍고, 마지막으로 자를 한 번 써서 점 P와 점 Q를 이으면 끝입니다. (강의 자료 방법 6)', g:3 }
+    { t:'1의 원과 3의 원이 만나는 점 Q를 찍고, 마지막으로 자를 한 번 써서 점 P와 점 Q를 이으면 끝입니다.', g:3 }
   ],
   D2: [
     { t:'컴퍼스를 한 번만 쓸 수 있습니다. 그 한 번으로 무엇을 얻어야 할까요? <b>자만으로는 절대 만들 수 없는 것</b>을 생각해 보세요.' },
     { t:'답은 <b>중점</b>입니다. 직선 l 위에 점 M을 잡고 점 M을 중심으로 원을 그리면, 직선 l과 만나는 두 점 B, C에 대해 점 M이 선분 BC의 중점이 됩니다.', g:0 },
     { t:'이제 자만 씁니다. 점 P에서 점 B, M, C로 선을 긋고, 그 선들 위에 새 점을 잡아 서로 이어 가면 교점이 계속 생깁니다.' },
-    { t:'<b>중점이 있는 선분과 한 점이 있으면 자만으로 평행선을 그을 수 있다</b>는 것이 이 문제의 핵심입니다. 생기는 교점을 하나씩 이어 보세요. (강의 자료 방법 20)' }
+    { t:'<b>중점이 있는 선분과 한 점이 있으면 자만으로 평행선을 그을 수 있다</b>는 것이 이 문제의 핵심입니다. 생기는 교점을 하나씩 이어 보세요.' }
   ],
   E1: [
     { t:'접선은 접점에서 반지름과 수직입니다. 즉 ∠OTP가 <b>직각</b>이 되는 점 T를 찾으면 됩니다. 반원에 대한 각이 직각이므로, 선분 OP를 지름으로 하는 원 위의 점이 바로 점 T입니다. 먼저 자로 선분 OP를 긋습니다.', g:0 },
@@ -1829,7 +1883,7 @@ const STEP_HINTS = {
 function stepHints(pr){
   const h = STEP_HINTS[pr && pr.id];
   if (h) return h;
-  return ((pr && pr.hints) || ['이 문제는 앞에서 배운 작도를 조합하면 됩니다.']).map(t => ({ t }));
+  return ((pr && pr.hints) || ['이 문제는 앞에서 해 본 작도를 조합하면 됩니다.']).map(t => ({ t }));
 }
 
 const STAGES = { step1:STEP1, practice:PRACTICE, step2:STEP2, bonus:BONUS, step3:STEP3 };
@@ -2584,9 +2638,46 @@ function drawScene(c, s, hl, box, forSubmit){
     c.beginPath(); c.moveTo(e[0].x, e[0].y); c.lineTo(e[1].x, e[1].y); c.stroke();
     if (o.text){
       const at = o.textAt || { x:(a.x+b.x)/2, y:(a.y+b.y)/2 - 10 };
-      c.fillStyle = '#111'; c.font = `italic bold ${px(18)}px serif`; c.fillText(o.text, at.x, at.y);
+      c.fillStyle = '#111'; c.strokeStyle = '#111'; c.font = `italic ${px(20)}px ${MATH_FONT}`;
+      c.lineWidth = px(0.55); c.lineJoin = 'round'; c.strokeText(o.text, at.x, at.y); c.fillText(o.text, at.x, at.y);   // 점 이름보다 두껍지 않게: 보통 굵기에 살짝만 덧칠
     }
   }
+  // 점 이름은 점의 2시·12시·8시 방향 중 선·원·다른 점·다른 이름과 겹치지 않는 깔끔한 자리를 골라 놓습니다 (기본은 2시)
+  const labelSpot = (() => {
+    const segs = [], cirs = [], dots = [], taken = [], spot = new Map();
+    for (const o of objs){
+      if (visAlpha(o) === 0) continue;
+      if (o.kind === 'line'){ const a = P(o.p1), b2 = P(o.p2), e = lineEnds(a.x, a.y, b2.x, b2.y, o.ltype); segs.push([e[0].x * s, e[0].y * s, e[1].x * s, e[1].y * s]); }
+      else if (o.kind === 'circle'){ const g2 = circGeom(o); cirs.push([g2.x * s, g2.y * s, g2.r * s]); }
+      else if (o.kind === 'point' && !o.hidden) dots.push(o);
+    }
+    const sd = (qx, qy, A) => { const dx = A[2] - A[0], dy = A[3] - A[1], t = Math.max(0, Math.min(1, ((qx - A[0]) * dx + (qy - A[1]) * dy) / (dx * dx + dy * dy || 1))); return Math.hypot(qx - (A[0] + t * dx), qy - (A[1] + t * dy)); };
+    c.save(); c.font = `bold ${px(15)}px sans-serif`;
+    for (const o of dots){
+      if (!state.showLabels || o.noLabel || !o.label) continue;
+      const w = c.measureText(o.label).width * s, ox = o.x * s, oy = o.y * s;
+      const cand = o.labelDir === 'sw' ? [[-8 - w, 17]] : [[7, -7], [-w / 2, -10], [-8 - w, 17]];      // 2시 · 12시 · 8시 방향 중에서 고릅니다
+      let best = 0, bestScore = 1e9;
+      cand.forEach((cd, ci) => {
+        const x = ox + cd[0], y = oy + cd[1], r = { l:x, r:x + w, t:y - 12, b:y + 3 };
+        let sc = ci * 0.01;
+        for (let ix = 0; ix <= 6; ix++) for (let iy = 0; iy <= 5; iy++){
+          const qx = r.l + (r.r - r.l) * ix / 6, qy = r.t + (r.b - r.t) * iy / 5;
+          for (const A of segs) if (sd(qx, qy, A) < 3.5) sc += 1;
+          for (const C of cirs) if (Math.abs(Math.hypot(qx - C[0], qy - C[1]) - C[2]) < 3.5) sc += 1;
+        }
+        for (const d of dots){ const dx2 = d.x * s, dy2 = d.y * s; if (dx2 > r.l - 5 && dx2 < r.r + 5 && dy2 > r.t - 5 && dy2 < r.b + 5) sc += 4; }
+        for (const t of taken) if (r.l < t.r && r.r > t.l && r.t < t.b && r.b > t.t) sc += 6;
+        if (!box && !forSubmit && r.l + state.view.x * s < 70 && r.t + state.view.y * s < 120) sc += 8;      // 왼쪽 위 스킬 가방 자리
+        if (sc < bestScore){ bestScore = sc; best = ci; }
+      });
+      const cd = cand[best], x = ox + cd[0], y = oy + cd[1];
+      taken.push({ l:x, r:x + w, t:y - 12, b:y + 3 });
+      spot.set(o, [cd[0] / s, cd[1] / s]);
+    }
+    c.restore();
+    return spot;
+  })();
   for (const o of objs) if (o.kind === 'point' && !o.hidden){
     const pva = visAlpha(o); if (pva === 0) continue;
     c.globalAlpha = pva != null ? pva : alphaFor(o); c.fillStyle = PCOL[o.ptype];
@@ -2594,7 +2685,8 @@ function drawScene(c, s, hl, box, forSubmit){
     if (state.showLabels && !o.noLabel && o.label){
       c.font = `${o.given ? 'bold ' : ''}${px(15)}px sans-serif`;
       c.fillStyle = o.given ? '#111' : '#374151';
-      c.fillText(o.label, o.x + px(7), o.y - px(7));
+      const sp = labelSpot.get(o) || [px(7), -px(7)];
+      c.fillText(o.label, o.x + sp[0], o.y + sp[1]);
     }
   }
   c.globalAlpha = 1;
@@ -2721,18 +2813,20 @@ function resize(){
   const availW = wrap.clientWidth, availH = wrap.clientHeight;
   if (availW < 10) return;
   // 가로는 늘 꽉 채우고, 넓은 화면에서는 세로도 칸 전체를 채웁니다 (빈 여백 없음)
+  // 점·직선 이름이 가장자리나 위쪽 단추 밑에 가려지지 않도록, 작도판 둘레에 여백을 둡니다
+  const mL = wide ? 66 : 52, mR = 22, mT = wide ? 58 : 20, mB = 14;
   const w = Math.round(availW);
-  const h = Math.round((wide && availH > 10) ? availH : availW * H / W);
+  const h = Math.round((wide && availH > 10) ? availH : (w - mL - mR) * H / W + mT + mB);
   const wasBase = atBase();
   if (Math.abs(w - lastW) < 0.5 && Math.abs(h - lastH) < 0.5) return;
   lastW = w; lastH = h;
   dpr = window.devicePixelRatio || 1;
   // 왼쪽 위의 스킬 가방에 가려지지 않도록 작도판의 원점을 오른쪽으로 조금 옮깁니다
-  const margin = wide ? 66 : 52;
-  scale = (w - margin) / W; baseX = margin / scale;
+  scale = Math.min((w - mL - mR) / W, (h - mT - mB) / H);
+  baseX = (mL + (w - mL - mR - W * scale) / 2) / scale;
   cv.style.width = w + 'px'; cv.style.height = h + 'px';
   cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr);
-  baseY = Math.max(0, (h / scale - H) / 2);      // 남는 세로 공간을 위아래로 나눕니다
+  baseY = (mT + (h - mT - mB - H * scale) / 2) / scale;      // 남는 세로 공간을 위아래로 나눕니다
   if (wasBase) state.view = baseView();
   draw();
 }
@@ -3335,7 +3429,156 @@ function login(){
   loginBtn.textContent = '로그아웃'; loginBtn.classList.remove('primary'); loginBtn.classList.add('danger');
   progress.startAll = Date.now();
   setHint();
+  startTour();
 }
+
+// ===================== 처음 안내(튜토리얼) · 도움말 =====================
+const TOUR_STEPS = [
+  { t:'작도 교실에 온 걸 환영해요!', d:'버튼이 어떤 일을 하는지 하나씩 알려 드릴게요. 나중에 다시 보고 싶으면 [?] 버튼을 누르세요.', sel:null },
+  { t:'눈금 없는 자', d:'두 점을 차례로 눌러 선을 그어요. 밝게 보이는 버튼을 직접 눌러 보세요. 이미 골라진 상태에서 다시 누를 때마다 모양이 바뀌어요.', sel:['#toolRuler'], play:true,
+    live:{ chips:['선분', '반직선', '직선'], cur:() => RULER_KO[state.rulerType],
+      desc:{ '선분':'두 점 사이만 그어요. (끝이 있어요)', '반직선':'첫 점에서 시작해 두 번째 점 쪽으로 끝없이 뻗어요.', '직선':'두 점을 지나 양쪽으로 끝없이 뻗어요.' } } },
+  { t:'컴퍼스', d:'밝게 보이는 버튼을 직접 눌러 보세요. 이미 골라진 상태에서 다시 누를 때마다 기능이 바뀌어요.', sel:['#toolCompass'], play:true,
+    live:{ chips:['원 그리기', '벌리기'], cur:() => state.measuring ? '벌리기' : '원 그리기',
+      desc:{ '원 그리기':'중심과 지나갈 점을 차례로 눌러 원을 그려요. 그리면 폭(반지름)이 저장돼요.', '벌리기':'두 점을 눌러 컴퍼스의 폭만 정해요. 원은 그려지지 않고 저장된 폭만 바뀌어요.' } } },
+  { t:'컴퍼스의 폭', d:'정해 둔 폭(반지름)이 여기에 저장돼요. 같은 길이로 다른 곳에 원을 그릴 때 쓰고, [폭 리셋]을 누르면 지워져요.', sel:['.wgroup'] },
+  { t:'점', d:'작도판에 점을 찍어요. 밝게 보이는 버튼을 직접 눌러 보세요. 이미 골라진 상태에서 다시 누를 때마다 점의 종류가 바뀌어요.', sel:['.tools [data-tool="point"]'], play:true,
+    live:{ chips:['교점', '대상 위의 점', '임의의 점'], cur:() => POINT_KO[state.pointType],
+      desc:{ '교점':'선이나 원이 서로 만나는 곳에 점을 찍어요. (빨간 점)', '대상 위의 점':'선이나 원 위의 아무 곳에나 점을 찍어요. (보라색 점)', '임의의 점':'작도판의 아무 곳에나 점을 찍어요.' } } },
+  { t:'화면 조작', d:'작도판을 옮기고, 크게·작게 보고, 전체를 한눈에 볼 수 있어요. [숨기기]는 헷갈리는 점이나 선을 잠깐 가릴 때 써요. 그림은 그대로 남아 있어요.', sel:['.viewbar'] },
+  { t:'되돌리기 · 처음부터', d:'잘못 그렸을 때 한 단계씩 되돌리거나, [처음부터]로 문제를 다시 시작해요.', sel:['#btnUndo', '#btnRedo', '#btnReset'] },
+  { t:'작도 확인 · 제출하기', d:'다 그렸으면 [작도 확인]으로 맞았는지 확인해요. 맞으면 [제출하기]를 꼭 눌러야 점수가 선생님께 전달돼요.', sel:['#btnCheck', '#btnSubmit'] },
+  { t:'힌트 · 스코어 · 코인', d:'스코어는 문제를 풀면 올라가고, 누르면 코인으로 바꿀 수 있어요. 막히면 [힌트]를 눌러요. 힌트는 코인을 쓰고, [작도 확인]을 한 번 해 본 뒤부터 쓸 수 있어요.', sel:['#btnScore', '.meters .meter.coin', '#btnHintTop'] },
+  { t:'스킬 가방', d:'문제를 풀면 스킬이 모여요. 가방에서 꺼내 쓰면 이미 해 본 작도를 한 번에 할 수 있어요.', sel:['#skillDock .bagbtn', '#skillDock'] },
+  { t:'도움말', d:'언제든 이 [?] 버튼을 누르면 설명을 다시 볼 수 있어요.', sel:['#btnHelp'] }
+];
+let tour = null;
+function tourRect(sels){
+  if (!sels) return null;
+  let list = [];
+  // 선택자 중 보이는 것을 모읍니다 (스킬 가방처럼 대체 선택자는 첫 번째로 찾은 것만)
+  for (const q of sels){
+    const els = [...document.querySelectorAll(q)].filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0; });
+    list = list.concat(els);
+    if (sels === TOUR_STEPS[9].sel && list.length) break;
+  }
+  if (!list.length) return null;
+  return list;
+}
+function tourMeasure(list){
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  list.forEach(e => { const r = e.getBoundingClientRect(); x0 = Math.min(x0, r.left); y0 = Math.min(y0, r.top); x1 = Math.max(x1, r.right); y1 = Math.max(y1, r.bottom); });
+  return { left:x0, top:y0, right:x1, bottom:y1, width:x1 - x0, height:y1 - y0 };
+}
+function tourShow(i){
+  const T = tour; if (!T) return;
+  T.i = i;
+  const st = TOUR_STEPS[i];
+  let list = tourRect(st.sel);
+  if (st.sel && !list){            // 보이지 않는 단추의 설명은 건너뜁니다
+    if (i < TOUR_STEPS.length - 1 && T.dir >= 0) return tourShow(i + 1);
+    if (i > 0 && T.dir < 0) return tourShow(i - 1);
+  }
+  if (list){ try { list[0].scrollIntoView({ block:'center', inline:'nearest' }); } catch (e){} list = tourRect(st.sel); }
+  const root = T.el, hole = root.querySelector('.thole'), bub = root.querySelector('.tbub'), car = root.querySelector('.tcaret');
+  const last = i === TOUR_STEPS.length - 1;
+  root.querySelector('.tno').textContent = `${i + 1} / ${TOUR_STEPS.length}`;
+  root.querySelector('.tti').textContent = st.t;
+  root.querySelector('.tdc').textContent = st.d;
+  const lv = root.querySelector('.tlive'); lv.style.display = st.live ? '' : 'none'; if (st.live) tourLive();
+  hole.style.pointerEvents = st.play ? 'auto' : 'none'; hole.style.cursor = st.play ? 'pointer' : '';
+  hole.onclick = st.play && list ? () => { list[0].click(); setTimeout(tourLive, 0); } : null;
+  root.querySelector('.tprev').hidden = i === 0;
+  root.querySelector('.tnext').textContent = last ? '시작하기' : '다음 ›';
+  root.querySelector('.tskip').style.visibility = last ? 'hidden' : 'visible';
+  const vw = window.innerWidth, vh = window.innerHeight, m = 8, gap = 16;
+  const bw = bub.offsetWidth, bh = bub.offsetHeight;
+  if (!list){
+    root.classList.add('nohole'); car.style.display = 'none';
+    bub.style.left = Math.max(m, (vw - bw) / 2) + 'px'; bub.style.top = Math.max(m, (vh - bh) / 2) + 'px';
+    return;
+  }
+  root.classList.remove('nohole');
+  const r = tourMeasure(list), pad = 6;
+  hole.style.left = (r.left - pad) + 'px'; hole.style.top = (r.top - pad) + 'px';
+  hole.style.width = (r.width + pad * 2) + 'px'; hole.style.height = (r.height + pad * 2) + 'px';
+  const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  const clampX = x => Math.min(Math.max(m, x), vw - bw - m), clampY = y => Math.min(Math.max(m, y), vh - bh - m);
+  const tries = [
+    ['right',  r.right + pad + gap, clampY(cy - bh / 2), r.right + pad + gap + bw <= vw - m],
+    ['left',   r.left - pad - gap - bw, clampY(cy - bh / 2), r.left - pad - gap - bw >= m],
+    ['below',  clampX(cx - bw / 2), r.bottom + pad + gap, r.bottom + pad + gap + bh <= vh - m],
+    ['above',  clampX(cx - bw / 2), r.top - pad - gap - bh, r.top - pad - gap - bh >= m]
+  ];
+  let pick = tries.find(t => t[3]);
+  if (!pick) pick = ['below', clampX(cx - bw / 2), clampY(vh - bh - m), true];
+  const [side, bx, by] = pick;
+  bub.style.left = bx + 'px'; bub.style.top = by + 'px';
+  car.style.display = '';
+  const cl = (v, a, b) => Math.min(Math.max(v, a), b);
+  if (side === 'right'){ car.style.left = '-8px'; car.style.top = cl(cy - by - 9, 14, bh - 32) + 'px'; }
+  else if (side === 'left'){ car.style.left = (bw - 10) + 'px'; car.style.top = cl(cy - by - 9, 14, bh - 32) + 'px'; }
+  else if (side === 'below'){ car.style.top = '-8px'; car.style.left = cl(cx - bx - 9, 14, bw - 32) + 'px'; }
+  else { car.style.top = (bh - 10) + 'px'; car.style.left = cl(cx - bx - 9, 14, bw - 32) + 'px'; }
+}
+function tourLive(){
+  const T = tour; if (!T) return;
+  const st = TOUR_STEPS[T.i]; if (!st || !st.live) return;
+  const cur = st.live.cur();
+  const box = T.el.querySelector('.tlive');
+  box.innerHTML = '<div class="tchips">' + st.live.chips.map(c => `<span class="tchip${c === cur ? ' on' : ''}">${c}</span>`).join('') + '</div>' +
+    `<div class="tnow">${st.live.desc[cur] || ''}</div>`;
+}
+function endTour(){
+  if (!tour) return;
+  const T = tour; tour = null;
+  T.el.remove();
+  window.removeEventListener('resize', T.onResize); window.removeEventListener('scroll', T.onResize, true);
+  document.removeEventListener('keydown', T.onKey, true);
+  state.rulerType = T.prev.ruler; state.pointType = T.prev.point;     // 눌러 본 도구 설정은 원래대로 돌려 놓습니다
+  pickTool(T.prev.tool === 'hide' ? 'pan' : T.prev.tool); state.measuring = false; updateWidthBox();
+  const d = Date.now() - T.t0;                       // 안내를 보는 동안은 작도 시간에 넣지 않습니다
+  if (stats) stats.start += d;
+  progress.startAll += d;
+  try { window.scrollTo(0, 0); } catch (e){}
+}
+function startTour(){
+  if (tour || /[?&]notour\b/.test(location.search)) return;
+  closeBag(); toggleExchange(false);
+  const el = document.createElement('div'); el.id = 'tour'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', '사용 안내');
+  el.innerHTML = '<div class="tblock"></div><div class="thole"></div><div class="tbub"><div class="tcaret"></div><div class="tno"></div><div class="tti"></div><div class="tdc"></div><div class="tlive"></div>' +
+    '<div class="tbt"><button type="button" class="tskip">건너뛰기</button><span class="tgo"><button type="button" class="tprev">이전</button><button type="button" class="tnext">다음 ›</button></span></div></div>';
+  document.body.appendChild(el);
+  tour = { el, i:0, dir:1, t0:Date.now(), prev:{ tool:state.tool, ruler:state.rulerType, point:state.pointType } };
+  tour.onResize = () => { if (tour) tourShow(tour.i); };
+  tour.onKey = e => {
+    if (!tour) return;
+    if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); endTour(); }
+    else if (e.key === 'Enter' || e.key === 'ArrowRight'){ e.preventDefault(); e.stopPropagation(); tourNext(); }
+    else if (e.key === 'ArrowLeft'){ e.preventDefault(); e.stopPropagation(); tourPrev(); }
+  };
+  window.addEventListener('resize', tour.onResize); window.addEventListener('scroll', tour.onResize, true);
+  document.addEventListener('keydown', tour.onKey, true);
+  el.querySelector('.tskip').onclick = endTour;
+  el.querySelector('.tnext').onclick = tourNext;
+  el.querySelector('.tprev').onclick = tourPrev;
+  tourShow(0);
+}
+function tourNext(){ if (!tour) return; if (tour.i >= TOUR_STEPS.length - 1){ endTour(); return; } tour.dir = 1; tourShow(tour.i + 1); }
+function tourPrev(){ if (!tour || tour.i <= 0) return; tour.dir = -1; tourShow(tour.i - 1); }
+// 도움말 단추: 큰 화면에서는 제목 옆, 좁은 화면에서는 코인 옆
+function placeHelp(){
+  const b = document.getElementById('btnHelp'); if (!b) return;
+  if (window.innerWidth > 899){
+    const h1 = document.querySelector('header h1'); if (b.parentNode !== h1) h1.appendChild(b);
+  } else {
+    const coin = document.querySelector('.meters .meter.coin');
+    if (coin && b.previousElementSibling !== coin) coin.after(b);
+  }
+}
+document.getElementById('btnHelp').addEventListener('click', () => startTour());
+window.addEventListener('resize', placeHelp);
+placeHelp();
 async function logout(){
   if (busy) return;
   const unsent = progress.records.length > progress.sentRec;
@@ -3369,8 +3612,24 @@ pickTool('pan');
 // 글 속의 ⟦s:AB⟧(선분) ⟦r:AB⟧(반직선) ⟦l:AB⟧(직선)을 기호 모양으로 바꿔 줍니다
 (function(){
   const RE = /⟦([srl]):([^⟧]+)⟧/g, CLS = { s:'sg', r:'ry', l:'ln' };
+  // '직선 l'의 l 은 작도판의 직선 이름과 같은 기울인 명조체로 보여 줍니다 (점 이름은 원래 글씨체 그대로)
+  const LET = /(?<=선 )l(?![A-Za-z])/g;
+  function letters(node){
+    const t = node.nodeValue, p = node.parentNode;
+    if (!t || !p || !p.closest || p.closest('kbd,script,style,textarea,.mi,.ov,#tour .tno')) return;
+    LET.lastIndex = 0; if (!LET.test(t)) return; LET.lastIndex = 0;
+    const frag = document.createDocumentFragment(); let last = 0, m;
+    while ((m = LET.exec(t))){
+      if (m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index)));
+      const sp = document.createElement('span'); sp.className = 'mi'; sp.textContent = m[0];
+      frag.appendChild(sp); last = m.index + m[0].length;
+    }
+    if (last < t.length) frag.appendChild(document.createTextNode(t.slice(last)));
+    p.replaceChild(frag, node);
+  }
   function conv(node){
-    const t = node.nodeValue; if (!t || t.indexOf('⟦') < 0 || !node.parentNode) return;
+    const t = node.nodeValue; if (!t || !node.parentNode) return;
+    if (t.indexOf('⟦') < 0){ letters(node); return; }
     const frag = document.createDocumentFragment(); let last = 0, m; RE.lastIndex = 0;
     while ((m = RE.exec(t))){
       if (m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index)));
@@ -3382,7 +3641,7 @@ pickTool('pan');
   }
   function scan(root){
     const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), list = [];
-    while (w.nextNode()) if (w.currentNode.nodeValue.indexOf('⟦') >= 0) list.push(w.currentNode);
+    while (w.nextNode()) list.push(w.currentNode);
     list.forEach(conv);
   }
   new MutationObserver(ms => { for (const m of ms){
