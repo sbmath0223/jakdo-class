@@ -360,6 +360,16 @@
   .btn.primary:hover{background:linear-gradient(180deg,#4C8DF8,#2E6CE8)}
   .btn.danger{background:rgba(251,113,133,.20);border-color:rgba(251,113,133,.65);color:#FFD2DA}
   .btn.danger:hover{background:rgba(251,113,133,.34)}
+  .login .btn{padding:8px 18px;white-space:nowrap}
+  #btnTeacher{margin-left:8px;padding:2px 8px;font:inherit;font-size:11px;color:rgba(190,212,234,.7);background:transparent;border:1px solid rgba(190,212,234,.35);border-radius:999px;cursor:pointer;vertical-align:baseline}
+  #btnTeacher:hover{color:#fff;border-color:rgba(190,212,234,.8)}
+  .sidenote{margin:6px 2px 0;font-size:12px;line-height:1.5;color:var(--muted)}
+  #btnTeacher.on{background:rgba(246,185,59,.25);border-color:#F6B93B;color:#FFF1D4}
+  #tmodal .modal-box small{display:block;color:var(--muted);font-size:13px;line-height:1.5}
+  #tPanel{margin-bottom:14px}
+  .login #btnLockCfg{padding:6px 10px;font-size:16px;line-height:1.2}
+  .login #btnLockCfg[hidden]{display:none}
+  #tLock.lockon{background:rgba(34,197,94,.22);border-color:#22c55e}
   .btn.success{background:linear-gradient(180deg,#10B981,#059669);border-color:rgba(190,255,230,.45);color:#fff}
   .btn.success:hover{background:linear-gradient(180deg,#17C78B,#06A678)}
   /* 문제 설명 아래에 뜨는 힌트 */
@@ -792,7 +802,8 @@ h3.sec{font-size:13px!important;color:#D2E2F4!important}
     <div class="login">
       <input id="sid" placeholder="학번" autocomplete="off" inputmode="numeric" pattern="[0-9]*" maxlength="10" />
       <input id="sname" placeholder="이름" autocomplete="off" />
-      <button class="btn primary" id="btnLogin" style="padding:8px 18px">로그인</button>
+      <button class="btn primary" id="btnLogin">로그인</button>
+      <button class="btn" id="btnLockCfg" title="단계별 잠금 설정" hidden>🔓</button>
     </div>
     <div class="meters">
       <button class="meter score" id="btnScore" title="작도로 얻은 점수입니다. 누르면 코인으로 바꿀 수 있어요. (코인은 힌트를 살 때만 쓰고, 점수로 다시 바꿀 수는 없어요)">
@@ -905,8 +916,10 @@ h3.sec{font-size:13px!important;color:#D2E2F4!important}
       <p class="ptitle" id="pTitle"></p>
       <p class="pdesc" id="pDesc"></p>
       <p class="pdesc" id="pLimit" style="display:none;margin-top:6px;color:#b45309;font-weight:700"></p>
-      <button class="btn" id="btnSkip" style="display:none;margin-top:8px;width:100%">이 챌린지 건너뛰기</button>
+      <button class="btn" id="btnSkip" style="display:none;margin-top:8px;width:100%">작도 건너뛰기</button>
+      <p class="sidenote" id="skipNote" style="display:none">작도가 어려우면 건너뛰고 도전 문제로 넘어가도 괜찮아요.</p>
       <button class="btn" id="btnAgain" style="display:none;margin-top:8px;width:100%">다른 방법으로 다시 풀기</button>
+      <p class="sidenote" id="againNote" style="display:none"></p>
     </div>
     <div class="card stats">
       <div class="stat"><b id="sRuler">0</b><span>눈금 없는 자</span></div>
@@ -915,7 +928,28 @@ h3.sec{font-size:13px!important;color:#D2E2F4!important}
   </aside>
 </main>
 
-<footer>© 2026 또빈쌤. All rights reserved.</footer>
+<footer><span id="ftxt">© 2026 또빈쌤. All rights reserved.</span><button id="btnTeacher" title="교사용">교사용</button></footer>
+
+<div class="modal hidden" id="tmodal">
+  <div class="modal-box" id="tbox">
+    <p id="tTitle" style="font-weight:800;font-size:17px">교사용</p>
+    <div id="tPwBox">
+      <small>교사용 비밀번호를 입력하세요.</small>
+      <input id="tPw" type="password" autocomplete="off" style="width:100%;margin:8px 0 4px;padding:9px 10px;font-size:16px;border-radius:10px;border:1px solid var(--line,#cbd5e1)" />
+      <small id="tErr" style="color:#e11d48" hidden>비밀번호가 맞지 않습니다.</small>
+    </div>
+    <div id="tPanel" hidden>
+      <small>단계별 잠금(오픈 규칙)을 켜면 학생들은 규칙에 따라 단계가 열립니다. 학생 화면에는 로그인할 때와 1분마다 반영됩니다.</small>
+      <button class="btn" id="tLock" style="width:100%;margin:10px 0 6px;padding:12px;font-size:15px;font-weight:800"></button>
+      <small id="tStat"></small>
+      <small style="margin-top:8px">교사용 화면에서는 단계 잠금과 상관없이 모든 작도를 할 수 있고, [제출하기]를 누르지 않아도 다른 문제로 넘어갈 수 있습니다. 교사용 화면의 기록은 제출되지 않습니다.</small>
+    </div>
+    <div class="row">
+      <button class="btn" id="tNo">닫기</button>
+      <button class="btn primary" id="tYes">확인</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal hidden" id="modal">
   <div class="modal-box">
@@ -937,7 +971,8 @@ const CONFIG = {
   FOOTER: '© 2026 또빈쌤. All rights reserved.',
   LOCK_ORDER: false,     // true 로 바꾸면 앞 문제를 풀어야 다음 문제가 열립니다
   COUNT_WIDTH_AS_COMPASS: false, // true 로 바꾸면 '길이 재기'(폭 변경)도 컴퍼스 1회로 셉니다
-  LOCK_STAGES: false,    // true 로 바꾸면 평행선은 기본 작도를, 보너스·도전은 평행선을 끝내야 열립니다
+  LOCK_STAGES: false,    // 단계별 잠금의 처음 값 (실제로는 교사용 화면의 버튼으로 켜고 끄며, 서버에 저장됩니다)
+  TEACHER_HASH: 'xumq3r11wk4g9',
   SEND_IMAGE: true
 };
 // 코인 — 힌트를 사는 데 쓰며, 수업 시작 때 한 번에 지급합니다.
@@ -952,7 +987,7 @@ const SCORE = {
   minimal: 10, nearMinimal: 5,   // 최소 횟수 / 1~2회 초과
   firstTry: 5,                   // 확인 한 번에 통과
   badge: 10,                     // 평행선을 컴퍼스 2·자 1로 해결
-  second: 15                     // 평행선을 다른 계열의 방법으로 또 해결
+  second: [15, 20, 25]           // 평행선을 다른 계열의 방법으로 또 해결: 두 번째 · 세 번째 · 네 번째 방법
 };
 const TOKEN = {};
 // 힌트를 하나 볼 때 드는 코인 (모든 힌트가 같습니다). 이미 본 힌트를 다시 여는 것은 공짜입니다.
@@ -982,7 +1017,7 @@ let objs = [], M = new Map(), nextId = 1;
 let actions = [], log = [], seq = 0, redoStack = [];
 let problem = null, G = null, stats = null;
 let busy = false, started = false;
-const state = { needSubmit:false, vis:{}, tool:'pan', rulerType:'segment', pointType:'inter', bagOpen:false, pinchedAt:0, pending:[], snap:null, highlight:null,
+const state = { teacher:false, needSubmit:false, vis:{}, tool:'pan', rulerType:'segment', pointType:'inter', bagOpen:false, pinchedAt:0, pending:[], snap:null, highlight:null,
                 showLabels:true, width:null, skill:null, ghost:null, stage:'step1', idx:0,
                 view:{ x:0, y:0, k:1 }, drag:null, measuring:false, lastTool:'ruler' };
 const progress = { coins:COIN.start, score:0, skills:[], solved:{}, records:[], hints:[], submitted:0, sentRec:0, sentHint:0, strategies:[], skipped:{}, exchanged:0 };
@@ -1666,6 +1701,28 @@ function classify(ansIds, g){
   if (best >= 2) return '사각형 이용 (같은 반지름 원)';
   return '각 이용 (각 옮기기)';
 }
+// 컴퍼스 한 번(중점 M)과 자만으로 평행선을 긋는 표준 해법: 학생이 정한 점 M · 반지름 · 점 X 를 따라 갑니다
+function midpointParallelSteps(lObj, Pp){
+  const gg = lineGeom(lObj), n = Math.hypot(gg.dx, gg.dy), u = { x:gg.dx / n, y:gg.dy / n };
+  const isct = (a, b, c, d) => {
+    const r = { x:b.x - a.x, y:b.y - a.y }, q = { x:d.x - c.x, y:d.y - c.y }, den = r.x * q.y - r.y * q.x;
+    if (Math.abs(den) < 1e-6) return null;
+    const t = ((c.x - a.x) * q.y - (c.y - a.y) * q.x) / den; return { x:a.x + t * r.x, y:a.y + t * r.y };
+  };
+  let M = { x:520, y:500 }, r = 180;
+  const ci = objs.find(o => o.kind === 'circle' && !o.given);
+  if (ci){ const c = P(ci.center); if (distToLine(lObj, c).d < 1.5){ M = c; r = ci.r; } }
+  const B = { x:M.x - u.x * r, y:M.y - u.y * r }, C = { x:M.x + u.x * r, y:M.y + u.y * r };
+  // 점 X: 학생이 선 PB 위에 잡은 점이 있으면 그것을, 없으면 PB를 4:6으로 나누는 점을 씁니다
+  let X = { x:Pp.x + 0.4 * (B.x - Pp.x), y:Pp.y + 0.4 * (B.y - Pp.y) };
+  const dl = (q, a, b) => Math.abs((b.x - a.x) * (a.y - q.y) - (a.x - q.x) * (b.y - a.y)) / (Math.hypot(b.x - a.x, b.y - a.y) || 1);
+  const sx = objs.find(o => o.kind === 'point' && !o.given && !o.hidden && dist(P(o.id), Pp) > 12 && dist(P(o.id), B) > 12 && dl(P(o.id), Pp, B) < 1.2);
+  if (sx){ const q = P(sx.id); if (isct(q, M, Pp, C)) X = q; }
+  const Y = isct(X, M, Pp, C), Z = Y && isct(X, C, Y, B);
+  const steps = [{ k:'circle', c:M, r }, { k:'line', a:Pp, b:B }, { k:'line', a:Pp, b:C }];
+  if (Y && Z) steps.push({ k:'line', a:X, b:M }, { k:'line', a:X, b:C }, { k:'line', a:Y, b:B }, { k:'line', a:Pp, b:Z });
+  return steps;
+}
 const STEP2 = [
   { id:'C1', title:'평행선 작도', score:SCORE.step2, strategy:true,
     desc:'직선 l 밖의 점 P를 지나고 직선 l에 평행한 직선을 작도하세요. 방법은 자유입니다.',
@@ -1689,7 +1746,7 @@ const BONUS = [
     hints:['원을 어디에 그리면 좋을까요? 원의 중심은 무엇의 중점이 될까요?',
            '직선 l 위의 점 M을 중심으로 원을 그리면 점 M은 두 교점 B, C의 중점이 됩니다. 그다음은 자만으로 할 수 있습니다.'],
     setup(){ return parallelSetup(250); },
-    solve(g){ const l = P(g.l); return [{ k:'circle', c:{x:520,y:500}, r:180 }]; },
+    solve(g){ return midpointParallelSteps(P(g.l), P(g.P)); },
     check(g){ return parallelCheck(g); } }
 ];
 // ---------- Step 3 · 도전 ----------
@@ -1852,9 +1909,16 @@ const STEP_HINTS = {
   ],
   D2: [
     { t:'컴퍼스를 한 번만 쓸 수 있습니다. 그 한 번으로 무엇을 얻어야 할까요? <b>자만으로는 절대 만들 수 없는 것</b>을 생각해 보세요.' },
-    { t:'답은 <b>중점</b>입니다. 직선 l 위에 점 M을 잡고 점 M을 중심으로 원을 그리면, 직선 l과 만나는 두 점 B, C에 대해 점 M이 선분 BC의 중점이 됩니다.', g:0 },
-    { t:'이제 자만 씁니다. 점 P에서 점 B, M, C로 선을 긋고, 그 선들 위에 새 점을 잡아 서로 이어 가면 교점이 계속 생깁니다.' },
-    { t:'<b>중점이 있는 선분과 한 점이 있으면 자만으로 평행선을 그을 수 있다</b>는 것이 이 문제의 핵심입니다. 생기는 교점을 하나씩 이어 보세요.' }
+    { t:'답은 <b>중점</b>입니다. 직선 l 위에 점 M을 잡고 점 M을 중심으로 원을 그리면, 직선 l과 만나는 두 점 B, C에 대해 점 M이 선분 BC의 중점이 됩니다. <b>[점] 도구로 교점 B, C도 찍어 두세요.</b>', g:0 },
+    { t:'이제 자만 씁니다. <b>중점이 있는 선분과 한 점이 있으면 자만으로 평행선을 그을 수 있다</b>는 것이 이 문제의 핵심입니다. 아래 힌트를 차례로 따라가 보세요.' },
+    { t:'자로 점 P와 점 B를 지나는 직선을 긋습니다.', g:1 },
+    { t:'자로 점 P와 점 C를 지나는 직선을 긋습니다.', g:2 },
+    { t:'점 P와 점 B를 지나는 직선 위에 새 점 X를 잡습니다. ([점] 도구의 <b>대상 위의 점</b>) 점 P와 점 B의 한가운데는 피해서 잡으세요. 한가운데면 뒤에 그을 선이 평행이 되어 만나지 않아요.',
+      done:() => { try { const gp0 = P(G.P), st = problem.solve(G); const B = st[1].b; return objs.some(o => o.kind === 'point' && !o.given && !o.hidden && dist(P(o.id), gp0) > 12 && dist(P(o.id), B) > 12 && Math.abs((B.x - gp0.x) * (gp0.y - P(o.id).y) - (gp0.x - P(o.id).x) * (B.y - gp0.y)) / (Math.hypot(B.x - gp0.x, B.y - gp0.y) || 1) < 1.2); } catch (e) { return false; } } },
+    { t:'점 X와 점 M을 지나는 직선을 긋습니다. 이 직선과 선 PC가 만나는 점을 Y라 하고, <b>[점] 도구(교점)로 점 Y를 찍어 두세요.</b>', g:3 },
+    { t:'점 X와 점 C를 지나는 직선을 긋습니다.', g:4 },
+    { t:'점 Y와 점 B를 지나는 직선을 긋습니다. 이 직선과 선 XC가 만나는 점을 Z라 하고, <b>[점] 도구(교점)로 점 Z를 찍어 두세요.</b>', g:5 },
+    { t:'마지막으로 자로 점 P와 점 Z를 이으면, 이 직선이 직선 l과 평행합니다. (점 M이 선분 BC의 중점이라서 가능한 작도입니다)', g:6 }
   ],
   E1: [
     { t:'접선은 접점에서 반지름과 수직입니다. 즉 ∠OTP가 <b>직각</b>이 되는 점 T를 찾으면 됩니다. 반원에 대한 각이 직각이므로, 선분 OP를 지름으로 하는 원 위의 점이 바로 점 T입니다. 먼저 자로 선분 OP를 긋습니다.', g:0 },
@@ -1887,16 +1951,25 @@ function stepHints(pr){
 }
 
 const STAGES = { step1:STEP1, practice:PRACTICE, step2:STEP2, bonus:BONUS, step3:STEP3 };
-// 단계 열림 조건: 평행선은 기본 작도 8개를 모두 풀면, 보너스·도전은 평행선을 풀면 열립니다.
+// 단계 열림 조건 (단계별 잠금이 켜져 있을 때)
+//  1.5 연습 · 2. 평행선 : 기본 작도 8개를 모두 풀면 열림
+//  2.5 평행선 심화      : 평행선을 한 가지 방법으로 풀면 열림
+//  3. 도전 문제         : 심화 1~2를 풀거나 [작도 건너뛰기]를 하면 열림
+// 잠금 여부는 교사용 화면에서 정하며(서버에 저장), 교사용 화면에서는 항상 모두 열립니다.
+let lockStages = CONFIG.LOCK_STAGES;
 function stageOpen(st){
-  if (!CONFIG.LOCK_STAGES) return true;
-  if (st === 'step1' || st === 'practice') return true;
+  if (state.teacher || !lockStages) return true;
+  if (st === 'step1') return true;
   const step1Done = STEP1.every(p => progress.solved[p.id]);
-  if (st === 'step2') return step1Done;
-  return step1Done && STEP2.every(p => progress.solved[p.id]);
+  if (st === 'practice' || st === 'step2') return step1Done;
+  const step2Done = step1Done && STEP2.every(p => progress.solved[p.id]);
+  if (st === 'bonus') return step2Done;
+  return step2Done && BONUS.every(p => progress.solved[p.id] || progress.skipped[p.id]);
 }
 function stageNeed(st){
-  return st === 'step2' ? '1. 기본 작도 8개를 모두 풀면 열립니다.' : '2. 평행선 작도를 풀면 열립니다.';
+  if (st === 'practice' || st === 'step2') return '1. 기본 작도 8개를 모두 풀면 열립니다.';
+  if (st === 'bonus') return '2. 평행선 작도를 한 가지 방법으로 풀면 열립니다.';
+  return '2.5 평행선 작도 심화 1, 2를 풀거나 [작도 건너뛰기]를 하면 열립니다.';
 }
 function problems(){ return STAGES[state.stage] || STEP1; }
 
@@ -2210,7 +2283,8 @@ function onCheck(){
 
   if (already && problem.strategy && strat && !progress.strategies.includes(strat)){
     secondOk = true;
-    gained += SCORE.second; why.push(`다른 계열의 방법 +${SCORE.second}`);
+    const have = Math.max(1, progress.strategies.length), pts = SCORE.second[Math.min(have - 1, SCORE.second.length - 1)];
+    gained += pts; why.push(`${have + 1}번째 방법 발견 +${pts}`);
     progress.strategies.push(strat);
   }
   if (!already){
@@ -2252,7 +2326,7 @@ function onCheck(){
   txt += `</div>`;
   if (gained && problem.skill && !already) txt += `<div class="rs-sk">✨ <b>${skill(problem.skill).name}</b> 스킬을 얻었습니다</div>`;
   txt += `</div>`;
-  if (gained){
+  if (gained && !state.teacher){
     state.needSubmit = true;
     txt = txt.replace(/<\/div>$/, `<div class="rs-sub">👉 <b>[제출하기]</b>를 눌러야 점수가 선생님께 전달돼요. 제출하면 다른 문제로 갈 수 있어요.</div></div>`);
   }
@@ -2265,7 +2339,7 @@ function updateSubmitNudge(){
   document.getElementById('btnSubmit').classList.toggle('nudge', !!state.needSubmit);
 }
 function blockedBySubmit(){
-  if (!state.needSubmit) return false;
+  if (!state.needSubmit || state.teacher) return false;
   showMsg('먼저 <b>[제출하기]</b>를 눌러 주세요. 제출해야 점수가 선생님께 전달되고 다른 문제로 갈 수 있어요.', 'err');
   updateSubmitNudge();
   return true;
@@ -2285,7 +2359,7 @@ function smartStart(){
   const list = stepHints(problem), n = list.length;
   const steps = problem && problem.solve ? problem.solve(G) : [];
   const an = analyzeWork(steps);
-  const isDone = h => h.g != null && steps[h.g] && an.done[h.g];
+  const isDone = h => typeof h.done === 'function' ? !!h.done() : (h.g != null && steps[h.g] && an.done[h.g]);
   let lastDone = -1;
   list.forEach((h, i) => { if (isDone(h)) lastDone = i; });
   if (lastDone < 0) return 0;                                   // 아직 표준 해법 단계를 하나도 안 했다면 처음부터
@@ -2302,7 +2376,7 @@ function nextHintLv(){
 // 이미 해결한 문제이거나, 지금 그린 작도가 이미 정답이면 새 힌트를 쓸 수 없습니다 (코인도 쓰지 않습니다)
 function hintBlockReason(){
   if (!problem) return '';
-  if (progress.solved[problem.id]) return '이미 해결한 문제예요. 힌트가 필요 없어요.';
+  if (progress.solved[problem.id]) return state.stage === 'step2' ? '다른 방법을 찾을 때는 힌트를 쓸 수 없어요. 스스로 새로운 방법을 찾아보세요!' : '이미 해결한 문제예요. 힌트가 필요 없어요.';
   try { const r = problem.check(G); if (r && r.ok) return '작도를 이미 완성한 것 같아요. <b>[작도 확인]</b>을 눌러 보세요.'; } catch (e) {}
   return '';
 }
@@ -2367,6 +2441,7 @@ function analyzeWork(steps){
       S.forEach((q, k) => { const d = dist(q, p); if (d < best){ best = d; idx = k; } });
       return { pt:A[idx], ok:true };
     }
+    if (objs.some(o => o.kind === 'point' && !o.given && !o.hidden && dist(P(o.id), p) < 1)) return { pt:p, ok:true };   // 학생이 같은 자리에 직접 만든 점
     return { pt:p, ok:false };
   };
   const out = { adapted:[], act:[], obj:[], done:[], need:[], marks:(problem && problem.marks) ? problem.marks(G) : [] };
@@ -2551,6 +2626,7 @@ function buildPayload(auto){
   };
 }
 async function submit(auto){
+  if (state.teacher){ if (!auto) showMsg('교사용 화면의 기록은 제출되지 않습니다.', 'info'); return; }
   const sid = document.getElementById('sid').value.trim(), nm = document.getElementById('sname').value.trim();
   if (!sid || !nm){ if (!auto) showMsg('학번과 이름을 먼저 입력하세요.', 'err'); return; }
   if (progress.sentRec >= progress.records.length && !state.needSubmit){
@@ -2568,7 +2644,7 @@ async function submit(auto){
   btn.disabled = true; if (!auto) showMsg('제출 중입니다…', 'info');
   const r = await sendData(payload);
   btn.disabled = false;
-  if (r.ok){ progress.submitted++; progress.sentRec = nRec; progress.sentHint = nHint; state.logSent = lastSeq; state.needSubmit = false; updateSubmitNudge(); showMsg(`✅ 제출 완료 — 문제 ${payload.solvedCount}개 · 작도 점수 <b>${payload.finalScore}점</b>`, 'ok'); }
+  if (r.ok){ progress.submitted++; progress.sentRec = nRec; progress.sentHint = nHint; state.logSent = lastSeq; state.needSubmit = false; updateSubmitNudge(); renderAll(); showMsg(`✅ 제출 완료 — 문제 ${payload.solvedCount}개 · 작도 점수 <b>${payload.finalScore}점</b>`, 'ok'); }
   else { showMsg('제출에 실패했습니다. 다시 눌러 주세요.<br><small>' + r.reason + '</small>', 'err'); downloadBackup(payload); }
 }
 async function sendData(payload){
@@ -3017,7 +3093,7 @@ function renderHints(){
   if (top){
     top.classList.toggle('on', open);
     const blk = hintBlockReason();
-    top.disabled = !!blk && !seen;
+    top.disabled = (!!blk && !seen) || (state.stage === 'step2' && !!progress.solved[problem.id]);
     top.classList.toggle('dis', !!blk);
     top.title = !seen ? (stats.check < 1 ? '[작도 확인]을 한 번 누른 뒤 쓸 수 있어요' : '누르면 첫 힌트를 봅니다') : open ? '누르면 힌트를 숨깁니다' : '누르면 힌트를 다시 보여 줍니다';
     top.onclick = () => {
@@ -3146,7 +3222,7 @@ function renderTabs(){
     t.classList.toggle('on', t.dataset.stage === state.stage);
   });
 }
-function renderAll(){ renderSkills(); renderProblems(); renderHints(); renderTabs(); updateCounts(); updateWidthBox(); }
+function renderAll(){ updateStageButtons(); renderSkills(); renderProblems(); renderHints(); renderTabs(); updateCounts(); updateWidthBox(); }
 function refresh(){ updateCounts(); updateToolLabels(); setHint(); renderHints(); draw(); }
 
 function askConfirm(text, o){
@@ -3171,6 +3247,24 @@ function saveWork(){
   if (!state.curKey || !problem) return;
   savedWork[state.curKey] = { objs, M, nextId, actions, log, seq, redoStack, picks, G, stats,
     width:state.width, widthCost:state.widthCost, vis:state.vis, logSent:state.logSent, view:state.view };
+}
+// [작도 건너뛰기] · [다른 방법으로 다시 풀기]와 그 아래 안내문
+const METHOD_TOTAL = 4;
+function updateStageButtons(){
+  if (!problem) return;
+  const sk = document.getElementById('btnSkip'), ag = document.getElementById('btnAgain');
+  const showSkip = state.stage === 'bonus';
+  sk.style.display = showSkip ? 'block' : 'none';
+  document.getElementById('skipNote').style.display = showSkip ? 'block' : 'none';
+  sk.textContent = progress.skipped[problem.id] ? '다시 도전하기' : '작도 건너뛰기';
+  const showAg = state.stage === 'step2' && !!progress.solved[problem.id] && !state.needSubmit;   // 제출을 마치면 바로 나타납니다
+  ag.style.display = showAg ? 'block' : 'none';
+  const nt = document.getElementById('againNote');
+  nt.style.display = showAg ? 'block' : 'none';
+  if (showAg){
+    const n = Math.min(progress.strategies.length, METHOD_TOTAL), P = SCORE.second;
+    nt.innerHTML = `최대한 많은 방법을 찾으면 <b>보너스 점수</b>를 받아요! 새로운 방법을 찾을 때마다 점수가 커져요. (2번째 +${P[0]} · 3번째 +${P[1]} · 4번째 +${P[2]})<br>지금까지 찾은 방법 <b>${n}/${METHOD_TOTAL}</b> · 다시 풀 때는 힌트를 쓸 수 없어요.`;
+  }
 }
 function loadProblem(i, fresh){
   if (fresh === 'forget'){ for (const k in savedWork) delete savedWork[k]; state.curKey = null; }
@@ -3202,10 +3296,7 @@ function loadProblem(i, fresh){
     lim.textContent = '제한: ' + parts.join(' · ');
     lim.style.display = 'block';
   } else lim.style.display = 'none';
-  const sk = document.getElementById('btnSkip'), ag = document.getElementById('btnAgain');
-  sk.style.display = state.stage === 'bonus' ? 'block' : 'none';
-  sk.textContent = progress.skipped[problem.id] ? '다시 도전하기' : '이 챌린지 건너뛰기';
-  ag.style.display = (state.stage === 'step2' && progress.solved[problem.id]) ? 'block' : 'none';
+  updateStageButtons();
   const pane = document.getElementById('hintPane');
   pane.classList.remove('show'); pane.innerHTML = '';
   clearTimeout(ghostTimer);
@@ -3373,15 +3464,15 @@ document.getElementById('btnSubmit').addEventListener('click', () => submit(fals
 document.getElementById('btnSkip').addEventListener('click', () => {
   if (progress.skipped[problem.id]){
     progress.skipped[problem.id] = false;
-    document.getElementById('btnSkip').textContent = '이 챌린지 건너뛰기';
-    showMsg('다시 도전합니다. 화이팅!', 'info'); return;
+    updateStageButtons();
+    renderTabs(); showMsg('다시 도전합니다. 화이팅!', 'info'); return;
   }
   progress.skipped[problem.id] = true;
   progress.records.push({ id:problem.id, title:problem.title, stage:STAGE_KO[state.stage] || state.stage, solved:'건너뜀',
     sec:elapsed(), ruler:0, compass:0, rulerM:'', compassM:'', rulerX:'', compassX:'',
     width:0, undo:0, redo:0, reset:0, check:0, hints:'', score:0, strategy:'' });
   addLog('skip', '보너스 건너뛰기');
-  document.getElementById('btnSkip').textContent = '다시 도전하기';
+  updateStageButtons(); renderTabs();
   showMsg('건너뛰었습니다. 나중에 이 화면에서 다시 도전할 수 있습니다.', 'info');
 });
 document.getElementById('btnAgain').addEventListener('click', () => {
@@ -3391,7 +3482,7 @@ document.getElementById('btnAgain').addEventListener('click', () => {
 });
 document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
   const st = t.dataset.stage;
-  if (!stageOpen(st)){ showMsg('🔒 아직 열리지 않은 단계입니다. ' + stageNeed(st), 'err'); return; }
+  if (!stageOpen(st)){ showMsg('🔒 아직 열리지 않은 단계입니다. ' + stageNeed(st), 'err'); fetchLock(); return; }
   if (st === state.stage) return;          // 지금 단계의 탭을 다시 눌러도 작도가 지워지지 않습니다
   if (blockedBySubmit()) return;
   state.stage = st; loadProblem(0);
@@ -3403,14 +3494,14 @@ document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y'){ e.preventDefault(); redo(); }
 });
 window.addEventListener('beforeunload', e => {
-  if (progress.records.length > progress.sentRec){ e.preventDefault(); e.returnValue = ''; }
+  if (!state.teacher && progress.records.length > progress.sentRec){ e.preventDefault(); e.returnValue = ''; }
 });
 
 // 로그인하기 전에는 [로그인]을 빼고 어떤 버튼도 눌리지 않습니다
 document.addEventListener('click', e => {
   if (started) return;
   const b = e.target.closest && e.target.closest('button');
-  if (!b || b.id === 'btnLogin' || b.closest('#modal')) return;
+  if (!b || b.id === 'btnLogin' || b.id === 'btnTeacher' || b.closest('#modal') || b.closest('#tmodal')) return;
   e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
   flashHint('먼저 학번과 이름을 입력하고 [로그인]을 누르세요.');
 }, true);
@@ -3429,8 +3520,88 @@ function login(){
   loginBtn.textContent = '로그아웃'; loginBtn.classList.remove('primary'); loginBtn.classList.add('danger');
   progress.startAll = Date.now();
   setHint();
+  fetchLock();
   startTour();
 }
+
+// ===================== 교사용 화면 · 단계별 잠금 =====================
+function pwHash(t){ let a = 5381, b = 52711; for (const c of t){ a = (a * 33 ^ c.charCodeAt(0)) >>> 0; b = (b * 31 + c.charCodeAt(0) * 7) >>> 0; } return a.toString(36) + b.toString(36); }
+let teacherPw = '';
+const tBtn = document.getElementById('btnTeacher'), tModal = document.getElementById('tmodal');
+function refreshTeacherBtn(){
+  tBtn.classList.toggle('on', state.teacher);
+  const lb = document.getElementById('btnLockCfg'); lb.hidden = !state.teacher; lb.textContent = lockStages ? '🔒' : '🔓';
+}
+function renderLockBtn(){
+  const b = document.getElementById('tLock');
+  b.classList.toggle('lockon', lockStages);
+  b.textContent = lockStages ? '🔒 단계별 잠금 켜짐 (누르면 끕니다)' : '🔓 단계별 잠금 꺼짐 (누르면 켭니다)';
+  refreshTeacherBtn();
+}
+function openTeacherModal(){
+  const pwBox = document.getElementById('tPwBox'), panel = document.getElementById('tPanel');
+  pwBox.hidden = !!state.teacher; panel.hidden = !state.teacher;
+  document.getElementById('tErr').hidden = true; document.getElementById('tPw').value = '';
+  document.getElementById('tYes').style.display = state.teacher ? 'none' : '';
+  document.getElementById('tNo').textContent = state.teacher ? '닫기' : '취소';
+  document.getElementById('tTitle').textContent = state.teacher ? '교사용 설정' : '교사용';
+  if (state.teacher){ renderLockBtn(); document.getElementById('tStat').textContent = ''; }
+  tModal.classList.remove('hidden');
+  if (!state.teacher) setTimeout(() => document.getElementById('tPw').focus(), 50);
+}
+function closeTeacherModal(){ tModal.classList.add('hidden'); }
+function enterTeacher(){
+  state.teacher = true; started = true; document.body.classList.remove('locked'); document.body.classList.add('teacher');
+  idEl.value = '0'; nmEl.value = '교사';
+  [idEl, nmEl].forEach(el => { el.readOnly = true; el.style.opacity = '.65'; el.style.cursor = 'default'; });
+  loginBtn.textContent = '로그아웃'; loginBtn.classList.remove('primary'); loginBtn.classList.add('danger');
+  state.needSubmit = false; updateSubmitNudge();
+  refreshTeacherBtn(); renderTabs(); renderAll(); setHint(); fetchLock();
+}
+function tryTeacher(){
+  const v = document.getElementById('tPw').value;
+  if (pwHash(v) !== CONFIG.TEACHER_HASH){ document.getElementById('tErr').hidden = false; return; }
+  teacherPw = v; openedByPw = true;
+  enterTeacher(); closeTeacherModal();
+}
+let openedByPw = false;
+tBtn.addEventListener('click', e => {
+  if (state.teacher) return;
+  if (started && !state.teacher){ flashHint('학생이 로그인한 상태예요. 먼저 로그아웃한 뒤 [교사용]을 눌러 주세요.'); return; }
+  openTeacherModal();
+});
+document.getElementById('btnLockCfg').addEventListener('click', openTeacherModal);
+document.getElementById('tNo').addEventListener('click', closeTeacherModal);
+document.getElementById('tYes').addEventListener('click', tryTeacher);
+document.getElementById('tPw').addEventListener('keydown', e => { if (e.key === 'Enter') tryTeacher(); });
+document.getElementById('tLock').addEventListener('click', async () => {
+  const want = !lockStages, st = document.getElementById('tStat'), b = document.getElementById('tLock');
+  b.disabled = true; st.textContent = '서버에 저장하는 중…';
+  let ok = false, why = '';
+  try {
+    const res = await fetch(CONFIG.SCRIPT_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' }, redirect:'follow',
+      body:JSON.stringify({ action:'setLock', pw:teacherPw, lock:want }) });
+    const j = JSON.parse(await res.text());
+    ok = j.result === 'success'; why = j.message || '';
+  } catch (e){ why = '서버에 연결하지 못했어요. (Code.gs를 새 버전으로 배포했는지 확인하세요)'; }
+  b.disabled = false;
+  if (ok){ lockStages = want; st.textContent = want ? '✅ 잠금을 켰습니다. 학생 화면에 곧 반영돼요.' : '✅ 잠금을 껐습니다. 학생 화면에 곧 반영돼요.'; renderLockBtn(); renderTabs(); }
+  else st.textContent = '⚠️ 저장하지 못했어요. ' + why;
+});
+// 학생 화면: 서버에 저장된 잠금 상태를 불러옵니다 (로그인할 때 · 잠긴 탭을 눌렀을 때 · 1분마다)
+let lockFetchedAt = 0;
+async function fetchLock(){
+  if (!/^https:\/\/script\.google\.com\//.test(CONFIG.SCRIPT_URL)) return;
+  if (Date.now() - lockFetchedAt < 3000) return;
+  lockFetchedAt = Date.now();
+  try {
+    const res = await fetch(CONFIG.SCRIPT_URL + '?action=lock', { redirect:'follow' });
+    const j = JSON.parse(await res.text());
+    if (j && typeof j.lock === 'boolean' && j.lock !== lockStages){ lockStages = j.lock; renderTabs(); refreshTeacherBtn(); }
+  } catch (e){}
+}
+setInterval(() => { if (started && !state.teacher) fetchLock(); }, 60000);
+refreshTeacherBtn();
 
 // ===================== 처음 안내(튜토리얼) · 도움말 =====================
 const TOUR_STEPS = [
@@ -3581,27 +3752,28 @@ window.addEventListener('resize', placeHelp);
 placeHelp();
 async function logout(){
   if (busy) return;
-  const unsent = progress.records.length > progress.sentRec;
-  const ok = await askConfirm('로그아웃하면 지금까지의 작도 기록 · 점수 · 코인 · 스킬이 모두 사라집니다.' +
+  const unsent = !state.teacher && progress.records.length > progress.sentRec;
+  const ok = state.teacher || await askConfirm('로그아웃하면 지금까지의 작도 기록 · 점수 · 코인 · 스킬이 모두 사라집니다.' +
     (unsent ? ' 아직 제출하지 않은 기록도 있습니다.' : '') + ' 로그아웃할까요?');
   if (!ok) return;
   Object.assign(progress, { coins:COIN.start, score:0, skills:[], solved:{}, records:[], hints:[], submitted:0, sentRec:0, sentHint:0,
                             strategies:[], skipped:{}, exchanged:0, startAll:Date.now() });
   state.needSubmit = false; updateSubmitNudge();
+  state.teacher = false; document.body.classList.remove('teacher'); refreshTeacherBtn();
   started = false; document.body.classList.add('locked'); lastSkillN = 0; closeBag(); toggleExchange(false);
   [idEl, nmEl].forEach(el => { el.value = ''; el.readOnly = false; el.style.opacity = ''; el.style.cursor = ''; });
   loginBtn.textContent = '로그인'; loginBtn.classList.add('primary'); loginBtn.classList.remove('danger');
   state.stage = 'step1'; state.rulerType = 'segment'; state.lastTool = 'ruler';
   pickTool('pan');
   loadProblem(0, 'forget');
-  flashHint('로그아웃했습니다. 학번과 이름을 입력하고 다시 로그인하세요.');
+  renderTabs(); flashHint('로그아웃했습니다. 학번과 이름을 입력하고 다시 로그인하세요.');
   idEl.focus();
 }
 loginBtn.addEventListener('click', () => started ? logout() : login());
 [idEl, nmEl].forEach(el => el.addEventListener('keydown', e => { if (e.key === 'Enter' && !started) login(); }));
 setTimeout(() => idEl.focus(), 100);
 
-document.querySelector('footer').textContent = CONFIG.FOOTER;
+document.getElementById('ftxt').textContent = CONFIG.FOOTER;
 progress.startAll = Date.now();
 new ResizeObserver(queueResize).observe(document.querySelector('.boardwrap'));
 window.addEventListener('resize', queueResize);
