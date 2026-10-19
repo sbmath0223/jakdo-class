@@ -987,7 +987,7 @@ const SCORE = {
   minimal: 10, nearMinimal: 5,   // 최소 횟수 / 1~2회 초과
   firstTry: 5,                   // 확인 한 번에 통과
   badge: 10,                     // 평행선을 컴퍼스 2·자 1로 해결
-  second: [15, 20, 25]           // 평행선을 다른 계열의 방법으로 또 해결: 두 번째 · 세 번째 · 네 번째 방법
+  second: 15, secondStep: 5,     // 평행선을 다른 방법으로 또 해결: 두 번째 방법 15점, 이후 방법마다 5점씩 늘어남 (최초성공·최소횟수 등 다른 보너스는 없음)
 };
 const TOKEN = {};
 // 힌트를 하나 볼 때 드는 코인 (모든 힌트가 같습니다). 이미 본 힌트를 다시 여는 것은 공짜입니다.
@@ -1020,7 +1020,7 @@ let busy = false, started = false;
 const state = { teacher:false, needSubmit:false, vis:{}, tool:'pan', rulerType:'segment', pointType:'inter', bagOpen:false, pinchedAt:0, pending:[], snap:null, highlight:null,
                 showLabels:true, width:null, skill:null, ghost:null, stage:'step1', idx:0,
                 view:{ x:0, y:0, k:1 }, drag:null, measuring:false, lastTool:'ruler' };
-const progress = { coins:COIN.start, score:0, skills:[], solved:{}, records:[], hints:[], submitted:0, sentRec:0, sentHint:0, strategies:[], skipped:{}, exchanged:0 };
+const progress = { coins:COIN.start, score:0, skills:[], solved:{}, records:[], hints:[], submitted:0, sentRec:0, sentHint:0, strategies:[], methods:[], skipped:{}, exchanged:0 };
 
 // ===================== 객체 =====================
 function addObj(o){ o.id = nextId++; objs.push(o); M.set(o.id, o); return o; }
@@ -1268,9 +1268,10 @@ function materialize(c, created){
   created.push(o.id);
   return o;
 }
-function mkPoint(x, y, parents, created, ptype){
+function mkPoint(x, y, parents, created, ptype, skillInfo){
   for (const o of objs) if (o.kind === 'point' && dist(o, { x, y }) < 1e-6) return o;
   const o = addObj({ kind:'point', x, y, ptype:ptype || 'intersection', parents:parents.slice(), label:nextLabel() });
+  if (skillInfo) o.skill = skillInfo;
   if (created) created.push(o.id);
   return o;
 }
@@ -1677,6 +1678,58 @@ function parallelCheck(g){
       return { ok:true, ids:[L.id], msg:'점 P를 지나고 직선 l에 평행한 직선을 작도했습니다.' };
   }
   return { ok:false, msg:'점 P를 지나면서 직선 l과 평행한 직선을 아직 찾지 못했어요.'+NEED_PT };
+}
+// 작도 방법의 서명: 정답에 쓰인 작도만 따라가며 '무엇과 무엇을 이어 무엇을 얻었는지'만 글자로 만듭니다.
+//  · 그린 순서, 점·원·선의 위치, 원의 크기, 점을 어디에 찍었는지(같은 대상 위)는 서명에 들어가지 않으므로
+//    수학적으로 같은 과정이면 서명이 같습니다.
+//  · 스킬은 안에 든 작도로 풀어서 직접 그린 것과 같은 서명을 만듭니다.
+//  · 반지름을 '다른 두 점 사이의 길이'로 옮겨 온 원(길이 옮기기)만 따로 표시합니다.
+function methodSig(ansIds){
+  const memo = {};
+  const arb = o => o && o.kind === 'point' && !o.given && (!o.parents.length || o.ptype === 'on');   // 마음대로 찍은 점
+  const C = (c, tok) => 'C(' + c + ';' + (tok || '') + ')';
+  const L = (p, q) => 'L(' + [p, q].sort().join(',') + ')';
+  const Xs = (p, q) => 'X(' + [p, q].sort().join(',') + ')';
+  const pb = (A, B) => { const z = Xs(C(A), C(B)); return L(z, z); };           // 수직이등분선
+  const skSig = o => {
+    const { id, step, args } = o.skill, a = args.map(sig);
+    switch (id){
+      case 'perpbis': return pb(a[0], a[1]);
+      case 'mid': return Xs(L(a[0], a[1]), pb(a[0], a[1]));
+      case 'sym': { const q = Xs(L(a[1], a[0]), C(a[0])); return step === 0 ? L(a[1], q) : q; }
+      case 'perpdown': case 'perpup': {
+        const f = Xs(C(a[1]), a[0]), z = Xs(C(f), C(f)), ln = L(a[1], z);
+        return step === 0 ? ln : Xs(a[0], ln); }
+      case 'bisect': { const p = Xs(C(a[0]), L(a[0], a[1])), q = Xs(C(a[0]), L(a[0], a[2]));
+        return L(a[0], Xs(C(p), C(q))); }
+      case 'angle': { const [O, X1, Y1, Pp, Q] = a;
+        const p = Xs(C(O), L(O, X1)), q = Xs(C(O), L(O, Y1)), b = Xs(C(Pp), L(Pp, Q));
+        const R = Xs(C(Pp), C(b, '~' + [p, q].sort()));
+        return step === 0 ? C(Pp) : step === 1 ? R : L(Pp, R); }
+      case 'copy': { const circ = C(a[2], '~' + [a[0], a[1]].sort()); return step === 0 ? circ : Xs(circ, L(a[2], a[3])); }
+      case 'diam': { const m = Xs(L(a[0], a[1]), pb(a[0], a[1])); return step === 0 ? m : C(m); }
+    }
+    return o.kind === 'line' ? L('?', '?') : 'S?';
+  };
+  const sig = id => {
+    if (memo[id]) return memo[id];
+    const o = P(id); if (!o) return '?';
+    let t;
+    if (o.given) t = o.kind === 'line' ? 'l' : (o.label || 'g');
+    else if (o.skill) t = skSig(o);
+    else if (o.kind === 'point'){
+      if (!o.parents.length) t = 'F';
+      else if (o.ptype === 'on') t = 'on(' + sig(o.parents[0]) + ')';
+      else t = 'X(' + o.parents.map(sig).sort().join(',') + ')';
+    } else if (o.kind === 'line') t = L(sig(o.p1), sig(o.p2));
+    else if (o.kind === 'circle'){
+      const src = o.parents.filter(i => i !== o.center);
+      const tok = src.length === 2 && !src.some(i => arb(P(i))) ? '~' + src.map(sig).sort() : '';
+      t = C(sig(o.center), tok);
+    } else t = o.kind;
+    return (memo[id] = t);
+  };
+  return ansIds.map(sig).sort().join('|');
 }
 // 어떤 계열의 방법을 썼는지 자동 분류
 function classify(ansIds, g){
@@ -2190,16 +2243,16 @@ function runSkill(s){
     }
     const st = steps[i++], par = (st.parents || parentsBase).concat(st.useLast && last ? [last] : []);
     if (st.k === 'point'){
-      const pt = mkPoint(st.x, st.y, par, madeIds, 'intersection');
+      const pt = mkPoint(st.x, st.y, par, madeIds, 'intersection', { id:s.id, step:i - 1, args:parentsBase });
       last = pt.id;
     } else if (st.k === 'circle'){
       const c = mkPoint(st.cx, st.cy, par, madeIds, 'intersection');
-      const C = addObj({ kind:'circle', center:c.id, r:st.r, parents:par.concat([c.id]), tool:'skill' });
+      const C = addObj({ kind:'circle', center:c.id, r:st.r, parents:par.concat([c.id]), tool:'skill', skill:{ id:s.id, step:i - 1, args:parentsBase } });
       madeIds.push(C.id); last = C.id;
     } else if (st.k === 'line'){
       const a = mkPoint(st.ax, st.ay, par, madeIds, 'intersection');
       const b = mkPoint(st.bx, st.by, par, madeIds, 'intersection');
-      const L = addObj({ kind:'line', ltype:st.ltype, p1:a.id, p2:b.id, parents:par.concat([a.id,b.id]), tool:'skill' });
+      const L = addObj({ kind:'line', ltype:st.ltype, p1:a.id, p2:b.id, parents:par.concat([a.id,b.id]), tool:'skill', skill:{ id:s.id, step:i - 1, args:parentsBase } });
       madeIds.push(L.id); last = L.id;
     }
     draw();
@@ -2281,11 +2334,17 @@ function onCheck(){
   const already = !!progress.solved[problem.id];
   let gained = 0, why = [], secondOk = false;
 
-  if (already && problem.strategy && strat && !progress.strategies.includes(strat)){
-    secondOk = true;
-    const have = Math.max(1, progress.strategies.length), pts = SCORE.second[Math.min(have - 1, SCORE.second.length - 1)];
-    gained += pts; why.push(`${have + 1}번째 방법 발견 +${pts}`);
-    progress.strategies.push(strat);
+  const msig = problem.strategy ? methodSig(r.ids) : '';
+  let dupMsg = '';
+  if (already && problem.strategy && msig){
+    if (progress.methods.includes(msig)) dupMsg = '앞에서 찾은 방법과 같은 방법이에요. 다른 방법을 찾아보세요!';
+    else {
+      secondOk = true;
+      const have = Math.max(1, progress.methods.length), pts = SCORE.second + SCORE.secondStep * (have - 1);
+      gained += pts; why.push(`${have + 1}번째 방법 발견 +${pts}`);   // 성공 점수만: 최초성공·최소횟수 보너스는 없습니다
+      progress.methods.push(msig);
+      if (strat && !progress.strategies.includes(strat)) progress.strategies.push(strat);
+    }
   }
   if (!already){
     const base = baseScore();
@@ -2296,6 +2355,7 @@ function onCheck(){
     if (stats.check === 1){ gained += SCORE.firstTry; why.push(`한 번에 통과 +${SCORE.firstTry}`); }
     if (problem.strategy && mc.compass <= 2 && mc.ruler <= 1){ gained += SCORE.badge; why.push(`최소 작도 배지 +${SCORE.badge}`); }
     if (strat && !progress.strategies.includes(strat)) progress.strategies.push(strat);
+    if (msig) progress.methods.push(msig);
     progress.solved[problem.id] = true;
     if (problem.skill && !hasSkill(problem.skill)) progress.skills.push(problem.skill);
   }
@@ -2319,7 +2379,7 @@ function onCheck(){
   if (gained){
     txt += `<div class="rs-sc"><span class="rs-big">+${gained}<small>점</small></span><span class="rs-chips">${why.map(w => `<span class="chip">${w}</span>`).join('')}</span></div>`;
   } else {
-    txt += `<div class="rs-m">이미 점수를 받은 문제입니다.</div>`;
+    txt += `<div class="rs-m">${dupMsg || '이미 점수를 받은 문제입니다.'}</div>`;
   }
   txt += `<div class="rs-m">정답에 쓰인 작도 <b>눈금 없는 자 ${mc.ruler} · 컴퍼스 ${mc.compass}</b> (합계 ${mc.total}회 · 최소 횟수 ${standardCost(problem)}회)`;
   if (ur + uc > 0) txt += `<br>쓰이지 않은 작도 눈금 없는 자 ${ur} · 컴퍼스 ${uc} (흐리게 표시)`;
@@ -3249,7 +3309,7 @@ function saveWork(){
     width:state.width, widthCost:state.widthCost, vis:state.vis, logSent:state.logSent, view:state.view };
 }
 // [작도 건너뛰기] · [다른 방법으로 다시 풀기]와 그 아래 안내문
-const METHOD_TOTAL = 4;
+
 function updateStageButtons(){
   if (!problem) return;
   const sk = document.getElementById('btnSkip'), ag = document.getElementById('btnAgain');
@@ -3262,8 +3322,8 @@ function updateStageButtons(){
   const nt = document.getElementById('againNote');
   nt.style.display = showAg ? 'block' : 'none';
   if (showAg){
-    const n = Math.min(progress.strategies.length, METHOD_TOTAL), P = SCORE.second;
-    nt.innerHTML = `최대한 많은 방법을 찾으면 <b>보너스 점수</b>를 받아요! 새로운 방법을 찾을 때마다 점수가 커져요. (2번째 +${P[0]} · 3번째 +${P[1]} · 4번째 +${P[2]})<br>지금까지 찾은 방법 <b>${n}/${METHOD_TOTAL}</b> · 다시 풀 때는 힌트를 쓸 수 없어요.`;
+    const n = progress.methods.length, S = SCORE;
+    nt.innerHTML = `최대한 많은 방법을 찾으면 <b>보너스 점수</b>를 받아요! 같은 종류라도 <b>다른 방법</b>이면 되고, 찾을 때마다 점수가 ${S.secondStep}점씩 커져요. (2번째 +${S.second} · 3번째 +${S.second + S.secondStep} · 4번째 +${S.second + 2 * S.secondStep} · …, 개수 제한 없음)<br>지금까지 찾은 방법 <b>${n}개</b> · 다시 풀 때는 힌트를 쓸 수 없어요.`;
   }
 }
 function loadProblem(i, fresh){
@@ -3621,6 +3681,7 @@ const TOUR_STEPS = [
   { t:'작도 확인 · 제출하기', d:'다 그렸으면 [작도 확인]으로 맞았는지 확인해요. 맞으면 [제출하기]를 꼭 눌러야 점수가 선생님께 전달돼요.', sel:['#btnCheck', '#btnSubmit'] },
   { t:'힌트 · 스코어 · 코인', d:'스코어는 문제를 풀면 올라가고, 누르면 코인으로 바꿀 수 있어요. 막히면 [힌트]를 눌러요. 힌트는 코인을 쓰고, [작도 확인]을 한 번 해 본 뒤부터 쓸 수 있어요.', sel:['#btnScore', '.meters .meter.coin', '#btnHintTop'] },
   { t:'스킬 가방', d:'문제를 풀면 스킬이 모여요. 가방에서 꺼내 쓰면 이미 해 본 작도를 한 번에 할 수 있어요.', sel:['#skillDock .bagbtn', '#skillDock'] },
+  { t:'단계별로 열리는 문제', d:'문제는 단계 순서대로 열려요. 기본 작도를 모두 풀면 연습과 평행선 작도가 열리고, 평행선 작도를 풀면 심화가, 심화를 풀거나 [작도 건너뛰기]를 하면 도전 문제가 열려요. 🔒가 붙은 단계는 아직 잠겨 있어요. (선생님이 잠금을 꺼 두면 처음부터 모두 열려 있어요.)', sel:['.tabs'] },
   { t:'도움말', d:'언제든 이 [?] 버튼을 누르면 설명을 다시 볼 수 있어요.', sel:['#btnHelp'] }
 ];
 let tour = null;
@@ -3757,7 +3818,7 @@ async function logout(){
     (unsent ? ' 아직 제출하지 않은 기록도 있습니다.' : '') + ' 로그아웃할까요?');
   if (!ok) return;
   Object.assign(progress, { coins:COIN.start, score:0, skills:[], solved:{}, records:[], hints:[], submitted:0, sentRec:0, sentHint:0,
-                            strategies:[], skipped:{}, exchanged:0, startAll:Date.now() });
+                            strategies:[], methods:[], skipped:{}, exchanged:0, startAll:Date.now() });
   state.needSubmit = false; updateSubmitNudge();
   state.teacher = false; document.body.classList.remove('teacher'); refreshTeacherBtn();
   started = false; document.body.classList.add('locked'); lastSkillN = 0; closeBag(); toggleExchange(false);
