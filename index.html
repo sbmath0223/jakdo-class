@@ -1519,8 +1519,8 @@ const STEP1 = [
 
 function sideMarks(){                                        // 주어진 세 선분은 작도판 오른쪽에 세로로 놓습니다 (점 이름은 모두 8시 방향)
   const a1 = gp('P',45,50,{dir:'sw'}), a2 = gp('Q',285,50,{dir:'sw'});
-  const b1 = gp('R',45,120,{dir:'sw'}), b2 = gp('S',245,120,{dir:'sw'});
-  const c1 = gp('T',45,190,{dir:'sw'}), c2 = gp('U',205,190,{dir:'sw'});
+  const b1 = gp('R',45,130,{dir:'sw'}), b2 = gp('S',245,130,{dir:'sw'});
+  const c1 = gp('T',45,210,{dir:'sw'}), c2 = gp('U',205,210,{dir:'sw'});
   gl(a1,a2,'segment'); gl(b1,b2,'segment'); gl(c1,c2,'segment');
   return { a:240, b:200, c:160 };
 }
@@ -1585,10 +1585,10 @@ const PRACTICE = [
     hints:['먼저 한 변을 반직선 위에 옮기고, 그다음 각을 옮기세요.', '∠XOY를 점 A로 옮긴 뒤, 새 변 위에 선분 RS의 길이를 옮깁니다.'],
     setup(){
       const p1 = gp('P',45,40,{dir:'sw'}), p2 = gp('Q',245,40,{dir:'sw'});
-      const q1 = gp('R',45,95,{dir:'sw'}), q2 = gp('S',195,95,{dir:'sw'});
+      const q1 = gp('R',45,115,{dir:'sw'}), q2 = gp('S',195,115,{dir:'sw'});
       gl(p1,p2,'segment'); gl(q1,q2,'segment');
       const { o:O, x:X, y:Y } = givenAngle(['O','X','Y','sw'], { x:45, y:320 }, [1,0], [0.759,-0.651], 215, 250);
-      const A = gp('A',390,430), K = gp('K',960,430); gl(A,K,'segment');
+      const A = gp('A',390,430), K = gp('K',960,430); gl(A,K,'ray');
       return { O,X,Y,A,K, p:200, q:150 };
     },
     solve(g){
@@ -1628,7 +1628,7 @@ const PRACTICE = [
       gl(p1,p2,'segment');
       const a1 = givenAngle(['O','X','Y','sw'], { x:45, y:255 }, [1,0], [0.786,-0.618], 215, 250);
       const a2 = givenAngle(['V','U','W','sw'], { x:45, y:495 }, [1,0], [0.5,-0.866], 200, 230);
-      const A = gp('A',390,430), K = gp('K',960,430); gl(A,K,'segment');
+      const A = gp('A',390,430), K = gp('K',960,430); gl(A,K,'ray');
       return { O:a1.o, X:a1.x, Y:a1.y, V:a2.o, U:a2.x, W:a2.y, A, K, p:200 };
     },
     solve(g){
@@ -2967,7 +2967,7 @@ function resize(){
   if (availW < 10) return;
   // 가로는 늘 꽉 채우고, 넓은 화면에서는 세로도 칸 전체를 채웁니다 (빈 여백 없음)
   // 점·직선 이름이 가장자리나 위쪽 단추 밑에 가려지지 않도록, 작도판 둘레에 여백을 둡니다
-  const mL = wide ? 66 : 52, mR = 22, mT = wide ? 58 : 20, mB = 14;
+  const mL = wide ? 66 : 52, mR = 22, mT = wide ? 58 : 52, mB = 14;
   const w = Math.round(availW);
   const h = Math.round((wide && availH > 10) ? availH : (w - mL - mR) * H / W + mT + mB);
   const wasBase = atBase();
